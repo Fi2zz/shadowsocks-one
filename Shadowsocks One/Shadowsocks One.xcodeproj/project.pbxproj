@@ -21,6 +21,7 @@
 		9C80D1630B737BB295BB5A5D /* ImportSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37183E5D4CC5A38639E4D528 /* ImportSection.swift */; };
 		A2C0E474CED6E2AD39D11813 /* ProfileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7058C010ABFA50FF723C533 /* ProfileStoreTests.swift */; };
 		A7F6DA479269D927924A06B9 /* ProfileRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F2286883BC0FFDA2E2FE0A /* ProfileRow.swift */; };
+		B52A3A1E78EDFEFCDCDCD479 /* SystemTunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E374C4E4C7ACB2532136B57E /* SystemTunnelManager.swift */; };
 		B85896886BBE0EDF6C156A7B /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = 66040EBD12DBD7B0D80F2A8B /* SharedCore */; };
 		B9F6F51F94750134AE0FAF8C /* TunnelConfigurationStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0B09A9E6EF0ABE9ACDEF31 /* TunnelConfigurationStoreTests.swift */; };
 		D4E7D4201B000A92D4A9DBC9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3C72C17EDA5A0F87B4224256 /* Assets.xcassets */; };
@@ -81,6 +82,7 @@
 		D5866B304A5569D52BD070BC /* ShadowsocksOneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksOneApp.swift; sourceTree = "<group>"; };
 		D7058C010ABFA50FF723C533 /* ProfileStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStoreTests.swift; sourceTree = "<group>"; };
 		E185F65E226313D934883563 /* ConnectionIntegrationTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ConnectionIntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E374C4E4C7ACB2532136B57E /* SystemTunnelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemTunnelManager.swift; sourceTree = "<group>"; };
 		ECB60CD2AA925F781483A5FE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F0F644D026A145E221F422AC /* SharedCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SharedCore; path = Packages/SharedCore; sourceTree = SOURCE_ROOT; };
 		F95885D16F0A3E0039E39754 /* SharedCoreXcodeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SharedCoreXcodeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -165,6 +167,7 @@
 				1038806EC89A2BAF5BF3C148 /* RootViewModel.swift */,
 				80780BC5E60046BAB0E37090 /* ShadowsocksOne.entitlements */,
 				D5866B304A5569D52BD070BC /* ShadowsocksOneApp.swift */,
+				E374C4E4C7ACB2532136B57E /* SystemTunnelManager.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -373,6 +376,7 @@
 				8AD052D319723FF239C41843 /* RootView.swift in Sources */,
 				66A8C1300F30D349CEA92A81 /* RootViewModel.swift in Sources */,
 				F527CD0D4274C70AB55E5467 /* ShadowsocksOneApp.swift in Sources */,
+				B52A3A1E78EDFEFCDCDCD479 /* SystemTunnelManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

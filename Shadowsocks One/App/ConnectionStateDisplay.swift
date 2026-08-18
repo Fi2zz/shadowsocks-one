@@ -23,4 +23,14 @@ extension ConnectionState {
         }
         return true
     }
+
+    var allowsDisconnect: Bool {
+        if case .idle = self {
+            return false
+        }
+        if case .failed = self {
+            return false
+        }
+        return true
+    }
 }

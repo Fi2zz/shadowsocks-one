@@ -34,6 +34,7 @@ struct ProfileListSection: View {
 
                 Button("断开", action: disconnectAction)
                     .buttonStyle(.bordered)
+                    .disabled(!connectionState.allowsDisconnect)
             }
         }
     }
