@@ -14,7 +14,7 @@ final class PacketTunnelEngineTests: XCTestCase {
         try await engine.handleOutboundPacket(makeDNSPacket())
 
         let dnsHandleCalls = await dnsCoordinator.handleCallCount
-        let routeCalls = await router.routeCallCount
+        let routeCalls = router.routeCallCountSnapshot()
 
         XCTAssertEqual(dnsHandleCalls, 1)
         XCTAssertEqual(routeCalls, 0)
@@ -31,7 +31,7 @@ final class PacketTunnelEngineTests: XCTestCase {
         try await engine.handleOutboundPacket(makeTCPPacket())
 
         let dnsHandleCalls = await dnsCoordinator.handleCallCount
-        let routeCalls = await router.routeCallCount
+        let routeCalls = router.routeCallCountSnapshot()
 
         XCTAssertEqual(dnsHandleCalls, 0)
         XCTAssertEqual(routeCalls, 1)
@@ -73,7 +73,7 @@ final class PacketTunnelEngineTests: XCTestCase {
         try await assertEventually({ router.setPacketWriterCallCountSnapshot() }, equals: 1)
         try await assertEventually({ router.routeCallCountSnapshot() }, equals: 1)
 
-        await router.emitReturnPacket(makeTCPPacket())
+        router.emitReturnPacket(makeTCPPacket())
         XCTAssertEqual(packetFlow.writtenPacketsSnapshot().count, 1)
         XCTAssertEqual(packetFlow.writtenProtocolsSnapshot(), [NSNumber(value: AF_INET)])
 
@@ -152,15 +152,11 @@ private final class TCPRouterSpy: TCPRouting {
         if shouldThrowOnRoute {
             throw DummyLocalizedError(errorDescription: "route failed")
         }
-        lock.lock()
-        routeCallCount += 1
-        lock.unlock()
+        incrementRouteCallCount()
     }
 
     func stopAll() async {
-        lock.lock()
-        stopAllCallCount += 1
-        lock.unlock()
+        incrementStopAllCallCount()
     }
 
     func setPacketWriter(_ packetWriter: (any TunnelPacketWriting)?) {
@@ -171,7 +167,7 @@ private final class TCPRouterSpy: TCPRouting {
         lock.unlock()
     }
 
-    func emitReturnPacket(_ packet: Data) async {
+    func emitReturnPacket(_ packet: Data) {
         lock.lock()
         let packetWriter = self.packetWriter
         lock.unlock()
@@ -206,12 +202,16 @@ private final class TCPRouterSpy: TCPRouting {
         return hasPacketWriter
     }
 
-    func packetWriterSnapshot() -> (any TunnelPacketWriting)? {
+    private func incrementRouteCallCount() {
         lock.lock()
-        let packetWriter = self.packetWriter
+        routeCallCount += 1
         lock.unlock()
-        packetWriter?.write([packet], protocols: [NSNumber(value: AF_INET)])
-        return packetWriter
+    }
+
+    private func incrementStopAllCallCount() {
+        lock.lock()
+        stopAllCallCount += 1
+        lock.unlock()
     }
 }
 
