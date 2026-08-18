@@ -27,6 +27,7 @@ struct RootView: View {
                     }
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Shadowsocks One")
         }
     }
