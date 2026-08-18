@@ -49,6 +49,27 @@ final class ProfileStoreTests: XCTestCase {
 
         XCTAssertEqual(store.loadSelectedProfileID(), id)
     }
+
+    func testLocalInitializerCreatesDirectoryAndUsesDefaults() throws {
+        let tempDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: tempDirectory) }
+
+        let defaults = UserDefaults(suiteName: UUID().uuidString)!
+        let store = try ProfileStore(
+            localDirectory: tempDirectory,
+            keychainService: UUID().uuidString,
+            defaults: defaults
+        )
+        let id = UUID()
+
+        store.saveSelectedProfileID(id)
+
+        var isDirectory: ObjCBool = false
+        XCTAssertTrue(FileManager.default.fileExists(atPath: tempDirectory.path, isDirectory: &isDirectory))
+        XCTAssertTrue(isDirectory.boolValue)
+        XCTAssertEqual(store.loadSelectedProfileID(), id)
+    }
 }
 
 private actor InMemoryPasswordStoreBox {

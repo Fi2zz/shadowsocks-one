@@ -30,6 +30,22 @@ public final class ProfileStore {
         self.keychain = PasswordKeychain(service: keychainService)
     }
 
+    public init(
+        localDirectory: URL,
+        keychainService: String,
+        defaults: UserDefaults = .standard
+    ) throws {
+        try FileManager.default.createDirectory(
+            at: localDirectory,
+            withIntermediateDirectories: true,
+            attributes: nil
+        )
+
+        self.jsonURL = localDirectory.appendingPathComponent("profiles.json")
+        self.defaults = defaults
+        self.keychain = PasswordKeychain(service: keychainService)
+    }
+
     init(
         jsonURL: URL,
         defaults: UserDefaults,
