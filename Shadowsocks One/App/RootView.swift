@@ -1,17 +1,33 @@
 import SwiftUI
 
 struct RootView: View {
+    @StateObject private var viewModel = RootViewModel.makeDefault()
+
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Shadowsocks One")
-                    .font(.title2.weight(.semibold))
-                Text("Packet Tunnel + SharedCore skeleton is ready.")
-                    .foregroundStyle(.secondary)
+            List {
+                ImportSection(
+                    rawURL: $viewModel.rawURL,
+                    importAction: viewModel.importProfile
+                )
+
+                ProfileListSection(
+                    profiles: viewModel.profiles,
+                    selectedProfileID: viewModel.selectedProfileID,
+                    connectionState: viewModel.connectionState,
+                    selectAction: viewModel.selectProfile,
+                    connectAction: viewModel.connectSelectedProfile,
+                    disconnectAction: viewModel.disconnect
+                )
+
+                if let message = viewModel.message {
+                    Section("提示") {
+                        Text(message)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .padding(24)
-            .navigationTitle("Overview")
+            .navigationTitle("Shadowsocks One")
         }
     }
 }

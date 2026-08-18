@@ -29,4 +29,13 @@ public struct ServerProfile: Identifiable, Codable, Hashable, Sendable {
         self.plugin = plugin
         self.pluginOptions = pluginOptions
     }
+
+    public var displayName: String {
+        let trimmedRemark = remark?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return trimmedRemark.isEmpty ? host : trimmedRemark
+    }
+
+    public var subtitle: String {
+        "\(method.rawValue) • \(host):\(port)"
+    }
 }

@@ -36,8 +36,9 @@ public actor ConnectionManager: ConnectionManaging {
         }
 
         let connection = NWConnection(host: endpoint, port: port, using: .tcp)
+        let actorSelf = self
         await withCheckedContinuation { continuation in
-            connection.stateUpdateHandler = { [weak self] newState in
+            connection.stateUpdateHandler = { newState in
                 switch newState {
                 case .ready:
                     let payload = Data("ping".utf8)
@@ -45,16 +46,16 @@ public actor ConnectionManager: ConnectionManaging {
                     connection.receive(minimumIncompleteLength: 1, maximumLength: 4096) { data, _, _, _ in
                         Task {
                             if data == payload {
-                                await self?.update(.connected)
+                                await actorSelf.update(.connected)
                             } else {
-                                await self?.update(.failed("AEAD 往返失败"))
+                                await actorSelf.update(.failed("AEAD 往返失败"))
                             }
                             continuation.resume()
                         }
                     }
                 case .failed(let error):
                     Task {
-                        await self?.update(.failed(error.localizedDescription))
+                        await actorSelf.update(.failed(error.localizedDescription))
                         continuation.resume()
                     }
                 default:

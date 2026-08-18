@@ -10,4 +10,11 @@ public struct ConnectionConfig: Sendable {
         self.method = method
         self.password = password
     }
+
+    public init(profile: ServerProfile) {
+        self.host = profile.host
+        self.port = profile.port
+        self.method = profile.method
+        self.password = profile.password
+    }
 }
