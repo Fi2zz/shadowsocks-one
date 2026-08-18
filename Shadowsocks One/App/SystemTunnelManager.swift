@@ -5,6 +5,7 @@ import SharedCore
 @MainActor
 final class SystemTunnelManager: TunnelControlling {
     private let providerBundleIdentifier: String
+    private let runtimeStatusStore: TunnelRuntimeStatusStore?
     private(set) var state: ConnectionState = .idle
     let stateStream: AsyncStream<ConnectionState>
     private let stateContinuation: AsyncStream<ConnectionState>.Continuation
@@ -13,6 +14,9 @@ final class SystemTunnelManager: TunnelControlling {
 
     init(providerBundleIdentifier: String) {
         self.providerBundleIdentifier = providerBundleIdentifier
+        self.runtimeStatusStore = try? TunnelRuntimeStatusStore(
+            appGroupID: SharedContainerSettings.appGroupID
+        )
 
         var capturedContinuation: AsyncStream<ConnectionState>.Continuation?
         self.stateStream = AsyncStream { continuation in
@@ -42,6 +46,7 @@ final class SystemTunnelManager: TunnelControlling {
         let manager = try await loadOrCreateManager()
         self.manager = manager
         installStatusObserver(for: manager)
+        runtimeStatusStore?.clearLastFailureDetail()
 
         guard let session = manager.connection as? NETunnelProviderSession else {
             let error = TunnelManagerError.invalidSession
@@ -55,8 +60,9 @@ final class SystemTunnelManager: TunnelControlling {
             try session.startTunnel()
             updateState(mapStatus(manager.connection.status))
         } catch {
-            updateState(.failed(error.localizedDescription))
-            throw error
+            let detail = runtimeStatusStore?.consumeLastFailureDetail() ?? error.localizedDescription
+            updateState(.failed(detail))
+            throw TunnelManagerError.startFailed(detail)
         }
     }
 
@@ -120,10 +126,14 @@ final class SystemTunnelManager: TunnelControlling {
     private func mapStatus(_ status: NEVPNStatus) -> ConnectionState {
         switch status {
         case .connected:
+            runtimeStatusStore?.clearLastFailureDetail()
             return .connected
         case .connecting, .reasserting, .disconnecting:
             return .connecting
         case .disconnected, .invalid:
+            if let detail = runtimeStatusStore?.consumeLastFailureDetail() {
+                return .failed(detail)
+            }
             return .idle
         @unknown default:
             return .failed("未知的 Tunnel 状态。")
@@ -172,11 +182,14 @@ final class SystemTunnelManager: TunnelControlling {
 
 private enum TunnelManagerError: LocalizedError {
     case invalidSession
+    case startFailed(String)
 
     var errorDescription: String? {
         switch self {
         case .invalidSession:
             return "无法创建 Packet Tunnel 会话。"
+        case .startFailed(let detail):
+            return detail
         }
     }
 }
