@@ -1,14 +1,13 @@
 import Foundation
-@preconcurrency import NetworkExtension
 
 protocol TunnelPacketWriting: AnyObject {
     func write(_ packets: [Data], protocols: [NSNumber])
 }
 
 final class TunnelPacketWriter: TunnelPacketWriting {
-    private let packetFlow: NEPacketTunnelFlow
+    private let packetFlow: any TunnelPacketFlow
 
-    init(packetFlow: NEPacketTunnelFlow) {
+    init(packetFlow: any TunnelPacketFlow) {
         self.packetFlow = packetFlow
     }
 

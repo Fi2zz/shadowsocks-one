@@ -30,14 +30,18 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 cache: dnsCache,
                 whitelist: routingConfiguration.domainWhitelist
             )
+            let tunnelPacketFlow = PacketTunnelFlowAdapter(packetFlow: packetFlow)
+            let packetWriter = TunnelPacketWriter(packetFlow: tunnelPacketFlow)
             let tcpRouter = TCPRouter(
                 launchConfiguration: launchConfiguration,
-                matcher: routeMatcher
+                matcher: routeMatcher,
+                packetWriter: packetWriter
             )
             let engine = TunnelEngine(
                 dnsCoordinator: dnsCoordinator,
                 tcpRouter: tcpRouter,
-                packetFlow: PacketTunnelFlowAdapter(packetFlow: packetFlow)
+                packetFlow: tunnelPacketFlow,
+                packetWriter: packetWriter
             )
             self.engine = engine
             Task {

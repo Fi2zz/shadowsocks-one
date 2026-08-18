@@ -49,12 +49,39 @@ final class PacketTunnelEngineTests: XCTestCase {
 
         engine.start()
 
-        try await assertEventually({ await router.routeCallCount }, equals: 1)
+        try await assertEventually({ router.routeCallCountSnapshot() }, equals: 1)
         packetFlow.finishPendingRead()
         await engine.stop()
 
-        let stopAllCallCount = await router.stopAllCallCount
+        let stopAllCallCount = router.stopAllCallCountSnapshot()
         XCTAssertEqual(stopAllCallCount, 1)
+    }
+
+    func testStartInstallsPacketWriterAndBridgesWritesBackToPacketFlow() async throws {
+        let dnsCoordinator = DNSCoordinatorSpy()
+        let router = TCPRouterSpy()
+        let packetFlow = PacketFlowSpy(batches: [[makeTCPPacket()]])
+        let engine = TunnelEngine(
+            dnsCoordinator: dnsCoordinator,
+            tcpRouter: router,
+            packetFlow: packetFlow,
+            packetWriter: TunnelPacketWriter(packetFlow: packetFlow)
+        )
+
+        engine.start()
+
+        try await assertEventually({ router.setPacketWriterCallCountSnapshot() }, equals: 1)
+        try await assertEventually({ router.routeCallCountSnapshot() }, equals: 1)
+
+        await router.emitReturnPacket(makeTCPPacket())
+        XCTAssertEqual(packetFlow.writtenPacketsSnapshot().count, 1)
+        XCTAssertEqual(packetFlow.writtenProtocolsSnapshot(), [NSNumber(value: AF_INET)])
+
+        packetFlow.finishPendingRead()
+        await engine.stop()
+
+        let hasPacketWriter = router.hasPacketWriterSnapshot()
+        XCTAssertFalse(hasPacketWriter)
     }
 
     func testFatalReadLoopErrorStopsRouterAndReportsFailure() async throws {
@@ -75,7 +102,7 @@ final class PacketTunnelEngineTests: XCTestCase {
         }
 
         try await assertEventually({ await failureRecorder.latestMessage }, equals: "route failed")
-        try await assertEventually({ await router.stopAllCallCount }, equals: 1)
+        try await assertEventually({ router.stopAllCallCountSnapshot() }, equals: 1)
         packetFlow.finishPendingRead()
         await engine.stop()
     }
@@ -108,10 +135,14 @@ private actor DNSCoordinatorSpy: DNSCoordinating {
     }
 }
 
-private actor TCPRouterSpy: TCPRouting {
-    private(set) var routeCallCount = 0
-    private(set) var stopAllCallCount = 0
+private final class TCPRouterSpy: TCPRouting {
+    private let lock = NSLock()
+    private var routeCallCount = 0
+    private var stopAllCallCount = 0
+    private var setPacketWriterCallCount = 0
+    private var hasPacketWriter = false
     private let shouldThrowOnRoute: Bool
+    private var packetWriter: (any TunnelPacketWriting)?
 
     init(shouldThrowOnRoute: Bool = false) {
         self.shouldThrowOnRoute = shouldThrowOnRoute
@@ -121,11 +152,66 @@ private actor TCPRouterSpy: TCPRouting {
         if shouldThrowOnRoute {
             throw DummyLocalizedError(errorDescription: "route failed")
         }
+        lock.lock()
         routeCallCount += 1
+        lock.unlock()
     }
 
     func stopAll() async {
+        lock.lock()
         stopAllCallCount += 1
+        lock.unlock()
+    }
+
+    func setPacketWriter(_ packetWriter: (any TunnelPacketWriting)?) {
+        lock.lock()
+        self.packetWriter = packetWriter
+        hasPacketWriter = packetWriter != nil
+        setPacketWriterCallCount += 1
+        lock.unlock()
+    }
+
+    func emitReturnPacket(_ packet: Data) async {
+        lock.lock()
+        let packetWriter = self.packetWriter
+        lock.unlock()
+        packetWriter?.write([packet], protocols: [NSNumber(value: AF_INET)])
+    }
+
+    func routeCallCountSnapshot() -> Int {
+        lock.lock()
+        let count = routeCallCount
+        lock.unlock()
+        return count
+    }
+
+    func stopAllCallCountSnapshot() -> Int {
+        lock.lock()
+        let count = stopAllCallCount
+        lock.unlock()
+        return count
+    }
+
+    func setPacketWriterCallCountSnapshot() -> Int {
+        lock.lock()
+        let count = setPacketWriterCallCount
+        lock.unlock()
+        return count
+    }
+
+    func hasPacketWriterSnapshot() -> Bool {
+        lock.lock()
+        let hasPacketWriter = self.hasPacketWriter
+        lock.unlock()
+        return hasPacketWriter
+    }
+
+    func packetWriterSnapshot() -> (any TunnelPacketWriting)? {
+        lock.lock()
+        let packetWriter = self.packetWriter
+        lock.unlock()
+        packetWriter?.write([packet], protocols: [NSNumber(value: AF_INET)])
+        return packetWriter
     }
 }
 
@@ -141,6 +227,8 @@ private final class PacketFlowSpy: TunnelPacketFlow {
     private let lock = NSLock()
     private var batches: [[Data]]
     private var pendingCompletion: (([Data], [NSNumber]) -> Void)?
+    private(set) var writtenPackets: [Data] = []
+    private(set) var writtenProtocols: [NSNumber] = []
 
     init(batches: [[Data]]) {
         self.batches = batches
@@ -159,12 +247,33 @@ private final class PacketFlowSpy: TunnelPacketFlow {
         lock.unlock()
     }
 
+    func writePackets(_ packets: [Data], withProtocols protocols: [NSNumber]) {
+        lock.lock()
+        writtenPackets.append(contentsOf: packets)
+        writtenProtocols.append(contentsOf: protocols)
+        lock.unlock()
+    }
+
     func finishPendingRead() {
         lock.lock()
         let completion = pendingCompletion
         pendingCompletion = nil
         lock.unlock()
         completion?([], [])
+    }
+
+    func writtenPacketsSnapshot() -> [Data] {
+        lock.lock()
+        let packets = writtenPackets
+        lock.unlock()
+        return packets
+    }
+
+    func writtenProtocolsSnapshot() -> [NSNumber] {
+        lock.lock()
+        let protocols = writtenProtocols
+        lock.unlock()
+        return protocols
     }
 }
 

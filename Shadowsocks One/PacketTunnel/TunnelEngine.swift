@@ -4,6 +4,7 @@ import SharedCore
 
 protocol TunnelPacketFlow: AnyObject {
     func readPackets(completionHandler: @escaping ([Data], [NSNumber]) -> Void)
+    func writePackets(_ packets: [Data], withProtocols protocols: [NSNumber])
 }
 
 final class PacketTunnelFlowAdapter: TunnelPacketFlow {
@@ -16,22 +17,29 @@ final class PacketTunnelFlowAdapter: TunnelPacketFlow {
     func readPackets(completionHandler: @escaping ([Data], [NSNumber]) -> Void) {
         packetFlow.readPackets(completionHandler: completionHandler)
     }
+
+    func writePackets(_ packets: [Data], withProtocols protocols: [NSNumber]) {
+        packetFlow.writePackets(packets, withProtocols: protocols)
+    }
 }
 
 final class TunnelEngine {
     private let dnsCoordinator: any DNSCoordinating
     private let tcpRouter: any TCPRouting
     private let packetFlow: (any TunnelPacketFlow)?
+    private let packetWriter: (any TunnelPacketWriting)?
     private var packetReaderTask: Task<Void, Never>?
 
     init(
         dnsCoordinator: any DNSCoordinating,
         tcpRouter: any TCPRouting,
-        packetFlow: (any TunnelPacketFlow)? = nil
+        packetFlow: (any TunnelPacketFlow)? = nil,
+        packetWriter: (any TunnelPacketWriting)? = nil
     ) {
         self.dnsCoordinator = dnsCoordinator
         self.tcpRouter = tcpRouter
         self.packetFlow = packetFlow
+        self.packetWriter = packetWriter
     }
 
     func warmUpDNSCache() async {
@@ -45,6 +53,7 @@ final class TunnelEngine {
 
         packetReaderTask = Task { [weak self] in
             guard let self else { return }
+            self.tcpRouter.setPacketWriter(self.packetWriter)
 
             while !Task.isCancelled {
                 let packets = await self.readPackets(from: packetFlow)
@@ -69,6 +78,8 @@ final class TunnelEngine {
                     break
                 }
             }
+
+            self.tcpRouter.setPacketWriter(nil)
         }
     }
 
@@ -91,6 +102,7 @@ final class TunnelEngine {
     func stop() async {
         packetReaderTask?.cancel()
         packetReaderTask = nil
+        tcpRouter.setPacketWriter(nil)
         await tcpRouter.stopAll()
     }
 

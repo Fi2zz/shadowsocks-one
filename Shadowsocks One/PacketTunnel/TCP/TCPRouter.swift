@@ -5,12 +5,14 @@ import Darwin
 protocol TCPRouting: AnyObject {
     func route(_ packet: IPPacket) async throws
     func stopAll() async
+    func setPacketWriter(_ packetWriter: (any TunnelPacketWriting)?)
 }
 
 final class TCPRouter: TCPRouting {
     private let matcher: RouteMatcher
     private let sessionStore: TCPFlowSessionStore
-    private let packetWriter: (any TunnelPacketWriting)?
+    private let packetWriterLock = NSLock()
+    private var packetWriter: (any TunnelPacketWriting)?
     private let directRelayFactory: RelayFactory
     private let proxyRelayFactory: RelayFactory
 
@@ -106,6 +108,12 @@ final class TCPRouter: TCPRouting {
         }
     }
 
+    func setPacketWriter(_ packetWriter: (any TunnelPacketWriting)?) {
+        packetWriterLock.lock()
+        self.packetWriter = packetWriter
+        packetWriterLock.unlock()
+    }
+
     private func handleOutboundControlPacket(
         _ tcp: TCPPacket,
         state: inout TCPFlowState,
@@ -167,7 +175,7 @@ final class TCPRouter: TCPRouting {
     }
 
     private func writeResponse(_ response: TCPFlowResponse, for state: TCPFlowState) throws {
-        guard let packetWriter else {
+        guard let packetWriter = currentPacketWriter() else {
             return
         }
 
@@ -183,5 +191,12 @@ final class TCPRouter: TCPRouting {
         )
 
         packetWriter.write([packet], protocols: [NSNumber(value: AF_INET)])
+    }
+
+    private func currentPacketWriter() -> (any TunnelPacketWriting)? {
+        packetWriterLock.lock()
+        let packetWriter = self.packetWriter
+        packetWriterLock.unlock()
+        return packetWriter
     }
 }
