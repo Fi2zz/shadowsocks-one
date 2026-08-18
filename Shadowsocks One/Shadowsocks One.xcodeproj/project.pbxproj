@@ -1,0 +1,707 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1D19CD0072632F4A5E6BD774 /* ShadowsocksOnePacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 553800809424D576BC2ADAEC /* ShadowsocksOnePacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		1DD1B76D92B02ACD115A5562 /* SSURLParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5519DEF871B151F8350A2985 /* SSURLParserTests.swift */; };
+		235F8B7A83AE90F5593CA4B8 /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1FEC47B28F59CAFC641147CD /* SharedCore */; };
+		2AD669612179D4C9A3060E0C /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = B57B5A4303A0EC8CAE315325 /* SharedCore */; };
+		3EDDAFC260F355CA1724E792 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F958A27122C00568F7884E6 /* PacketTunnelProvider.swift */; };
+		72EA1331BE95F059CEEC1B19 /* LocalAEADEchoServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2004BE1ACB7320CFEE62C35B /* LocalAEADEchoServer.swift */; };
+		7A1FBE3A51C1D3EC743DD70B /* PacketTunnelConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2621174997AE0FAC58D9D81B /* PacketTunnelConnectionTests.swift */; };
+		8AD052D319723FF239C41843 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D57AE21C5F17C76ED208F77 /* RootView.swift */; };
+		A2C0E474CED6E2AD39D11813 /* ProfileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7058C010ABFA50FF723C533 /* ProfileStoreTests.swift */; };
+		B85896886BBE0EDF6C156A7B /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = 66040EBD12DBD7B0D80F2A8B /* SharedCore */; };
+		D4E7D4201B000A92D4A9DBC9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3C72C17EDA5A0F87B4224256 /* Assets.xcassets */; };
+		E069C14320F18B5D2D3D073C /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7E9E9EDD105E2E3450238A4C /* SharedCore */; };
+		F527CD0D4274C70AB55E5467 /* ShadowsocksOneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5866B304A5569D52BD070BC /* ShadowsocksOneApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		11567FFCA8D43E7538E8D701 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3433D6F9FD501BA0CFBD3475 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 34BD469F55DAE4D6580C52BB;
+			remoteInfo = ShadowsocksOnePacketTunnel;
+		};
+		B7535F6F996DF037C65A109A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3433D6F9FD501BA0CFBD3475 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6FD87E10DB566470DE8D5942;
+			remoteInfo = "Shadowsocks One";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		73588945213CF8411929BF90 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				1D19CD0072632F4A5E6BD774 /* ShadowsocksOnePacketTunnel.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		1825DBE658C71B8AB9ACC0FC /* PacketTunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PacketTunnel.entitlements; sourceTree = "<group>"; };
+		1F958A27122C00568F7884E6 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
+		2004BE1ACB7320CFEE62C35B /* LocalAEADEchoServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAEADEchoServer.swift; sourceTree = "<group>"; };
+		2621174997AE0FAC58D9D81B /* PacketTunnelConnectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelConnectionTests.swift; sourceTree = "<group>"; };
+		3C72C17EDA5A0F87B4224256 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		5519DEF871B151F8350A2985 /* SSURLParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSURLParserTests.swift; sourceTree = "<group>"; };
+		553800809424D576BC2ADAEC /* ShadowsocksOnePacketTunnel.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = ShadowsocksOnePacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		6D57AE21C5F17C76ED208F77 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		80780BC5E60046BAB0E37090 /* ShadowsocksOne.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShadowsocksOne.entitlements; sourceTree = "<group>"; };
+		9E957BAB87C83DC3F4789B11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		D5866B304A5569D52BD070BC /* ShadowsocksOneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksOneApp.swift; sourceTree = "<group>"; };
+		D7058C010ABFA50FF723C533 /* ProfileStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStoreTests.swift; sourceTree = "<group>"; };
+		E185F65E226313D934883563 /* ConnectionIntegrationTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ConnectionIntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		ECB60CD2AA925F781483A5FE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F0F644D026A145E221F422AC /* SharedCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SharedCore; path = Packages/SharedCore; sourceTree = SOURCE_ROOT; };
+		F95885D16F0A3E0039E39754 /* SharedCoreXcodeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SharedCoreXcodeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FFABFB0BA7CFB2A4D339A275 /* Shadowsocks One.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "Shadowsocks One.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5474CD5BA0201B892C96D60D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B85896886BBE0EDF6C156A7B /* SharedCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		914A05736F984C3CBF119145 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				235F8B7A83AE90F5593CA4B8 /* SharedCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A6B61EF628B226DDBEE282BA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2AD669612179D4C9A3060E0C /* SharedCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D721A61E132E84947456959A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E069C14320F18B5D2D3D073C /* SharedCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		3552C4872B36BA9D2703A1B4 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				F0F644D026A145E221F422AC /* SharedCore */,
+			);
+			path = Packages;
+			sourceTree = "<group>";
+		};
+		3DF700D57804CF4035AE6BE1 /* ConnectionIntegrationTests */ = {
+			isa = PBXGroup;
+			children = (
+				2004BE1ACB7320CFEE62C35B /* LocalAEADEchoServer.swift */,
+				2621174997AE0FAC58D9D81B /* PacketTunnelConnectionTests.swift */,
+			);
+			name = ConnectionIntegrationTests;
+			path = Tests/ConnectionIntegrationTests;
+			sourceTree = "<group>";
+		};
+		3F90DBEDA481F1FF0FC4D208 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E185F65E226313D934883563 /* ConnectionIntegrationTests.xctest */,
+				FFABFB0BA7CFB2A4D339A275 /* Shadowsocks One.app */,
+				553800809424D576BC2ADAEC /* ShadowsocksOnePacketTunnel.appex */,
+				F95885D16F0A3E0039E39754 /* SharedCoreXcodeTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		63B3A5D895A1ECE61A5EDC19 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				3C72C17EDA5A0F87B4224256 /* Assets.xcassets */,
+				9E957BAB87C83DC3F4789B11 /* Info.plist */,
+				6D57AE21C5F17C76ED208F77 /* RootView.swift */,
+				80780BC5E60046BAB0E37090 /* ShadowsocksOne.entitlements */,
+				D5866B304A5569D52BD070BC /* ShadowsocksOneApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		7B2787AEC639E7538EA24EDE = {
+			isa = PBXGroup;
+			children = (
+				63B3A5D895A1ECE61A5EDC19 /* App */,
+				3DF700D57804CF4035AE6BE1 /* ConnectionIntegrationTests */,
+				3552C4872B36BA9D2703A1B4 /* Packages */,
+				FD3CD4DB3292820C102D2F41 /* PacketTunnel */,
+				E4B488C9A0F3E1468C18E4B8 /* SharedCoreTests */,
+				3F90DBEDA481F1FF0FC4D208 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E4B488C9A0F3E1468C18E4B8 /* SharedCoreTests */ = {
+			isa = PBXGroup;
+			children = (
+				D7058C010ABFA50FF723C533 /* ProfileStoreTests.swift */,
+				5519DEF871B151F8350A2985 /* SSURLParserTests.swift */,
+			);
+			name = SharedCoreTests;
+			path = Packages/SharedCore/Tests/SharedCoreTests;
+			sourceTree = "<group>";
+		};
+		FD3CD4DB3292820C102D2F41 /* PacketTunnel */ = {
+			isa = PBXGroup;
+			children = (
+				ECB60CD2AA925F781483A5FE /* Info.plist */,
+				1825DBE658C71B8AB9ACC0FC /* PacketTunnel.entitlements */,
+				1F958A27122C00568F7884E6 /* PacketTunnelProvider.swift */,
+			);
+			path = PacketTunnel;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		34BD469F55DAE4D6580C52BB /* ShadowsocksOnePacketTunnel */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F42BD64C691CDA9E9E5CF647 /* Build configuration list for PBXNativeTarget "ShadowsocksOnePacketTunnel" */;
+			buildPhases = (
+				123C217E11218DB341E72B10 /* Sources */,
+				5474CD5BA0201B892C96D60D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShadowsocksOnePacketTunnel;
+			packageProductDependencies = (
+				66040EBD12DBD7B0D80F2A8B /* SharedCore */,
+			);
+			productName = ShadowsocksOnePacketTunnel;
+			productReference = 553800809424D576BC2ADAEC /* ShadowsocksOnePacketTunnel.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		6FD87E10DB566470DE8D5942 /* Shadowsocks One */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7D5C660AFA009E447350CACB /* Build configuration list for PBXNativeTarget "Shadowsocks One" */;
+			buildPhases = (
+				E623D37A41F49A91E2EC8B0B /* Sources */,
+				C9F1A97ADBA645C872342E31 /* Resources */,
+				A6B61EF628B226DDBEE282BA /* Frameworks */,
+				73588945213CF8411929BF90 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E6769DF6BF685022ED7D2C49 /* PBXTargetDependency */,
+			);
+			name = "Shadowsocks One";
+			packageProductDependencies = (
+				B57B5A4303A0EC8CAE315325 /* SharedCore */,
+			);
+			productName = "Shadowsocks One";
+			productReference = FFABFB0BA7CFB2A4D339A275 /* Shadowsocks One.app */;
+			productType = "com.apple.product-type.application";
+		};
+		7BC41D03EBFE53816B068562 /* ConnectionIntegrationTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AE5CFF6B89FB6E0F1EADF0E1 /* Build configuration list for PBXNativeTarget "ConnectionIntegrationTests" */;
+			buildPhases = (
+				CC65C6E70431B982D000827C /* Sources */,
+				914A05736F984C3CBF119145 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7EAC0266B64E25415EA92A03 /* PBXTargetDependency */,
+			);
+			name = ConnectionIntegrationTests;
+			packageProductDependencies = (
+				1FEC47B28F59CAFC641147CD /* SharedCore */,
+			);
+			productName = ConnectionIntegrationTests;
+			productReference = E185F65E226313D934883563 /* ConnectionIntegrationTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C851766A12D638C20CB82743 /* SharedCoreXcodeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B93D85D5B2918DB89CB7C993 /* Build configuration list for PBXNativeTarget "SharedCoreXcodeTests" */;
+			buildPhases = (
+				817D5FB5F5F55C2694D5E0DF /* Sources */,
+				D721A61E132E84947456959A /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SharedCoreXcodeTests;
+			packageProductDependencies = (
+				7E9E9EDD105E2E3450238A4C /* SharedCore */,
+			);
+			productName = SharedCoreXcodeTests;
+			productReference = F95885D16F0A3E0039E39754 /* SharedCoreXcodeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3433D6F9FD501BA0CFBD3475 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 506DE61E8A5B14A35D53A5F6 /* Build configuration list for PBXProject "Shadowsocks One" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 7B2787AEC639E7538EA24EDE;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CA5052C81565BCE03A4493B9 /* XCLocalSwiftPackageReference "Packages/SharedCore" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 3F90DBEDA481F1FF0FC4D208 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7BC41D03EBFE53816B068562 /* ConnectionIntegrationTests */,
+				6FD87E10DB566470DE8D5942 /* Shadowsocks One */,
+				34BD469F55DAE4D6580C52BB /* ShadowsocksOnePacketTunnel */,
+				C851766A12D638C20CB82743 /* SharedCoreXcodeTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C9F1A97ADBA645C872342E31 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D4E7D4201B000A92D4A9DBC9 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		123C217E11218DB341E72B10 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3EDDAFC260F355CA1724E792 /* PacketTunnelProvider.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		817D5FB5F5F55C2694D5E0DF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A2C0E474CED6E2AD39D11813 /* ProfileStoreTests.swift in Sources */,
+				1DD1B76D92B02ACD115A5562 /* SSURLParserTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC65C6E70431B982D000827C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72EA1331BE95F059CEEC1B19 /* LocalAEADEchoServer.swift in Sources */,
+				7A1FBE3A51C1D3EC743DD70B /* PacketTunnelConnectionTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E623D37A41F49A91E2EC8B0B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8AD052D319723FF239C41843 /* RootView.swift in Sources */,
+				F527CD0D4274C70AB55E5467 /* ShadowsocksOneApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7EAC0266B64E25415EA92A03 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6FD87E10DB566470DE8D5942 /* Shadowsocks One */;
+			targetProxy = B7535F6F996DF037C65A109A /* PBXContainerItemProxy */;
+		};
+		E6769DF6BF685022ED7D2C49 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 34BD469F55DAE4D6580C52BB /* ShadowsocksOnePacketTunnel */;
+			targetProxy = 11567FFCA8D43E7538E8D701 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		01E557919A3E7D64376ECBF0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		3C9270E4038DFCC42DB4961F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
+				INFOPLIST_FILE = PacketTunnel/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne.PacketTunnel;
+				PRODUCT_MODULE_NAME = ShadowsocksOnePacketTunnel;
+				PRODUCT_NAME = ShadowsocksOnePacketTunnel;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		76E6343E28601B0EC10432D5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
+				INFOPLIST_FILE = PacketTunnel/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne.PacketTunnel;
+				PRODUCT_MODULE_NAME = ShadowsocksOnePacketTunnel;
+				PRODUCT_NAME = ShadowsocksOnePacketTunnel;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		7F04FE7AEF76B52D68C1D2C3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		7F9753C7026D71A3A455BE6B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/ShadowsocksOne.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne;
+				PRODUCT_MODULE_NAME = ShadowsocksOne;
+				PRODUCT_NAME = ShadowsocksOne;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		82562BC5AA1401587A48C76D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/ShadowsocksOne.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne;
+				PRODUCT_MODULE_NAME = ShadowsocksOne;
+				PRODUCT_NAME = ShadowsocksOne;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		9DAF18A9CBA225D81415938E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne.SharedCoreXcodeTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "";
+			};
+			name = Release;
+		};
+		A44ED5AF415C0E1390ED160E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne.ConnectionIntegrationTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "";
+			};
+			name = Debug;
+		};
+		F31261D15147D6207C20C756 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne.ConnectionIntegrationTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "";
+			};
+			name = Release;
+		};
+		FA41FAA23D55C3EB6C13DC09 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne.SharedCoreXcodeTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		506DE61E8A5B14A35D53A5F6 /* Build configuration list for PBXProject "Shadowsocks One" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01E557919A3E7D64376ECBF0 /* Debug */,
+				7F04FE7AEF76B52D68C1D2C3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7D5C660AFA009E447350CACB /* Build configuration list for PBXNativeTarget "Shadowsocks One" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7F9753C7026D71A3A455BE6B /* Debug */,
+				82562BC5AA1401587A48C76D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AE5CFF6B89FB6E0F1EADF0E1 /* Build configuration list for PBXNativeTarget "ConnectionIntegrationTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A44ED5AF415C0E1390ED160E /* Debug */,
+				F31261D15147D6207C20C756 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B93D85D5B2918DB89CB7C993 /* Build configuration list for PBXNativeTarget "SharedCoreXcodeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA41FAA23D55C3EB6C13DC09 /* Debug */,
+				9DAF18A9CBA225D81415938E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F42BD64C691CDA9E9E5CF647 /* Build configuration list for PBXNativeTarget "ShadowsocksOnePacketTunnel" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				76E6343E28601B0EC10432D5 /* Debug */,
+				3C9270E4038DFCC42DB4961F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		CA5052C81565BCE03A4493B9 /* XCLocalSwiftPackageReference "Packages/SharedCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SharedCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1FEC47B28F59CAFC641147CD /* SharedCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SharedCore;
+		};
+		66040EBD12DBD7B0D80F2A8B /* SharedCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SharedCore;
+		};
+		7E9E9EDD105E2E3450238A4C /* SharedCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SharedCore;
+		};
+		B57B5A4303A0EC8CAE315325 /* SharedCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SharedCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 3433D6F9FD501BA0CFBD3475 /* Project object */;
+}
