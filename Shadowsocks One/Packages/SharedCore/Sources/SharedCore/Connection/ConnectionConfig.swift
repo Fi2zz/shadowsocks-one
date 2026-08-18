@@ -1,4 +1,4 @@
-public struct ConnectionConfig: Sendable {
+public struct ConnectionConfig: Sendable, Equatable {
     public let host: String
     public let port: UInt16
     public let method: CipherMethod

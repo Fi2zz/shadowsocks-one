@@ -17,12 +17,12 @@
 		66A8C1300F30D349CEA92A81 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1038806EC89A2BAF5BF3C148 /* RootViewModel.swift */; };
 		72EA1331BE95F059CEEC1B19 /* LocalAEADEchoServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2004BE1ACB7320CFEE62C35B /* LocalAEADEchoServer.swift */; };
 		7A1FBE3A51C1D3EC743DD70B /* PacketTunnelConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2621174997AE0FAC58D9D81B /* PacketTunnelConnectionTests.swift */; };
-		81AE888E17B165A9EEC2A469 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7117B8516D0D9F5227630826 /* AppConstants.swift */; };
 		8AD052D319723FF239C41843 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D57AE21C5F17C76ED208F77 /* RootView.swift */; };
 		9C80D1630B737BB295BB5A5D /* ImportSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37183E5D4CC5A38639E4D528 /* ImportSection.swift */; };
 		A2C0E474CED6E2AD39D11813 /* ProfileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7058C010ABFA50FF723C533 /* ProfileStoreTests.swift */; };
 		A7F6DA479269D927924A06B9 /* ProfileRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F2286883BC0FFDA2E2FE0A /* ProfileRow.swift */; };
 		B85896886BBE0EDF6C156A7B /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = 66040EBD12DBD7B0D80F2A8B /* SharedCore */; };
+		B9F6F51F94750134AE0FAF8C /* TunnelConfigurationStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0B09A9E6EF0ABE9ACDEF31 /* TunnelConfigurationStoreTests.swift */; };
 		D4E7D4201B000A92D4A9DBC9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3C72C17EDA5A0F87B4224256 /* Assets.xcassets */; };
 		E069C14320F18B5D2D3D073C /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7E9E9EDD105E2E3450238A4C /* SharedCore */; };
 		F43FBA2C40B2BC1943CBEB2C /* ProfileMappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1444C2B3C132E0C5B7D872 /* ProfileMappingTests.swift */; };
@@ -71,11 +71,11 @@
 		34C46936E564679007D91EA4 /* ConnectionStateDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStateDisplay.swift; sourceTree = "<group>"; };
 		37183E5D4CC5A38639E4D528 /* ImportSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportSection.swift; sourceTree = "<group>"; };
 		3C72C17EDA5A0F87B4224256 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		4F0B09A9E6EF0ABE9ACDEF31 /* TunnelConfigurationStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelConfigurationStoreTests.swift; sourceTree = "<group>"; };
 		5519DEF871B151F8350A2985 /* SSURLParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSURLParserTests.swift; sourceTree = "<group>"; };
 		553800809424D576BC2ADAEC /* ShadowsocksOnePacketTunnel.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = ShadowsocksOnePacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		62F2286883BC0FFDA2E2FE0A /* ProfileRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileRow.swift; sourceTree = "<group>"; };
 		6D57AE21C5F17C76ED208F77 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
-		7117B8516D0D9F5227630826 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		80780BC5E60046BAB0E37090 /* ShadowsocksOne.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShadowsocksOne.entitlements; sourceTree = "<group>"; };
 		9E957BAB87C83DC3F4789B11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D5866B304A5569D52BD070BC /* ShadowsocksOneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksOneApp.swift; sourceTree = "<group>"; };
@@ -155,7 +155,6 @@
 		63B3A5D895A1ECE61A5EDC19 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				7117B8516D0D9F5227630826 /* AppConstants.swift */,
 				3C72C17EDA5A0F87B4224256 /* Assets.xcassets */,
 				34C46936E564679007D91EA4 /* ConnectionStateDisplay.swift */,
 				37183E5D4CC5A38639E4D528 /* ImportSection.swift */,
@@ -188,6 +187,7 @@
 				2B1444C2B3C132E0C5B7D872 /* ProfileMappingTests.swift */,
 				D7058C010ABFA50FF723C533 /* ProfileStoreTests.swift */,
 				5519DEF871B151F8350A2985 /* SSURLParserTests.swift */,
+				4F0B09A9E6EF0ABE9ACDEF31 /* TunnelConfigurationStoreTests.swift */,
 			);
 			name = SharedCoreTests;
 			path = Packages/SharedCore/Tests/SharedCoreTests;
@@ -349,6 +349,7 @@
 				F43FBA2C40B2BC1943CBEB2C /* ProfileMappingTests.swift in Sources */,
 				A2C0E474CED6E2AD39D11813 /* ProfileStoreTests.swift in Sources */,
 				1DD1B76D92B02ACD115A5562 /* SSURLParserTests.swift in Sources */,
+				B9F6F51F94750134AE0FAF8C /* TunnelConfigurationStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -365,7 +366,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				81AE888E17B165A9EEC2A469 /* AppConstants.swift in Sources */,
 				1C6B057E90FDB75F72726FB6 /* ConnectionStateDisplay.swift in Sources */,
 				9C80D1630B737BB295BB5A5D /* ImportSection.swift in Sources */,
 				2CC8DC7211DE498C746E6275 /* ProfileListSection.swift in Sources */,

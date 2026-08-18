@@ -12,17 +12,22 @@ final class RootViewModel: ObservableObject {
     private let parser: any SSURLParsing
     private let connectionManager: ConnectionManager
     private let store: ProfileStore?
+    private let tunnelStore: TunnelConfigurationStore?
     private var stateTask: Task<Void, Never>?
 
     init(
         parser: any SSURLParsing,
         connectionManager: ConnectionManager,
-        storeBuilder: () throws -> ProfileStore
+        storeBuilder: () throws -> ProfileStore,
+        tunnelStoreBuilder: () throws -> TunnelConfigurationStore
     ) {
         self.parser = parser
         self.connectionManager = connectionManager
         self.store = try? storeBuilder()
-        self.message = store == nil ? "ProfileStore 初始化失败，请检查 App Group 配置。" : nil
+        self.tunnelStore = try? tunnelStoreBuilder()
+        self.message = (store == nil || tunnelStore == nil)
+            ? "共享存储初始化失败，请检查 App Group 配置。"
+            : nil
         reloadProfiles()
         observeConnectionState()
     }
@@ -37,8 +42,14 @@ final class RootViewModel: ObservableObject {
             connectionManager: ConnectionManager(),
             storeBuilder: {
                 try ProfileStore(
-                    appGroupID: AppConstants.appGroupID,
-                    keychainService: AppConstants.keychainService
+                    appGroupID: SharedContainerSettings.appGroupID,
+                    keychainService: SharedContainerSettings.keychainService
+                )
+            },
+            tunnelStoreBuilder: {
+                try TunnelConfigurationStore(
+                    appGroupID: SharedContainerSettings.appGroupID,
+                    keychainService: SharedContainerSettings.keychainService
                 )
             }
         )
@@ -71,6 +82,16 @@ final class RootViewModel: ObservableObject {
     func selectProfile(id: UUID) {
         selectedProfileID = id
         store?.saveSelectedProfileID(id)
+
+        guard let profile = profiles.first(where: { $0.id == id }) else {
+            return
+        }
+
+        do {
+            try tunnelStore?.save(profile: profile)
+        } catch {
+            message = "保存共享 Tunnel 配置失败：\(error.localizedDescription)"
+        }
     }
 
     func connectSelectedProfile() {
@@ -98,6 +119,11 @@ final class RootViewModel: ObservableObject {
         do {
             profiles = try store.loadProfiles()
             selectedProfileID = store.loadSelectedProfileID() ?? profiles.first?.id
+            if let selectedProfileID {
+                selectProfile(id: selectedProfileID)
+            } else {
+                try tunnelStore?.clear()
+            }
         } catch {
             message = "读取节点失败：\(error.localizedDescription)"
         }
