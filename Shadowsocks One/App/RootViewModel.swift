@@ -10,19 +10,19 @@ final class RootViewModel: ObservableObject {
     @Published private(set) var message: String?
 
     private let parser: any SSURLParsing
-    private let tunnelManager: SystemTunnelManager
+    private let connectionManager: ConnectionManager
     private let store: ProfileStore?
     private let tunnelStore: TunnelConfigurationStore?
     private var stateTask: Task<Void, Never>?
 
     init(
         parser: any SSURLParsing,
-        tunnelManager: SystemTunnelManager,
+        connectionManager: ConnectionManager,
         storeBuilder: () throws -> ProfileStore,
         tunnelStoreBuilder: () throws -> TunnelConfigurationStore
     ) {
         self.parser = parser
-        self.tunnelManager = tunnelManager
+        self.connectionManager = connectionManager
         self.store = try? storeBuilder()
         self.tunnelStore = try? tunnelStoreBuilder()
         self.message = (store == nil || tunnelStore == nil)
@@ -30,7 +30,6 @@ final class RootViewModel: ObservableObject {
             : nil
         reloadProfiles()
         observeConnectionState()
-        prepareTunnelManager()
     }
 
     deinit {
@@ -40,8 +39,9 @@ final class RootViewModel: ObservableObject {
     static func makeDefault() -> RootViewModel {
         RootViewModel(
             parser: SSURLParser(),
-            tunnelManager: SystemTunnelManager(
-                providerBundleIdentifier: "com.example.ShadowsocksOne.PacketTunnel"
+            connectionManager: ConnectionManager(
+                healthCheckNanoseconds: 10_000_000_000,
+                reconnectNanoseconds: 2_000_000_000
             ),
             storeBuilder: {
                 try ProfileStore(
@@ -107,15 +107,18 @@ final class RootViewModel: ObservableObject {
             do {
                 try tunnelStore?.save(profile: selectedProfile)
                 message = nil
-                try await tunnelManager.connect()
-            } catch {
-                message = error.localizedDescription
+                await connectionManager.connect(
+                    using: ConnectionConfig(profile: selectedProfile),
+                    plugin: selectedProfile.plugin
+                )
             }
         }
     }
 
     func disconnect() {
-        tunnelManager.disconnect()
+        Task {
+            await connectionManager.disconnect()
+        }
     }
 
     private func reloadProfiles() {
@@ -136,16 +139,10 @@ final class RootViewModel: ObservableObject {
 
     private func observeConnectionState() {
         stateTask = Task {
-            let stream = tunnelManager.stateStream
+            let stream = await connectionManager.stateStream
             for await state in stream {
                 connectionState = state
             }
-        }
-    }
-
-    private func prepareTunnelManager() {
-        Task {
-            await tunnelManager.prepare()
         }
     }
 }

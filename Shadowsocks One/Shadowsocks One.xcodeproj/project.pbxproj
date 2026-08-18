@@ -16,11 +16,12 @@
 		3EDDAFC260F355CA1724E792 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F958A27122C00568F7884E6 /* PacketTunnelProvider.swift */; };
 		66A8C1300F30D349CEA92A81 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1038806EC89A2BAF5BF3C148 /* RootViewModel.swift */; };
 		72EA1331BE95F059CEEC1B19 /* LocalAEADEchoServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2004BE1ACB7320CFEE62C35B /* LocalAEADEchoServer.swift */; };
-		7A1FBE3A51C1D3EC743DD70B /* PacketTunnelConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2621174997AE0FAC58D9D81B /* PacketTunnelConnectionTests.swift */; };
+		840AD25108C3F3A951625A5C /* ConnectionManagerStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EF5261CDF7B4C479ABD2C71 /* ConnectionManagerStateTests.swift */; };
 		8AD052D319723FF239C41843 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D57AE21C5F17C76ED208F77 /* RootView.swift */; };
 		9C80D1630B737BB295BB5A5D /* ImportSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37183E5D4CC5A38639E4D528 /* ImportSection.swift */; };
 		A2C0E474CED6E2AD39D11813 /* ProfileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7058C010ABFA50FF723C533 /* ProfileStoreTests.swift */; };
 		A7F6DA479269D927924A06B9 /* ProfileRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F2286883BC0FFDA2E2FE0A /* ProfileRow.swift */; };
+		A8A0C59B6AA88B2FED57A7A9 /* ShadowsocksCodecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F6ECD2ADBBDDD385598E17 /* ShadowsocksCodecTests.swift */; };
 		B52A3A1E78EDFEFCDCDCD479 /* SystemTunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E374C4E4C7ACB2532136B57E /* SystemTunnelManager.swift */; };
 		B85896886BBE0EDF6C156A7B /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = 66040EBD12DBD7B0D80F2A8B /* SharedCore */; };
 		B9F6F51F94750134AE0FAF8C /* TunnelConfigurationStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0B09A9E6EF0ABE9ACDEF31 /* TunnelConfigurationStoreTests.swift */; };
@@ -67,7 +68,6 @@
 		1825DBE658C71B8AB9ACC0FC /* PacketTunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PacketTunnel.entitlements; sourceTree = "<group>"; };
 		1F958A27122C00568F7884E6 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
 		2004BE1ACB7320CFEE62C35B /* LocalAEADEchoServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAEADEchoServer.swift; sourceTree = "<group>"; };
-		2621174997AE0FAC58D9D81B /* PacketTunnelConnectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelConnectionTests.swift; sourceTree = "<group>"; };
 		2B1444C2B3C132E0C5B7D872 /* ProfileMappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileMappingTests.swift; sourceTree = "<group>"; };
 		34C46936E564679007D91EA4 /* ConnectionStateDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStateDisplay.swift; sourceTree = "<group>"; };
 		37183E5D4CC5A38639E4D528 /* ImportSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportSection.swift; sourceTree = "<group>"; };
@@ -77,8 +77,10 @@
 		553800809424D576BC2ADAEC /* ShadowsocksOnePacketTunnel.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = ShadowsocksOnePacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		62F2286883BC0FFDA2E2FE0A /* ProfileRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileRow.swift; sourceTree = "<group>"; };
 		6D57AE21C5F17C76ED208F77 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		7EF5261CDF7B4C479ABD2C71 /* ConnectionManagerStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionManagerStateTests.swift; sourceTree = "<group>"; };
 		80780BC5E60046BAB0E37090 /* ShadowsocksOne.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShadowsocksOne.entitlements; sourceTree = "<group>"; };
 		9E957BAB87C83DC3F4789B11 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A5F6ECD2ADBBDDD385598E17 /* ShadowsocksCodecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksCodecTests.swift; sourceTree = "<group>"; };
 		D5866B304A5569D52BD070BC /* ShadowsocksOneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksOneApp.swift; sourceTree = "<group>"; };
 		D7058C010ABFA50FF723C533 /* ProfileStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStoreTests.swift; sourceTree = "<group>"; };
 		E185F65E226313D934883563 /* ConnectionIntegrationTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ConnectionIntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -136,8 +138,8 @@
 		3DF700D57804CF4035AE6BE1 /* ConnectionIntegrationTests */ = {
 			isa = PBXGroup;
 			children = (
+				7EF5261CDF7B4C479ABD2C71 /* ConnectionManagerStateTests.swift */,
 				2004BE1ACB7320CFEE62C35B /* LocalAEADEchoServer.swift */,
-				2621174997AE0FAC58D9D81B /* PacketTunnelConnectionTests.swift */,
 			);
 			name = ConnectionIntegrationTests;
 			path = Tests/ConnectionIntegrationTests;
@@ -189,6 +191,7 @@
 			children = (
 				2B1444C2B3C132E0C5B7D872 /* ProfileMappingTests.swift */,
 				D7058C010ABFA50FF723C533 /* ProfileStoreTests.swift */,
+				A5F6ECD2ADBBDDD385598E17 /* ShadowsocksCodecTests.swift */,
 				5519DEF871B151F8350A2985 /* SSURLParserTests.swift */,
 				4F0B09A9E6EF0ABE9ACDEF31 /* TunnelConfigurationStoreTests.swift */,
 			);
@@ -352,6 +355,7 @@
 				F43FBA2C40B2BC1943CBEB2C /* ProfileMappingTests.swift in Sources */,
 				A2C0E474CED6E2AD39D11813 /* ProfileStoreTests.swift in Sources */,
 				1DD1B76D92B02ACD115A5562 /* SSURLParserTests.swift in Sources */,
+				A8A0C59B6AA88B2FED57A7A9 /* ShadowsocksCodecTests.swift in Sources */,
 				B9F6F51F94750134AE0FAF8C /* TunnelConfigurationStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -360,8 +364,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				840AD25108C3F3A951625A5C /* ConnectionManagerStateTests.swift in Sources */,
 				72EA1331BE95F059CEEC1B19 /* LocalAEADEchoServer.swift in Sources */,
-				7A1FBE3A51C1D3EC743DD70B /* PacketTunnelConnectionTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

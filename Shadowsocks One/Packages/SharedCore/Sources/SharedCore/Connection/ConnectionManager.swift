@@ -1,5 +1,4 @@
 import Foundation
-import Network
 
 public protocol ConnectionManaging: Actor {
     var state: ConnectionState { get }
@@ -12,8 +11,23 @@ public actor ConnectionManager: ConnectionManaging {
     public private(set) var state: ConnectionState = .idle
     public let stateStream: AsyncStream<ConnectionState>
     private let stateContinuation: AsyncStream<ConnectionState>.Continuation
+    private let probeClient: any ShadowsocksProbing
+    private let probeTarget: ConnectionProbeTarget
+    private let healthCheckNanoseconds: UInt64
+    private let reconnectNanoseconds: UInt64
+    private var shouldStayConnected = false
+    private var loopTask: Task<Void, Never>?
 
-    public init() {
+    public init(
+        probeClient: any ShadowsocksProbing = ShadowsocksProbeClient(),
+        probeTarget: ConnectionProbeTarget = .default,
+        healthCheckNanoseconds: UInt64 = 15_000_000_000,
+        reconnectNanoseconds: UInt64 = 3_000_000_000
+    ) {
+        self.probeClient = probeClient
+        self.probeTarget = probeTarget
+        self.healthCheckNanoseconds = healthCheckNanoseconds
+        self.reconnectNanoseconds = reconnectNanoseconds
         var capturedContinuation: AsyncStream<ConnectionState>.Continuation?
         self.stateStream = AsyncStream { continuation in
             capturedContinuation = continuation
@@ -27,47 +41,42 @@ public actor ConnectionManager: ConnectionManaging {
             return
         }
 
-        update(.connecting)
-
-        let endpoint = NWEndpoint.Host(config.host)
-        guard let port = NWEndpoint.Port(rawValue: config.port) else {
-            update(.failed("无效端口"))
-            return
-        }
-
-        let connection = NWConnection(host: endpoint, port: port, using: .tcp)
-        let actorSelf = self
-        await withCheckedContinuation { continuation in
-            connection.stateUpdateHandler = { newState in
-                switch newState {
-                case .ready:
-                    let payload = Data("ping".utf8)
-                    connection.send(content: payload, completion: .contentProcessed { _ in })
-                    connection.receive(minimumIncompleteLength: 1, maximumLength: 4096) { data, _, _, _ in
-                        Task {
-                            if data == payload {
-                                await actorSelf.update(.connected)
-                            } else {
-                                await actorSelf.update(.failed("AEAD 往返失败"))
-                            }
-                            continuation.resume()
-                        }
-                    }
-                case .failed(let error):
-                    Task {
-                        await actorSelf.update(.failed(error.localizedDescription))
-                        continuation.resume()
-                    }
-                default:
-                    break
-                }
-            }
-            connection.start(queue: .global())
+        shouldStayConnected = true
+        loopTask?.cancel()
+        loopTask = Task { [weak self] in
+            await self?.runConnectionLoop(config: config)
         }
     }
 
     public func disconnect() async {
+        shouldStayConnected = false
+        loopTask?.cancel()
+        loopTask = nil
         update(.idle)
+    }
+
+    private func runConnectionLoop(config: ConnectionConfig) async {
+        while shouldStayConnected && !Task.isCancelled {
+            update(.connecting)
+
+            do {
+                try await probeClient.probe(using: config, target: probeTarget)
+                guard shouldStayConnected else { break }
+                update(.connected)
+                try await Task.sleep(nanoseconds: healthCheckNanoseconds)
+            } catch is CancellationError {
+                return
+            } catch {
+                guard shouldStayConnected else { break }
+                update(.failed(error.localizedDescription))
+
+                do {
+                    try await Task.sleep(nanoseconds: reconnectNanoseconds)
+                } catch {
+                    return
+                }
+            }
+        }
     }
 
     private func update(_ newState: ConnectionState) {
