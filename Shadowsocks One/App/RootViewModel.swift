@@ -5,6 +5,7 @@ import SharedCore
 final class RootViewModel: ObservableObject {
     private static let localStoreUnavailableMessage = "本地存储初始化失败，本次导入仅在当前会话可用。"
     private static let tunnelUnavailableMessage = "系统级代理共享存储未就绪，仍可继续 App 内直连。"
+    private static let tunnelReadyMessage = "系统 VPN 已就绪，首次连接时会触发系统授权。"
 
     @Published var rawURL = ""
     @Published private(set) var profiles: [ServerProfile] = []
@@ -13,24 +14,28 @@ final class RootViewModel: ObservableObject {
     @Published private(set) var message: String?
 
     private let parser: any SSURLParsing
-    private let connectionManager: ConnectionManager
+    private let tunnelController: any TunnelControlling
     private let store: ProfileStore?
     private let tunnelStore: TunnelConfigurationStore?
     private var stateTask: Task<Void, Never>?
 
     init(
         parser: any SSURLParsing,
-        connectionManager: ConnectionManager,
+        tunnelController: any TunnelControlling,
         storeBuilder: () throws -> ProfileStore,
         tunnelStoreBuilder: () throws -> TunnelConfigurationStore
     ) {
         self.parser = parser
-        self.connectionManager = connectionManager
+        self.tunnelController = tunnelController
         self.store = try? storeBuilder()
         self.tunnelStore = try? tunnelStoreBuilder()
+        self.connectionState = tunnelController.state
         refreshInformationalMessage()
         reloadProfiles()
-        observeConnectionState()
+        observeTunnelState()
+        Task {
+            await tunnelController.prepare()
+        }
     }
 
     deinit {
@@ -40,9 +45,8 @@ final class RootViewModel: ObservableObject {
     static func makeDefault() -> RootViewModel {
         RootViewModel(
             parser: SSURLParser(),
-            connectionManager: ConnectionManager(
-                healthCheckNanoseconds: 10_000_000_000,
-                reconnectNanoseconds: 2_000_000_000
+            tunnelController: SystemTunnelManager(
+                providerBundleIdentifier: "com.example.ShadowsocksOne.PacketTunnel"
             ),
             storeBuilder: {
                 try makeProfileStore()
@@ -107,26 +111,17 @@ final class RootViewModel: ObservableObject {
                 await MainActor.run {
                     refreshInformationalMessage()
                 }
-                await connectionManager.connect(
-                    using: ConnectionConfig(profile: selectedProfile),
-                    plugin: selectedProfile.plugin
-                )
+                try await tunnelController.connect()
             } catch {
                 await MainActor.run {
-                    message = Self.tunnelUnavailableMessage
+                    message = "系统 VPN 启动失败：\(error.localizedDescription)"
                 }
-                await connectionManager.connect(
-                    using: ConnectionConfig(profile: selectedProfile),
-                    plugin: selectedProfile.plugin
-                )
             }
         }
     }
 
     func disconnect() {
-        Task {
-            await connectionManager.disconnect()
-        }
+        tunnelController.disconnect()
     }
 
     private func reloadProfiles() {
@@ -149,11 +144,16 @@ final class RootViewModel: ObservableObject {
         }
     }
 
-    private func observeConnectionState() {
+    private func observeTunnelState() {
         stateTask = Task {
-            let stream = await connectionManager.stateStream
+            let stream = tunnelController.stateStream
             for await state in stream {
                 connectionState = state
+                if case let .failed(detail) = state {
+                    message = "系统 VPN 启动失败：\(detail)"
+                } else {
+                    refreshInformationalMessage()
+                }
             }
         }
     }
@@ -164,7 +164,7 @@ final class RootViewModel: ObservableObject {
         } else if tunnelStore == nil {
             message = Self.tunnelUnavailableMessage
         } else {
-            message = nil
+            message = Self.tunnelReadyMessage
         }
     }
 

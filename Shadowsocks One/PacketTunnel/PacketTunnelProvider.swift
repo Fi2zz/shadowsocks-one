@@ -1,3 +1,4 @@
+import Foundation
 import NetworkExtension
 import SharedCore
 
@@ -13,6 +14,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 keychainService: SharedContainerSettings.keychainService
             ).loadLaunchConfiguration()
         } catch {
+            NSLog("PacketTunnel startTunnel failed while loading configuration: %@", error.localizedDescription)
             completionHandler(error)
             return
         }
@@ -28,6 +30,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         settings.mtu = 1500 as NSNumber
 
         setTunnelNetworkSettings(settings) { error in
+            if let error {
+                NSLog("PacketTunnel setTunnelNetworkSettings failed: %@", error.localizedDescription)
+            }
             completionHandler(error)
         }
     }

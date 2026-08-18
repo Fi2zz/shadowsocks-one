@@ -2,6 +2,25 @@ import XCTest
 @testable import SharedCore
 
 final class TunnelConfigurationStoreTests: XCTestCase {
+    func testFailsWhenLaunchConfigurationIsMissing() throws {
+        let tempDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDirectory) }
+
+        let store = TunnelConfigurationStore(
+            jsonURL: tempDirectory.appendingPathComponent("tunnel.json"),
+            keychain: InMemoryPasswordStore()
+        )
+
+        XCTAssertThrowsError(try store.loadLaunchConfiguration()) { error in
+            XCTAssertEqual(
+                error as? TunnelConfigurationError,
+                .missingConfiguration
+            )
+        }
+    }
+
     func testSavesAndLoadsLaunchConfiguration() throws {
         let tempDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)

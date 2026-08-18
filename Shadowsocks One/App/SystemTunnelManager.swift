@@ -3,7 +3,7 @@ import Foundation
 import SharedCore
 
 @MainActor
-final class SystemTunnelManager {
+final class SystemTunnelManager: TunnelControlling {
     private let providerBundleIdentifier: String
     private(set) var state: ConnectionState = .idle
     let stateStream: AsyncStream<ConnectionState>
@@ -71,7 +71,10 @@ final class SystemTunnelManager {
 
     private func loadOrCreateManager() async throws -> NETunnelProviderManager {
         let managers = try await loadAllManagers()
-        let manager = managers.first ?? NETunnelProviderManager()
+        let manager = managers.first {
+            let provider = $0.protocolConfiguration as? NETunnelProviderProtocol
+            return provider?.providerBundleIdentifier == providerBundleIdentifier
+        } ?? NETunnelProviderManager()
         configure(manager)
         try await save(manager)
         try await load(manager)
