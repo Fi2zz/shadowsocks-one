@@ -42,6 +42,19 @@ final class TCPFlowStateTests: XCTestCase {
         XCTAssertEqual(state.localSequenceNumber, 6)
     }
 
+    func testAdvancesAcknowledgmentAfterClientPayload() throws {
+        var state = try makeEstablishedState()
+
+        let response = try state.consumeOutboundPayload(512)
+
+        XCTAssertEqual(response.flags, [.ack])
+        XCTAssertEqual(response.sequenceNumber, 2)
+        XCTAssertEqual(response.acknowledgmentNumber, 613)
+        XCTAssertEqual(state.phase, .established)
+        XCTAssertEqual(state.localSequenceNumber, 2)
+        XCTAssertEqual(state.nextExpectedClientSequence, 613)
+    }
+
     func testConsumesClientFINAndClosesAfterFinalACK() throws {
         var state = try makeEstablishedState()
 

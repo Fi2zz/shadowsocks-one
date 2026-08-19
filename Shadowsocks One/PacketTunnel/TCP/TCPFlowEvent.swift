@@ -4,6 +4,7 @@ import SharedCore
 enum TCPFlowEvent: Equatable {
     case outboundSYN
     case outboundACK
+    case outboundPayload(Int)
     case inboundPayload(Data)
     case outboundFIN
     case outboundRST

@@ -44,6 +44,93 @@ final class TCPRouterReturnPathTests: XCTestCase {
         XCTAssertEqual(tcp.payload, Data("HTTP".utf8))
     }
 
+    func testWritesACKWhenClientSendsPayload() async throws {
+        let writer = PacketWriterSpy()
+        let relay = RelaySpy()
+        let router = makeRouter(packetWriter: writer, relay: relay)
+
+        try await router.route(makeTCPPacket(sequenceNumber: 100, acknowledgmentNumber: 0, flags: 0x02))
+        try await router.route(makeTCPPacket(sequenceNumber: 101, acknowledgmentNumber: 2, flags: 0x10))
+        writer.reset()
+
+        try await router.route(
+            makeTCPPacket(
+                sequenceNumber: 101,
+                acknowledgmentNumber: 2,
+                flags: 0x18,
+                payload: "hello"
+            )
+        )
+
+        XCTAssertEqual(relay.forwardedPayloads, [Data("hello".utf8)])
+        XCTAssertEqual(writer.packets.count, 1)
+
+        let tcp = try IPPacket(data: writer.packets[0]).tcpSegment()
+        XCTAssertTrue(tcp.isACK)
+        XCTAssertFalse(tcp.isPSH)
+        XCTAssertEqual(tcp.sequenceNumber, 2)
+        XCTAssertEqual(tcp.acknowledgmentNumber, 106)
+        XCTAssertEqual(tcp.payload.count, 0)
+    }
+
+    func testDropsDuplicateClientPayloadAndReACKsCurrentBaseline() async throws {
+        let writer = PacketWriterSpy()
+        let relay = RelaySpy()
+        let router = makeRouter(packetWriter: writer, relay: relay)
+        let payloadPacket = makeTCPPacket(
+            sequenceNumber: 101,
+            acknowledgmentNumber: 2,
+            flags: 0x18,
+            payload: "hello"
+        )
+
+        try await router.route(makeTCPPacket(sequenceNumber: 100, acknowledgmentNumber: 0, flags: 0x02))
+        try await router.route(makeTCPPacket(sequenceNumber: 101, acknowledgmentNumber: 2, flags: 0x10))
+        writer.reset()
+
+        try await router.route(payloadPacket)
+        try await router.route(payloadPacket)
+
+        XCTAssertEqual(relay.forwardedPayloads, [Data("hello".utf8)])
+        XCTAssertEqual(writer.packets.count, 2)
+
+        let duplicateAck = try IPPacket(data: writer.packets[1]).tcpSegment()
+        XCTAssertTrue(duplicateAck.isACK)
+        XCTAssertEqual(duplicateAck.sequenceNumber, 2)
+        XCTAssertEqual(duplicateAck.acknowledgmentNumber, 106)
+        XCTAssertEqual(duplicateAck.payload.count, 0)
+    }
+
+    func testSplitsLargeInboundPayloadIntoMultiplePackets() async throws {
+        let writer = PacketWriterSpy()
+        let relay = RelaySpy()
+        let router = makeRouter(packetWriter: writer, relay: relay)
+        let payload = Data(repeating: 0x41, count: 3_000)
+
+        try await router.route(makeTCPPacket(sequenceNumber: 100, acknowledgmentNumber: 0, flags: 0x02))
+        try await router.route(makeTCPPacket(sequenceNumber: 101, acknowledgmentNumber: 2, flags: 0x10))
+        writer.reset()
+
+        await relay.emitInbound(payload)
+
+        XCTAssertEqual(writer.packets.count, 3)
+
+        let first = try IPPacket(data: writer.packets[0]).tcpSegment()
+        let second = try IPPacket(data: writer.packets[1]).tcpSegment()
+        let third = try IPPacket(data: writer.packets[2]).tcpSegment()
+
+        XCTAssertEqual(first.payload.count, 1_460)
+        XCTAssertEqual(second.payload.count, 1_460)
+        XCTAssertEqual(third.payload.count, 80)
+
+        XCTAssertEqual(first.sequenceNumber, 2)
+        XCTAssertEqual(second.sequenceNumber, 1_462)
+        XCTAssertEqual(third.sequenceNumber, 2_922)
+        XCTAssertEqual(first.acknowledgmentNumber, 101)
+        XCTAssertEqual(second.acknowledgmentNumber, 101)
+        XCTAssertEqual(third.acknowledgmentNumber, 101)
+    }
+
     func testWritesFINACKWhenRelayCloses() async throws {
         let writer = PacketWriterSpy()
         let relay = RelaySpy()
@@ -63,9 +150,72 @@ final class TCPRouterReturnPathTests: XCTestCase {
         XCTAssertEqual(tcp.acknowledgmentNumber, 102)
     }
 
+    func testDropsLatePacketsAfterRelayCloses() async throws {
+        let writer = PacketWriterSpy()
+        let relay = RelaySpy()
+        let router = makeRouter(packetWriter: writer, relay: relay)
+
+        try await router.route(makeTCPPacket(sequenceNumber: 100, acknowledgmentNumber: 0, flags: 0x02))
+        try await router.route(makeTCPPacket(sequenceNumber: 101, acknowledgmentNumber: 2, flags: 0x10))
+
+        await relay.close()
+        writer.reset()
+
+        try await router.route(makeTCPPacket(sequenceNumber: 101, acknowledgmentNumber: 3, flags: 0x10))
+        try await router.route(
+            makeTCPPacket(
+                sequenceNumber: 101,
+                acknowledgmentNumber: 3,
+                flags: 0x18,
+                payload: "late"
+            )
+        )
+
+        XCTAssertEqual(relay.startCalls, 1)
+        XCTAssertEqual(writer.packets.count, 0)
+    }
+
+    func testDropsNonSYNPacketsForResidualInitialSession() async throws {
+        let writer = PacketWriterSpy()
+        let relay = RelaySpy()
+        let sessionStore = TCPFlowSessionStore()
+        let router = makeRouter(
+            packetWriter: writer,
+            relay: relay,
+            sessionStore: sessionStore
+        )
+        let packet = makeTCPPacket(
+            sequenceNumber: 101,
+            acknowledgmentNumber: 3,
+            flags: 0x18,
+            payload: "late"
+        )
+        let key = try TCPFlowKey(packet: packet)
+        _ = sessionStore.session(for: key) {
+            (
+                relay,
+                TCPFlowState.initial(
+                    clientIP: "10.0.0.2",
+                    clientPort: 49_152,
+                    remoteIP: "1.1.1.1",
+                    remotePort: 443,
+                    clientSequenceNumber: 101
+                )
+            )
+        }
+
+        try await router.route(packet)
+
+        XCTAssertEqual(relay.startCalls, 0)
+        XCTAssertEqual(relay.stopCalls, 1)
+        XCTAssertEqual(writer.packets.count, 0)
+        XCTAssertNil(sessionStore.state(for: key))
+    }
+
     private func makeRouter(
         packetWriter: any TunnelPacketWriting,
-        relay: RelaySpy
+        relay: RelaySpy,
+        sessionStore: TCPFlowSessionStore = TCPFlowSessionStore()
     ) -> TCPRouter {
         let matcher = RouteMatcher(
             configuration: RoutingConfiguration(
@@ -88,6 +238,7 @@ final class TCPRouterReturnPathTests: XCTestCase {
                 pluginOptions: nil
             ),
             matcher: matcher,
+            sessionStore: sessionStore,
             packetWriter: packetWriter,
             directRelayFactory: { _ in relay },
             proxyRelayFactory: { _ in relay }

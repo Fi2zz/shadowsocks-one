@@ -88,7 +88,6 @@ public final class ShadowsocksTCPTransport {
                     continuation.resume(throwing: error)
                     return
                 }
-
                 continuation.resume(returning: ())
             })
         }
@@ -106,7 +105,6 @@ public final class ShadowsocksTCPTransport {
                     continuation.resume(throwing: error)
                     return
                 }
-
                 continuation.resume(returning: data ?? Data())
             }
         }

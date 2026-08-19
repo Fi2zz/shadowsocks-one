@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+                0A31A000B19C4D1100000301 /* UDPUpstreamClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A31A000B19C4D1100000302 /* UDPUpstreamClient.swift */; };
                 0A31A000B19C4D1100000001 /* DNSCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A31A000B19C4D1100000101 /* DNSCoordinator.swift */; };
                 0A31A000B19C4D1100000002 /* TCPRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A31A000B19C4D1100000102 /* TCPRouter.swift */; };
                 0A31A000B19C4D1100000003 /* TunnelEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A31A000B19C4D1100000103 /* TunnelEngine.swift */; };
@@ -105,6 +106,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+                0A31A000B19C4D1100000302 /* UDPUpstreamClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNS/UDPUpstreamClient.swift; sourceTree = "<group>"; };
                 0A31A000B19C4D1100000101 /* DNSCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNS/DNSCoordinator.swift; sourceTree = "<group>"; };
                 0A31A000B19C4D1100000102 /* TCPRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCP/TCPRouter.swift; sourceTree = "<group>"; };
                 0A31A000B19C4D1100000103 /* TunnelEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelEngine.swift; sourceTree = "<group>"; };
@@ -282,6 +284,7 @@
 			isa = PBXGroup;
 			children = (
                                 0A31A000B19C4D1100000101 /* DNSCoordinator.swift */,
+                                0A31A000B19C4D1100000302 /* UDPUpstreamClient.swift */,
                                 0A31A000B19C4D1100000108 /* DirectTCPRelay.swift */,
 				ECB60CD2AA925F781483A5FE /* Info.plist */,
 				1825DBE658C71B8AB9ACC0FC /* PacketTunnel.entitlements */,
@@ -434,6 +437,7 @@
 			buildActionMask = 2147483647;
 			files = (
                                 0A31A000B19C4D1100000001 /* DNSCoordinator.swift in Sources */,
+                                0A31A000B19C4D1100000301 /* UDPUpstreamClient.swift in Sources */,
                                 0A31A000B19C4D110000000B /* DirectTCPRelay.swift in Sources */,
 				3EDDAFC260F355CA1724E792 /* PacketTunnelProvider.swift in Sources */,
                                 0A31A000B19C4D110000000C /* ShadowsocksTCPRelay.swift in Sources */,

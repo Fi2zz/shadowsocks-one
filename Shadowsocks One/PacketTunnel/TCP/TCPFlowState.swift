@@ -53,6 +53,10 @@ struct TCPFlowState {
             phase = .established
             return makeResponse(flags: [.ack])
 
+        case (.established, .outboundPayload(let payloadLength)):
+            nextExpectedClientSequence &+= UInt32(payloadLength)
+            return makeResponse(flags: [.ack])
+
         case (.established, .inboundPayload(let payload)):
             let flags: Set<TCPPacketFlag> = payload.isEmpty ? [.ack] : [.psh, .ack]
             let response = makeResponse(flags: flags, payload: payload)
@@ -89,6 +93,10 @@ struct TCPFlowState {
 
     mutating func consumeInboundPayload(_ payload: Data) throws -> TCPFlowResponse {
         try consume(.inboundPayload(payload))
+    }
+
+    mutating func consumeOutboundPayload(_ payloadLength: Int) throws -> TCPFlowResponse {
+        try consume(.outboundPayload(payloadLength))
     }
 
     mutating func consumeOutboundFIN() throws -> TCPFlowResponse {

@@ -3,6 +3,7 @@ import NetworkExtension
 import SharedCore
 
 final class PacketTunnelProvider: NEPacketTunnelProvider {
+    private static let upstreamDNSServers = ["223.5.5.5", "119.29.29.29"]
     private var engine: TunnelEngine?
     private var runtimeStatusStore: TunnelRuntimeStatusStore?
 
@@ -10,6 +11,13 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         options: [String : NSObject]?,
         completionHandler: @escaping (Error?) -> Void
     ) {
+        // #region debug-point E:start-tunnel-entry
+        TunnelDebugReporter.send(
+            "E",
+            location: "PacketTunnelProvider.startTunnel",
+            message: "startTunnel invoked"
+        )
+        // #endregion
         do {
             runtimeStatusStore = try TunnelRuntimeStatusStore(
                 appGroupID: SharedContainerSettings.appGroupID
@@ -31,7 +39,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             let dnsCoordinator = DNSCoordinator(
                 cache: dnsCache,
                 whitelist: routingConfiguration.domainWhitelist,
-                upstreamClient: ProviderDNSUpstreamClient(provider: self),
+                upstreamClient: UDPUpstreamClient(),
                 packetWriter: packetWriter
             )
             let tcpRouter = TCPRouter(
@@ -49,9 +57,29 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             Task {
                 await engine.warmUpDNSCache()
             }
+            // #region debug-point A:configuration-loaded
+            TunnelDebugReporter.send(
+                "A",
+                location: "PacketTunnelProvider.startTunnel",
+                message: "tunnel configuration loaded",
+                data: [
+                    "whitelistCount": routingConfiguration.domainWhitelist.count,
+                    "serverHost": launchConfiguration.connection.host,
+                    "serverPort": launchConfiguration.connection.port,
+                ]
+            )
+            // #endregion
         } catch {
             persistRuntimeFailureDetail(error)
             NSLog("PacketTunnel startTunnel failed while loading configuration: %@", error.localizedDescription)
+            // #region debug-point E:start-tunnel-load-failed
+            TunnelDebugReporter.send(
+                "E",
+                location: "PacketTunnelProvider.startTunnel",
+                message: "configuration load failed",
+                data: ["error": error.localizedDescription]
+            )
+            // #endregion
             completionHandler(error)
             return
         }
@@ -66,16 +94,43 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         settings.ipv4Settings?.includedRoutes = [NEIPv4Route.default()]
         settings.mtu = 1500 as NSNumber
 
+        let dnsSettings = NEDNSSettings(servers: Self.upstreamDNSServers)
+        dnsSettings.matchDomains = [""]
+        settings.dnsSettings = dnsSettings
+
         setTunnelNetworkSettings(settings) { error in
             if let error {
                 self.persistRuntimeFailureDetail(error)
                 NSLog("PacketTunnel setTunnelNetworkSettings failed: %@", error.localizedDescription)
+                // #region debug-point E:settings-failed
+                TunnelDebugReporter.send(
+                    "E",
+                    location: "PacketTunnelProvider.setTunnelNetworkSettings",
+                    message: "network settings failed",
+                    data: ["error": error.localizedDescription]
+                )
+                // #endregion
                 completionHandler(error)
                 return
             }
 
+            // #region debug-point A:settings-ready
+            TunnelDebugReporter.send(
+                "A",
+                location: "PacketTunnelProvider.setTunnelNetworkSettings",
+                message: "network settings applied and engine starting"
+            )
+            // #endregion
             self.engine?.start { [weak self] error in
                 self?.persistRuntimeFailureDetail(error)
+                // #region debug-point E:engine-fatal
+                TunnelDebugReporter.send(
+                    "E",
+                    location: "PacketTunnelProvider.engineFatal",
+                    message: "engine reported fatal error",
+                    data: ["error": error.localizedDescription]
+                )
+                // #endregion
                 self?.cancelTunnelWithError(error)
             }
 
@@ -87,6 +142,14 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         with reason: NEProviderStopReason,
         completionHandler: @escaping () -> Void
     ) {
+        // #region debug-point E:stop-tunnel
+        TunnelDebugReporter.send(
+            "E",
+            location: "PacketTunnelProvider.stopTunnel",
+            message: "stopTunnel invoked",
+            data: ["reason": reason.rawValue]
+        )
+        // #endregion
         let engine = self.engine
         self.engine = nil
 
@@ -108,79 +171,5 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 
     private func loadCNIPRanges() throws -> CNIPRangeList {
         try CNIPRangeList(ranges: [])
-    }
-}
-
-enum DNSUpstreamQueryError: Error, Equatable {
-    case providerUnavailable
-    case emptyResponse
-}
-
-private final class ProviderDNSUpstreamClient: DNSPayloadQuerying {
-    private weak var provider: NEPacketTunnelProvider?
-
-    init(provider: NEPacketTunnelProvider) {
-        self.provider = provider
-    }
-
-    func query(serverIP: String, payload: Data) async throws -> Data {
-        guard let provider else {
-            throw DNSUpstreamQueryError.providerUnavailable
-        }
-
-        let session = provider.createUDPSession(
-            to: NWHostEndpoint(hostname: serverIP, port: "53"),
-            from: nil
-        )
-        let gate = ContinuationGate()
-
-        return try await withTaskCancellationHandler {
-            try await withCheckedThrowingContinuation { continuation in
-                session.setReadHandler({ datagrams, error in
-                    if let error {
-                        gate.resume(continuation, result: .failure(error))
-                        return
-                    }
-
-                    guard let response = datagrams?.first else {
-                        gate.resume(
-                            continuation,
-                            result: .failure(DNSUpstreamQueryError.emptyResponse)
-                        )
-                        return
-                    }
-
-                    gate.resume(continuation, result: .success(response as Data))
-                }, maxDatagrams: 1)
-
-                session.writeDatagram(payload) { error in
-                    if let error {
-                        gate.resume(continuation, result: .failure(error))
-                    }
-                }
-            }
-        } onCancel: {
-            session.cancel()
-        }
-    }
-}
-
-private final class ContinuationGate {
-    private let lock = NSLock()
-    private var finished = false
-
-    func resume(
-        _ continuation: CheckedContinuation<Data, Error>,
-        result: Result<Data, Error>
-    ) {
-        lock.lock()
-        guard !finished else {
-            lock.unlock()
-            return
-        }
-        finished = true
-        lock.unlock()
-
-        continuation.resume(with: result)
     }
 }

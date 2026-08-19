@@ -13,7 +13,9 @@ final class TCPRouterTests: XCTestCase {
             proxyFactory: { [proxyFactory] key in try proxyFactory.makeRelay(key: key) }
         )
 
-        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "GET"))
+        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "", flags: 0x02))
+        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "", sequence: 2, flags: 0x10))
+        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "GET", sequence: 2))
 
         let directCalls = directFactory.createdRelayCount
         let proxyCalls = proxyFactory.createdRelayCount
@@ -35,7 +37,9 @@ final class TCPRouterTests: XCTestCase {
             proxyFactory: { [proxyFactory] key in try proxyFactory.makeRelay(key: key) }
         )
 
-        try await router.route(makeTCPPacket(destination: "142.250.72.196", port: 443, payload: "PING"))
+        try await router.route(makeTCPPacket(destination: "142.250.72.196", port: 443, payload: "", flags: 0x02))
+        try await router.route(makeTCPPacket(destination: "142.250.72.196", port: 443, payload: "", sequence: 2, flags: 0x10))
+        try await router.route(makeTCPPacket(destination: "142.250.72.196", port: 443, payload: "PING", sequence: 2))
 
         let directCalls = directFactory.createdRelayCount
         let proxyCalls = proxyFactory.createdRelayCount
@@ -56,8 +60,10 @@ final class TCPRouterTests: XCTestCase {
             proxyFactory: { key in try RelayFactorySpy().makeRelay(key: key) }
         )
 
-        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "HELLO"))
-        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "WORLD"))
+        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "", flags: 0x02))
+        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "", sequence: 2, flags: 0x10))
+        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "HELLO", sequence: 2))
+        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "WORLD", sequence: 7))
 
         let directCalls = directFactory.createdRelayCount
         let starts = directFactory.totalStartCalls
@@ -76,9 +82,13 @@ final class TCPRouterTests: XCTestCase {
             proxyFactory: { key in try RelayFactorySpy().makeRelay(key: key) }
         )
 
-        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "BODY"))
-        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "", flags: 0x11))
-        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "NEXT"))
+        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "", flags: 0x02))
+        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "", sequence: 2, flags: 0x10))
+        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "BODY", sequence: 2))
+        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "", sequence: 6, flags: 0x11))
+        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "", flags: 0x02))
+        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "", sequence: 2, flags: 0x10))
+        try await router.route(makeTCPPacket(destination: "1.0.1.8", port: 443, payload: "NEXT", sequence: 2))
 
         let directCalls = directFactory.createdRelayCount
         let stops = directFactory.totalStopCalls
@@ -195,6 +205,7 @@ private func makeTCPPacket(
     destination: String,
     port: UInt16,
     payload: String,
+    sequence: UInt32 = 1,
     flags: UInt8 = 0x18
 ) -> IPPacket {
     let payloadBytes = Array(payload.utf8)
@@ -202,7 +213,10 @@ private func makeTCPPacket(
         0xC0, 0x00,
         UInt8(port >> 8),
         UInt8(port & 0x00FF),
-        0x00, 0x00, 0x00, 0x01,
+        UInt8(sequence >> 24),
+        UInt8((sequence >> 16) & 0x00FF),
+        UInt8((sequence >> 8) & 0x00FF),
+        UInt8(sequence & 0x00FF),
         0x00, 0x00, 0x00, 0x00,
         0x50, flags,
         0x20, 0x00,
