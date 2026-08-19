@@ -5,6 +5,9 @@ import SharedCore
 // #region debug-point instrumentation:reporter
 enum TunnelDebugReporter {
     private static let serverURL = URL(string: "http://192.168.0.136:7777/event")
+    private static let enabled = UserDefaults(
+        suiteName: SharedContainerSettings.appGroupID
+    )?.bool(forKey: "tunnelDebugEnabled") ?? false
 
     static func send(
         _ hypothesisId: String,
@@ -12,6 +15,10 @@ enum TunnelDebugReporter {
         message: String,
         data: [String: Any] = [:]
     ) {
+        guard enabled else {
+            return
+        }
+
         guard let serverURL,
               let body = try? JSONSerialization.data(
                 withJSONObject: [
@@ -117,6 +124,8 @@ final class TunnelEngine {
                             try await self.handleOutboundPacket(packet)
                         } catch let error as TunnelPacketError {
                             NSLog("TunnelEngine dropped unsupported packet: %@", String(describing: error))
+                        } catch let error as TCPFlowStateError {
+                            NSLog("TunnelEngine dropped packet after flow state error: %@", String(describing: error))
                         }
                     }
                 } catch is CancellationError {

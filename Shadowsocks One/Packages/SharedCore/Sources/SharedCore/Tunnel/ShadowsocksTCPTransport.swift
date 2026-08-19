@@ -15,6 +15,7 @@ public final class ShadowsocksTCPTransport {
     private let queue = DispatchQueue(label: "SharedCore.ShadowsocksTCPTransport")
     private let stateLock = NSLock()
     private var didStart = false
+    private var startupTask: Task<Void, Error>?
     private var encoder: ShadowsocksStreamEncoder?
     private var pendingSalt: Data?
     private var responseDecoder: ShadowsocksResponseDecoder
@@ -51,31 +52,22 @@ public final class ShadowsocksTCPTransport {
             return
         }
 
-        try await withCheckedThrowingContinuation { continuation in
-            let resume = SharedContinuationResumer<Void>(continuation)
-            connection.stateUpdateHandler = { [weak connection] state in
-                switch state {
-                case .ready:
-                    connection?.stateUpdateHandler = nil
-                    resume.resume(returning: ())
-                case .failed(let error):
-                    connection?.stateUpdateHandler = nil
-                    resume.resume(throwing: error)
-                case .cancelled:
-                    connection?.stateUpdateHandler = nil
-                    resume.resume(throwing: ShadowsocksTCPTransportError.connectionCancelled)
-                default:
-                    break
-                }
-            }
-            connection.start(queue: queue)
+        let task = Task {
+            try await self.performStartup()
         }
+        stateLock.withLock {
+            startupTask = task
+        }
+    }
 
-        try prepareEncoder()
+    public func waitUntilReady() async throws {
+        let task = stateLock.withLock { startupTask }
+        try await task?.value
     }
 
     public func send(_ payload: Data) async throws {
         try await start()
+        try await waitUntilReady()
 
         let outbound = try encodeOutboundPayload(payload)
         guard !outbound.isEmpty else {
@@ -95,6 +87,7 @@ public final class ShadowsocksTCPTransport {
 
     public func receivePayloads(maximumLength: Int = 4096) async throws -> [Data] {
         try await start()
+        try await waitUntilReady()
 
         let chunk = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Data, Error>) in
             connection.receive(
@@ -122,6 +115,30 @@ public final class ShadowsocksTCPTransport {
     public func stop() {
         connection.stateUpdateHandler = nil
         connection.cancel()
+    }
+
+    private func performStartup() async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            let resume = SharedContinuationResumer<Void>(continuation)
+            connection.stateUpdateHandler = { [weak connection] state in
+                switch state {
+                case .ready:
+                    connection?.stateUpdateHandler = nil
+                    resume.resume(returning: ())
+                case .failed(let error):
+                    connection?.stateUpdateHandler = nil
+                    resume.resume(throwing: error)
+                case .cancelled:
+                    connection?.stateUpdateHandler = nil
+                    resume.resume(throwing: ShadowsocksTCPTransportError.connectionCancelled)
+                default:
+                    break
+                }
+            }
+            connection.start(queue: queue)
+        }
+
+        try prepareEncoder()
     }
 
     private func markStartedIfNeeded() -> Bool {

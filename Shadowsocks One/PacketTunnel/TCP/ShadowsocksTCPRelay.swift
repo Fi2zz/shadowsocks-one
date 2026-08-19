@@ -4,6 +4,7 @@ import SharedCore
 final class ShadowsocksTCPRelay: TCPFlowRelaying {
     private let transport: ShadowsocksTCPTransport
     private var receiveTask: Task<Void, Never>?
+    private var sendChain: Task<Void, Error>?
     var onInboundBytes: (@Sendable (Data) async -> Void)?
     var onClosed: (@Sendable () async -> Void)?
 
@@ -20,6 +21,10 @@ final class ShadowsocksTCPRelay: TCPFlowRelaying {
     }
 
     func start() async throws {
+        guard receiveTask == nil else {
+            return
+        }
+
         // #region debug-point E:proxy-relay-start
         TunnelDebugReporter.send(
             "E",
@@ -27,19 +32,30 @@ final class ShadowsocksTCPRelay: TCPFlowRelaying {
             message: "starting proxy relay"
         )
         // #endregion
-        try await transport.start()
-        guard receiveTask == nil else {
-            return
-        }
-
-        // #region debug-point E:proxy-relay-ready
-        TunnelDebugReporter.send(
-            "E",
-            location: "ShadowsocksTCPRelay.start",
-            message: "proxy relay ready"
-        )
-        // #endregion
         receiveTask = Task { [weak self] in
+            do {
+                try await self?.transport.start()
+                try await self?.transport.waitUntilReady()
+            } catch {
+                // #region debug-point E:proxy-relay-start-failed
+                TunnelDebugReporter.send(
+                    "E",
+                    location: "ShadowsocksTCPRelay.start",
+                    message: "proxy relay connect failed",
+                    data: ["error": error.localizedDescription]
+                )
+                // #endregion
+                await self?.onClosed?()
+                return
+            }
+
+            // #region debug-point E:proxy-relay-ready
+            TunnelDebugReporter.send(
+                "E",
+                location: "ShadowsocksTCPRelay.start",
+                message: "proxy relay ready"
+            )
+            // #endregion
             await self?.runReceiveLoop()
         }
     }
@@ -49,34 +65,16 @@ final class ShadowsocksTCPRelay: TCPFlowRelaying {
         TunnelDebugReporter.send(
             "E",
             location: "ShadowsocksTCPRelay.forwardOutboundPayload",
-            message: "sending payload over proxy relay",
+            message: "queueing payload for proxy relay",
             data: ["payloadBytes": payload.count]
         )
         // #endregion
-        do {
-            try await transport.send(payload)
-            // #region debug-point E:proxy-relay-send-finished
-            TunnelDebugReporter.send(
-                "E",
-                location: "ShadowsocksTCPRelay.forwardOutboundPayload",
-                message: "finished sending payload over proxy relay",
-                data: ["payloadBytes": payload.count]
-            )
-            // #endregion
-        } catch {
-            // #region debug-point E:proxy-relay-send-failed
-            TunnelDebugReporter.send(
-                "E",
-                location: "ShadowsocksTCPRelay.forwardOutboundPayload",
-                message: "failed sending payload over proxy relay",
-                data: [
-                    "payloadBytes": payload.count,
-                    "error": error.localizedDescription,
-                ]
-            )
-            // #endregion
-            throw error
+        let prior = sendChain
+        let task = Task { [weak self] in
+            try await prior?.value
+            try await self?.transport.send(payload)
         }
+        sendChain = task
     }
 
     func stop() async {

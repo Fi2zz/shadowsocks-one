@@ -39,7 +39,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             let dnsCoordinator = DNSCoordinator(
                 cache: dnsCache,
                 whitelist: routingConfiguration.domainWhitelist,
-                upstreamClient: UDPUpstreamClient(),
+                upstreamClient: ProxyDNSUpstreamClient(
+                    config: launchConfiguration.connection
+                ),
                 packetWriter: packetWriter
             )
             let tcpRouter = TCPRouter(
