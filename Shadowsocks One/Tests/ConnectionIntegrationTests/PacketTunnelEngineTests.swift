@@ -107,6 +107,40 @@ final class PacketTunnelEngineTests: XCTestCase {
         await engine.stop()
     }
 
+    func testDNSCoordinatorQueriesUpstreamWritesResponseAndCachesARecord() async throws {
+        let cache = DNSCache(now: Date.init)
+        let packetFlow = PacketFlowSpy(batches: [])
+        let upstream = DNSUpstreamClientSpy(responsePayload: makeDNSResponsePayload())
+        let dnsCoordinator = DNSCoordinator(
+            cache: cache,
+            whitelist: [],
+            upstreamClient: upstream,
+            packetWriter: TunnelPacketWriter(packetFlow: packetFlow)
+        )
+        let engine = TunnelEngine(
+            dnsCoordinator: dnsCoordinator,
+            tcpRouter: TCPRouterSpy(),
+            packetWriter: TunnelPacketWriter(packetFlow: packetFlow)
+        )
+
+        try await engine.handleOutboundPacket(makeDNSPacket())
+
+        let query = await upstream.lastQuery
+        XCTAssertEqual(query?.serverIP, "8.8.8.8")
+        XCTAssertEqual(query?.payload, makeDNSQueryPayload())
+        XCTAssertTrue(cache.contains(domain: "example.com", address: "93.184.216.34"))
+
+        let writtenPacket = try XCTUnwrap(packetFlow.writtenPacketsSnapshot().first)
+        let packet = try IPPacket(data: writtenPacket)
+        let udp = try packet.udpSegment()
+
+        XCTAssertEqual(packet.sourceAddress, "8.8.8.8")
+        XCTAssertEqual(packet.destinationAddress, "10.0.0.2")
+        XCTAssertEqual(udp.sourcePort, 53)
+        XCTAssertEqual(udp.destinationPort, 49_152)
+        XCTAssertEqual(udp.payload, makeDNSResponsePayload())
+    }
+
     private func assertEventually<T: Equatable>(
         _ actual: @escaping () async -> T,
         equals expected: T,
@@ -132,6 +166,20 @@ private actor DNSCoordinatorSpy: DNSCoordinating {
 
     func handle(_ packet: IPPacket) async throws {
         handleCallCount += 1
+    }
+}
+
+private actor DNSUpstreamClientSpy: DNSPayloadQuerying {
+    private(set) var lastQuery: (serverIP: String, payload: Data)?
+    private let responsePayload: Data
+
+    init(responsePayload: Data) {
+        self.responsePayload = responsePayload
+    }
+
+    func query(serverIP: String, payload: Data) async throws -> Data {
+        lastQuery = (serverIP, payload)
+        return responsePayload
     }
 }
 
@@ -282,11 +330,7 @@ private struct DummyLocalizedError: LocalizedError {
 }
 
 private func makeDNSPacket() -> Data {
-    let udpPayload: [UInt8] = [
-        0x12, 0x34, 0x01, 0x00,
-        0x00, 0x01, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00,
-    ]
+    let udpPayload = Array(makeDNSQueryPayload())
     let udpHeader = makeUDPHeader(
         sourcePort: 49_152,
         destinationPort: 53,
@@ -359,4 +403,29 @@ private func makeIPv4Packet(
     ] + sourceAddress + destinationAddress
 
     return Data(header + transportPayload)
+}
+
+private func makeDNSQueryPayload() -> Data {
+    Data([
+        0x12, 0x34, 0x01, 0x00,
+        0x00, 0x01, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x07, 0x65, 0x78, 0x61, 0x6D, 0x70, 0x6C, 0x65,
+        0x03, 0x63, 0x6F, 0x6D, 0x00,
+        0x00, 0x01, 0x00, 0x01,
+    ])
+}
+
+private func makeDNSResponsePayload() -> Data {
+    Data([
+        0x12, 0x34, 0x81, 0x80, 0x00, 0x01, 0x00, 0x01,
+        0x00, 0x00, 0x00, 0x00,
+        0x07, 0x65, 0x78, 0x61, 0x6D, 0x70, 0x6C, 0x65,
+        0x03, 0x63, 0x6F, 0x6D, 0x00,
+        0x00, 0x01, 0x00, 0x01,
+        0xC0, 0x0C,
+        0x00, 0x01, 0x00, 0x01,
+        0x00, 0x00, 0x01, 0x2C,
+        0x00, 0x04, 93, 184, 216, 34,
+    ])
 }

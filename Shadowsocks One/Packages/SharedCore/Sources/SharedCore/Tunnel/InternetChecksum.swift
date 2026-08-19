@@ -26,19 +26,46 @@ enum InternetChecksum {
         destinationIP: String,
         segment: SegmentBytes
     ) throws -> UInt16 {
+        try transportSegment(
+            sourceIP: sourceIP,
+            destinationIP: destinationIP,
+            protocolNumber: 6,
+            segment: segment
+        )
+    }
+
+    static func udpSegment<SegmentBytes: DataProtocol>(
+        sourceIP: String,
+        destinationIP: String,
+        segment: SegmentBytes
+    ) throws -> UInt16 {
+        try transportSegment(
+            sourceIP: sourceIP,
+            destinationIP: destinationIP,
+            protocolNumber: 17,
+            segment: segment
+        )
+    }
+
+    private static func transportSegment<SegmentBytes: DataProtocol>(
+        sourceIP: String,
+        destinationIP: String,
+        protocolNumber: UInt8,
+        segment: SegmentBytes
+    ) throws -> UInt16 {
         let sourceAddress = try IPv4AddressCodec.parse(sourceIP)
         let destinationAddress = try IPv4AddressCodec.parse(destinationIP)
         let segmentBytes = Array(segment)
-        let tcpLength = UInt16(segmentBytes.count)
+        let segmentLength = UInt16(segmentBytes.count)
 
         var pseudoHeader = [UInt8]()
         pseudoHeader.reserveCapacity(12 + segmentBytes.count + (segmentBytes.count % 2))
         pseudoHeader.append(contentsOf: sourceAddress)
         pseudoHeader.append(contentsOf: destinationAddress)
         pseudoHeader.append(0)
-        pseudoHeader.append(6)
-        pseudoHeader.append(UInt8((tcpLength >> 8) & 0xFF))
-        pseudoHeader.append(UInt8(tcpLength & 0xFF))
+        pseudoHeader.append(protocolNumber)
+        pseudoHeader.append(UInt8((segmentLength >> 8) & 0xFF))
+        pseudoHeader.append(UInt8(segmentLength & 0xFF))
         pseudoHeader.append(contentsOf: segmentBytes)
 
         return checksum(bytes: pseudoHeader)

@@ -42,6 +42,8 @@
                 2F3A5B10018D432100000101 /* IPPacketTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F3A5B10018D432100000201 /* IPPacketTests.swift */; };
                 2F3A5B10018D432100000102 /* DNSCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F3A5B10018D432100000202 /* DNSCacheTests.swift */; };
                 2F3A5B10018D432100000103 /* TCPPacketBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F3A5B10018D432100000203 /* TCPPacketBuilderTests.swift */; };
+                2F3A5B10018D432100000104 /* UDPPacketBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F3A5B10018D432100000204 /* UDPPacketBuilderTests.swift */; };
+                2F3A5B10018D432100000105 /* DNSMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F3A5B10018D432100000205 /* DNSMessageTests.swift */; };
 		235F8B7A83AE90F5593CA4B8 /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1FEC47B28F59CAFC641147CD /* SharedCore */; };
 		2AD669612179D4C9A3060E0C /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = B57B5A4303A0EC8CAE315325 /* SharedCore */; };
 		2CC8DC7211DE498C746E6275 /* ProfileListSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04775C03DEADC122546347A7 /* ProfileListSection.swift */; };
@@ -129,6 +131,8 @@
                 2F3A5B10018D432100000201 /* IPPacketTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPPacketTests.swift; sourceTree = "<group>"; };
                 2F3A5B10018D432100000202 /* DNSCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSCacheTests.swift; sourceTree = "<group>"; };
                 2F3A5B10018D432100000203 /* TCPPacketBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPPacketBuilderTests.swift; sourceTree = "<group>"; };
+                2F3A5B10018D432100000204 /* UDPPacketBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPPacketBuilderTests.swift; sourceTree = "<group>"; };
+                2F3A5B10018D432100000205 /* DNSMessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSMessageTests.swift; sourceTree = "<group>"; };
 		2B1444C2B3C132E0C5B7D872 /* ProfileMappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileMappingTests.swift; sourceTree = "<group>"; };
 		34C46936E564679007D91EA4 /* ConnectionStateDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStateDisplay.swift; sourceTree = "<group>"; };
 		37183E5D4CC5A38639E4D528 /* ImportSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportSection.swift; sourceTree = "<group>"; };
@@ -258,8 +262,10 @@
 			isa = PBXGroup;
 			children = (
                                 2F3A5B10018D432100000202 /* DNSCacheTests.swift */,
+                                2F3A5B10018D432100000205 /* DNSMessageTests.swift */,
                                 2F3A5B10018D432100000201 /* IPPacketTests.swift */,
                                 2F3A5B10018D432100000203 /* TCPPacketBuilderTests.swift */,
+                                2F3A5B10018D432100000204 /* UDPPacketBuilderTests.swift */,
 				2B1444C2B3C132E0C5B7D872 /* ProfileMappingTests.swift */,
 				D7058C010ABFA50FF723C533 /* ProfileStoreTests.swift */,
                                 2A0C100A6B97A0CE51FEF201 /* RouteMatcherTests.swift */,
@@ -447,8 +453,10 @@
 			buildActionMask = 2147483647;
 			files = (
                                 2F3A5B10018D432100000102 /* DNSCacheTests.swift in Sources */,
+                                2F3A5B10018D432100000105 /* DNSMessageTests.swift in Sources */,
                                 2F3A5B10018D432100000101 /* IPPacketTests.swift in Sources */,
                                 2F3A5B10018D432100000103 /* TCPPacketBuilderTests.swift in Sources */,
+                                2F3A5B10018D432100000104 /* UDPPacketBuilderTests.swift in Sources */,
 				F43FBA2C40B2BC1943CBEB2C /* ProfileMappingTests.swift in Sources */,
 				A2C0E474CED6E2AD39D11813 /* ProfileStoreTests.swift in Sources */,
                                 2A0C100A6B97A0CE51FEF101 /* RouteMatcherTests.swift in Sources */,

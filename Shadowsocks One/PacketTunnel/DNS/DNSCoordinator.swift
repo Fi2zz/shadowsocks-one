@@ -11,6 +11,10 @@ protocol DNSResolving: Sendable {
     func resolve(host: String) async throws -> [String]
 }
 
+protocol DNSPayloadQuerying {
+    func query(serverIP: String, payload: Data) async throws -> Data
+}
+
 enum DNSResolverError: Error, Equatable {
     case resolutionFailed(host: String, status: Int32)
 }
@@ -73,15 +77,21 @@ final class DNSCoordinator: DNSCoordinating {
     private let cache: DNSCache
     private let whitelist: [String]
     private let resolver: any DNSResolving
+    private let upstreamClient: any DNSPayloadQuerying
+    private let packetWriter: any TunnelPacketWriting
 
     init(
         cache: DNSCache,
         whitelist: [String],
-        resolver: any DNSResolving = SystemDNSResolver()
+        resolver: any DNSResolving = SystemDNSResolver(),
+        upstreamClient: any DNSPayloadQuerying,
+        packetWriter: any TunnelPacketWriting
     ) {
         self.cache = cache
         self.whitelist = whitelist
         self.resolver = resolver
+        self.upstreamClient = upstreamClient
+        self.packetWriter = packetWriter
     }
 
     func warmUpWhitelistCache() async {
@@ -101,9 +111,24 @@ final class DNSCoordinator: DNSCoordinating {
 
     func handle(_ packet: IPPacket) async throws {
         let udp = try packet.udpSegment()
-        guard udp.destinationPort == 53 || udp.sourcePort == 53 else {
+        guard udp.destinationPort == 53 else {
             return
         }
+
+        let responsePayload = try await upstreamClient.query(
+            serverIP: packet.destinationAddress,
+            payload: udp.payload
+        )
+        try? cacheResponse(responsePayload)
+
+        let responsePacket = try UDPPacketBuilder.build(
+            sourceIP: packet.destinationAddress,
+            sourcePort: udp.destinationPort,
+            destinationIP: packet.sourceAddress,
+            destinationPort: udp.sourcePort,
+            payload: responsePayload
+        )
+        packetWriter.write([responsePacket], protocols: [NSNumber(value: AF_INET)])
     }
 
     private static func normalizeHost(_ host: String) -> String {
@@ -111,5 +136,37 @@ final class DNSCoordinator: DNSCoordinating {
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .trimmingCharacters(in: CharacterSet(charactersIn: "."))
             .lowercased()
+    }
+
+    private func cacheResponse(_ responsePayload: Data) throws {
+        let message = try DNSMessage(data: responsePayload)
+        var cachedAnswers: [String: (addresses: Set<String>, ttl: UInt32)] = [:]
+
+        for answer in message.answers {
+            guard let address = answer.ipv4Address else {
+                continue
+            }
+
+            let host = Self.normalizeHost(answer.name)
+            guard !host.isEmpty else {
+                continue
+            }
+
+            if var existing = cachedAnswers[host] {
+                existing.addresses.insert(address)
+                existing.ttl = min(existing.ttl, answer.ttl)
+                cachedAnswers[host] = existing
+            } else {
+                cachedAnswers[host] = (Set([address]), answer.ttl)
+            }
+        }
+
+        for (host, entry) in cachedAnswers {
+            cache.insert(
+                domain: host,
+                addresses: Array(entry.addresses),
+                ttl: TimeInterval(entry.ttl)
+            )
+        }
     }
 }

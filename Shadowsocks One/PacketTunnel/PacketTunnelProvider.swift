@@ -26,12 +26,14 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 configuration: routingConfiguration,
                 cnIPRanges: try loadCNIPRanges()
             )
-            let dnsCoordinator = DNSCoordinator(
-                cache: dnsCache,
-                whitelist: routingConfiguration.domainWhitelist
-            )
             let tunnelPacketFlow = PacketTunnelFlowAdapter(packetFlow: packetFlow)
             let packetWriter = TunnelPacketWriter(packetFlow: tunnelPacketFlow)
+            let dnsCoordinator = DNSCoordinator(
+                cache: dnsCache,
+                whitelist: routingConfiguration.domainWhitelist,
+                upstreamClient: ProviderDNSUpstreamClient(provider: self),
+                packetWriter: packetWriter
+            )
             let tcpRouter = TCPRouter(
                 launchConfiguration: launchConfiguration,
                 matcher: routeMatcher,
@@ -106,5 +108,79 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 
     private func loadCNIPRanges() throws -> CNIPRangeList {
         try CNIPRangeList(ranges: [])
+    }
+}
+
+enum DNSUpstreamQueryError: Error, Equatable {
+    case providerUnavailable
+    case emptyResponse
+}
+
+private final class ProviderDNSUpstreamClient: DNSPayloadQuerying {
+    private weak var provider: NEPacketTunnelProvider?
+
+    init(provider: NEPacketTunnelProvider) {
+        self.provider = provider
+    }
+
+    func query(serverIP: String, payload: Data) async throws -> Data {
+        guard let provider else {
+            throw DNSUpstreamQueryError.providerUnavailable
+        }
+
+        let session = provider.createUDPSession(
+            to: NWHostEndpoint(hostname: serverIP, port: "53"),
+            from: nil
+        )
+        let gate = ContinuationGate()
+
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                session.setReadHandler({ datagrams, error in
+                    if let error {
+                        gate.resume(continuation, result: .failure(error))
+                        return
+                    }
+
+                    guard let response = datagrams?.first else {
+                        gate.resume(
+                            continuation,
+                            result: .failure(DNSUpstreamQueryError.emptyResponse)
+                        )
+                        return
+                    }
+
+                    gate.resume(continuation, result: .success(response as Data))
+                }, maxDatagrams: 1)
+
+                session.writeDatagram(payload) { error in
+                    if let error {
+                        gate.resume(continuation, result: .failure(error))
+                    }
+                }
+            }
+        } onCancel: {
+            session.cancel()
+        }
+    }
+}
+
+private final class ContinuationGate {
+    private let lock = NSLock()
+    private var finished = false
+
+    func resume(
+        _ continuation: CheckedContinuation<Data, Error>,
+        result: Result<Data, Error>
+    ) {
+        lock.lock()
+        guard !finished else {
+            lock.unlock()
+            return
+        }
+        finished = true
+        lock.unlock()
+
+        continuation.resume(with: result)
     }
 }
