@@ -124,6 +124,31 @@ final class RootViewModel: ObservableObject {
         tunnelController.disconnect()
     }
 
+    func deleteProfile(id: UUID) {
+        do {
+            try store?.deleteProfile(id: id, from: profiles)
+            profiles.removeAll { $0.id == id }
+            clearSelectionIfNeeded(deletedProfileID: id)
+            refreshInformationalMessage()
+        } catch {
+            message = "删除节点失败：\(error.localizedDescription)"
+        }
+    }
+
+    private func clearSelectionIfNeeded(deletedProfileID id: UUID) {
+        guard selectedProfileID == id else {
+            return
+        }
+
+        guard let fallbackID = profiles.first?.id else {
+            selectedProfileID = nil
+            store?.saveSelectedProfileID(nil)
+            try? tunnelStore?.clear()
+            return
+        }
+        selectProfile(id: fallbackID)
+    }
+
     private func reloadProfiles() {
         guard let store else {
             refreshInformationalMessage()

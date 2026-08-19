@@ -17,7 +17,8 @@ struct RootView: View {
                     connectionState: viewModel.connectionState,
                     selectAction: viewModel.selectProfile,
                     connectAction: viewModel.connectSelectedProfile,
-                    disconnectAction: viewModel.disconnect
+                    disconnectAction: viewModel.disconnect,
+                    deleteAction: viewModel.deleteProfile
                 )
 
                 if let message = viewModel.message {

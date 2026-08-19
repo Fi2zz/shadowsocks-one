@@ -8,6 +8,7 @@ struct ProfileListSection: View {
     let selectAction: (UUID) -> Void
     let connectAction: () -> Void
     let disconnectAction: () -> Void
+    let deleteAction: (UUID) -> Void
 
     var body: some View {
         Section("节点") {
@@ -22,6 +23,11 @@ struct ProfileListSection: View {
                         ProfileRow(profile: profile, selected: profile.id == selectedProfileID)
                     }
                     .buttonStyle(.plain)
+                }
+                .onDelete { offsets in
+                    offsets
+                        .map { profiles[$0].id }
+                        .forEach(deleteAction)
                 }
             }
 

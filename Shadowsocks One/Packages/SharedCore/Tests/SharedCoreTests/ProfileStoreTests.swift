@@ -50,6 +50,30 @@ final class ProfileStoreTests: XCTestCase {
         XCTAssertEqual(store.loadSelectedProfileID(), id)
     }
 
+    func testDeleteProfileRemovesRecordAndPassword() throws {
+        let tempDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDirectory) }
+
+        let keychain = InMemoryPasswordStore()
+        let store = ProfileStore(
+            jsonURL: tempDirectory.appendingPathComponent("profiles.json"),
+            defaults: UserDefaults(suiteName: UUID().uuidString)!,
+            keychain: keychain
+        )
+        let kept = ServerProfile(host: "kept.example.com", port: 8388, method: .aes128GCM, password: "kept-secret")
+        let deleted = ServerProfile(host: "deleted.example.com", port: 8389, method: .aes128GCM, password: "deleted-secret")
+        try store.saveProfiles([kept, deleted])
+
+        try store.deleteProfile(id: deleted.id, from: [kept, deleted])
+
+        let loaded = try store.loadProfiles()
+        XCTAssertEqual(loaded.map(\.host), ["kept.example.com"])
+        XCTAssertEqual(loaded.first?.password, "kept-secret")
+        XCTAssertNil(try keychain.loadPassword(account: deleted.id.uuidString))
+    }
+
     func testLocalInitializerCreatesDirectoryAndUsesDefaults() throws {
         let tempDirectory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
@@ -82,6 +106,10 @@ private actor InMemoryPasswordStoreBox {
     func load(account: String) -> String? {
         storage[account]
     }
+
+    func delete(account: String) {
+        storage[account] = nil
+    }
 }
 
 private struct InMemoryPasswordStore: PasswordStoring {
@@ -105,5 +133,14 @@ private struct InMemoryPasswordStore: PasswordStoring {
         }
         semaphore.wait()
         return value
+    }
+
+    func deletePassword(account: String) throws {
+        let semaphore = DispatchSemaphore(value: 0)
+        Task {
+            await box.delete(account: account)
+            semaphore.signal()
+        }
+        semaphore.wait()
     }
 }

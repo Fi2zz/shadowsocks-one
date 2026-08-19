@@ -106,4 +106,9 @@ public final class ProfileStore {
     public func saveSelectedProfileID(_ id: UUID?) {
         defaults.set(id?.uuidString, forKey: "selectedProfileID")
     }
+
+    public func deleteProfile(id: UUID, from profiles: [ServerProfile]) throws {
+        try saveProfiles(profiles.filter { $0.id != id })
+        try keychain.deletePassword(account: id.uuidString)
+    }
 }

@@ -82,3 +82,6 @@ ShadowsocksX-NG/privoxy/privoxy
 ShadowsocksX-NG/simple-obfs/obfs-local
 ShadowsocksX-NG/ss-local/ss-local
 ShadowsocksX-NG/v2ray-plugin/v2ray-plugin
+
+# SwiftPM build artifacts
+.build/

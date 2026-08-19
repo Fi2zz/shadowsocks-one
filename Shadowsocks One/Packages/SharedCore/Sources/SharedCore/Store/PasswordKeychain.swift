@@ -4,6 +4,7 @@ import Security
 public protocol PasswordStoring: Sendable {
     func savePassword(_ password: String, account: String) throws
     func loadPassword(account: String) throws -> String?
+    func deletePassword(account: String) throws
 }
 
 public struct PasswordKeychain: PasswordStoring {
@@ -48,5 +49,18 @@ public struct PasswordKeychain: PasswordStoring {
         }
 
         return String(data: data, encoding: .utf8)
+    }
+
+    public func deletePassword(account: String) throws {
+        let query: [CFString: Any] = [
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrService: service,
+            kSecAttrAccount: account,
+        ]
+
+        let status = SecItemDelete(query as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+            throw NSError(domain: NSOSStatusErrorDomain, code: Int(status))
+        }
     }
 }

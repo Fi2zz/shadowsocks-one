@@ -115,4 +115,7 @@ private struct InMemoryPasswordStore: PasswordStoring {
         semaphore.wait()
         return value
     }
+
+    func deletePassword(account: String) throws {
+    }
 }
