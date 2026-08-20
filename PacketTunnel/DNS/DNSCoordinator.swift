@@ -74,7 +74,8 @@ final class DNSCoordinator: DNSCoordinating {
                 serverIP: packet.destinationAddress,
                 payload: udp.payload
             )
-            diagnostics?("DNS \(choice.host) via \(choice.label) ok")
+            let addresses = (try? cacheResponse(responsePayload)) ?? []
+            diagnostics?("DNS \(choice.host) via \(choice.label) ok [\(addresses.joined(separator: ","))]")
             try writeResponse(responsePayload, for: packet, udp: udp)
         } catch {
             diagnostics?("DNS \(choice.host) via \(choice.label) failed: \(error.localizedDescription)")
@@ -83,8 +84,6 @@ final class DNSCoordinator: DNSCoordinating {
     }
 
     private func writeResponse(_ responsePayload: Data, for packet: IPPacket, udp: UDPPacket) throws {
-        try? cacheResponse(responsePayload)
-
         let responsePacket = try UDPPacketBuilder.build(
             sourceIP: packet.destinationAddress,
             sourcePort: udp.destinationPort,
@@ -122,7 +121,8 @@ final class DNSCoordinator: DNSCoordinating {
         return normalizeHost(question.name)
     }
 
-    private func cacheResponse(_ responsePayload: Data) throws {
+    @discardableResult
+    private func cacheResponse(_ responsePayload: Data) throws -> [String] {
         let message = try DNSMessage(data: responsePayload)
         var cachedAnswers: [String: (addresses: Set<String>, ttl: UInt32)] = [:]
 
@@ -152,5 +152,9 @@ final class DNSCoordinator: DNSCoordinating {
                 ttl: TimeInterval(entry.ttl)
             )
         }
+
+        return cachedAnswers
+            .map { host, entry in "\(host)=\(entry.addresses.sorted().joined(separator: "|"))" }
+            .sorted()
     }
 }

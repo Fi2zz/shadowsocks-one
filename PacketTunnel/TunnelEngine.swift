@@ -30,6 +30,7 @@ final class TunnelEngine {
     private let udpRouter: (any UDPRouting)?
     private let packetFlow: (any TunnelPacketFlow)?
     private let packetWriter: (any TunnelPacketWriting)?
+    private let diagnostics: TunnelDiagnosticsLogging?
     private var packetReaderTask: Task<Void, Never>?
 
     init(
@@ -37,13 +38,15 @@ final class TunnelEngine {
         tcpRouter: any TCPRouting,
         udpRouter: (any UDPRouting)? = nil,
         packetFlow: (any TunnelPacketFlow)? = nil,
-        packetWriter: (any TunnelPacketWriting)? = nil
+        packetWriter: (any TunnelPacketWriting)? = nil,
+        diagnostics: TunnelDiagnosticsLogging? = nil
     ) {
         self.dnsCoordinator = dnsCoordinator
         self.tcpRouter = tcpRouter
         self.udpRouter = udpRouter
         self.packetFlow = packetFlow
         self.packetWriter = packetWriter
+        self.diagnostics = diagnostics
     }
 
     func warmUpDNSCache() async {
@@ -80,6 +83,7 @@ final class TunnelEngine {
                 } catch is CancellationError {
                     break
                 } catch {
+                    self.diagnostics?("ENGINE fatal: \(error.localizedDescription)")
                     onFatalError?(error)
                     await self.tcpRouter.stopAll()
                     await self.udpRouter?.stopAll()

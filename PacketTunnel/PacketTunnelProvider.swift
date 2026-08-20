@@ -6,6 +6,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private static let upstreamDNSServers = ["223.5.5.5", "119.29.29.29"]
     private var engine: TunnelEngine?
     private var runtimeStatusStore: TunnelRuntimeStatusStore?
+    private var diagnostics: TunnelDiagnosticsLogging?
 
     override func startTunnel(
         options: [String : NSObject]?,
@@ -28,6 +29,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             let diagnostics: TunnelDiagnosticsLogging? = diagnosticsStore.map { store in
                 { message in store.append(message) }
             }
+            self.diagnostics = diagnostics
             diagnostics?(
                 "tunnel start directByDefault=\(routingConfiguration.directByDefault) bypassCN=\(routingConfiguration.bypassCNIP)"
             )
@@ -68,7 +70,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 tcpRouter: tcpRouter,
                 udpRouter: udpRouter,
                 packetFlow: tunnelPacketFlow,
-                packetWriter: packetWriter
+                packetWriter: packetWriter,
+                diagnostics: diagnostics
             )
             self.engine = engine
             Task {
@@ -113,6 +116,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         with reason: NEProviderStopReason,
         completionHandler: @escaping () -> Void
     ) {
+        diagnostics?("tunnel stop reason=\(reason.rawValue)")
         let engine = self.engine
         self.engine = nil
 
