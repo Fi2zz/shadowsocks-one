@@ -188,6 +188,12 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private func loadCNIPRanges() throws -> CNIPRangeList {
-        try CNIPRangeList(ranges: [])
+        guard let url = Bundle.main.url(forResource: "china-ip-list", withExtension: "txt"),
+              let content = try? String(contentsOf: url, encoding: .utf8) else {
+            return try CNIPRangeList(ranges: [])
+        }
+
+        let ranges = content.split(whereSeparator: \.isNewline).map(String.init)
+        return try CNIPRangeList(ranges: ranges)
     }
 }

@@ -8,8 +8,9 @@ struct RoutingTabView: View {
             List {
                 Section {
                     Toggle("未命中名单时直连", isOn: directByDefaultBinding)
+                    Toggle("国内 IP 直连", isOn: bypassCNIPBinding)
                 } footer: {
-                    Text("关闭：默认走代理，白名单内域名直连；开启：默认直连，代理名单内域名走代理。")
+                    Text("本地/内网 IP 始终直连。「未命中名单时直连」关闭：默认走代理，白名单内域名直连；开启：默认直连，代理名单内域名走代理。")
                 }
 
                 domainSection(for: .direct, title: "白名单（直连）", entry: $viewModel.directEntry)
@@ -26,6 +27,13 @@ struct RoutingTabView: View {
         Binding(
             get: { viewModel.directByDefault },
             set: viewModel.setDirectByDefault
+        )
+    }
+
+    private var bypassCNIPBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.bypassCNIP },
+            set: viewModel.setBypassCNIP
         )
     }
 

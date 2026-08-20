@@ -66,6 +66,15 @@ final class RoutingViewModelTests: XCTestCase {
         XCTAssertTrue(try store.load().directByDefault)
     }
 
+    func testSetBypassCNIPPersistsMode() throws {
+        let (viewModel, store) = try makeViewModel()
+
+        viewModel.setBypassCNIP(true)
+
+        XCTAssertTrue(viewModel.bypassCNIP)
+        XCTAssertTrue(try store.load().bypassCNIP)
+    }
+
     func testPersistPreservesBypassCNIPFromLoadedConfiguration() throws {
         let (_, store) = try makeViewModel()
         try store.save(RoutingConfiguration(bypassCNIP: true, domainWhitelist: []))

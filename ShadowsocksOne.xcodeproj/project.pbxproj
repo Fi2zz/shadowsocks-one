@@ -26,6 +26,7 @@
 		3C1F89BA16C55C70D1CD76A5 /* RoutingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C75740A83BD1E97814AB924 /* RoutingViewModel.swift */; };
 		3C7BB7C18C617F5248F90151 /* TCPFlowState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA96F418A420452F3E4A37C2 /* TCPFlowState.swift */; };
 		3E7084564ED7A2D94C52CA61 /* ImportSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAF6A83A5CA6243AAE61C6B /* ImportSection.swift */; };
+		402DA08BAB1804CC44D81475 /* china-ip-list.txt in Resources */ = {isa = PBXBuildFile; fileRef = 3B01D8A4711C79BC04609012 /* china-ip-list.txt */; };
 		42785E75A80F957C21056B2B /* DNSMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187496B5BAC158A4D023DF87 /* DNSMessageTests.swift */; };
 		45F9D2277491756E28765BB1 /* ConnectionManagerStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB6B334E34D445586874356 /* ConnectionManagerStateTests.swift */; };
 		462E3668FCDBE6C04CDF317D /* TCPFlowRelaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099B09012909CB5D35B16E64 /* TCPFlowRelaying.swift */; };
@@ -128,6 +129,7 @@
 		31DBF5B039D7ACC31114AD9E /* TCPFlowEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPFlowEvent.swift; sourceTree = "<group>"; };
 		326AADE761E2BD4797982673 /* IPPacketTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPPacketTests.swift; sourceTree = "<group>"; };
 		35FE0FECE245D750C4935125 /* ProfileStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStoreTests.swift; sourceTree = "<group>"; };
+		3B01D8A4711C79BC04609012 /* china-ip-list.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "china-ip-list.txt"; sourceTree = "<group>"; };
 		432C79304587402E633E9428 /* MessageSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSection.swift; sourceTree = "<group>"; };
 		488EF0DC7A388D3F575FA343 /* TunnelPacketWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelPacketWriter.swift; sourceTree = "<group>"; };
 		4A65C6B6B47CC3DBE8EA30B5 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -334,6 +336,7 @@
 		E4D7D13BE10EC4CDF33D9719 /* PacketTunnel */ = {
 			isa = PBXGroup;
 			children = (
+				3B01D8A4711C79BC04609012 /* china-ip-list.txt */,
 				B348452238ED3121BEAAF923 /* Info.plist */,
 				B03481749C8B652EC8634D8D /* PacketTunnel.entitlements */,
 				222C5A9A4F9B5AD863204225 /* PacketTunnelProvider.swift */,
@@ -413,6 +416,7 @@
 			buildConfigurationList = 768F17DDD6ABC522934C73A5 /* Build configuration list for PBXNativeTarget "ShadowsocksOnePacketTunnel" */;
 			buildPhases = (
 				604CE3D220B2FE0824531C32 /* Sources */,
+				94A04E7C206341EE09F32026 /* Resources */,
 				E2798F2D0D50AD9AF40A870F /* Frameworks */,
 			);
 			buildRules = (
@@ -469,6 +473,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				AD97782BE62665596364DA65 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		94A04E7C206341EE09F32026 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				402DA08BAB1804CC44D81475 /* china-ip-list.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

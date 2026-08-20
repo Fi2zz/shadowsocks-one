@@ -126,4 +126,32 @@ final class RouteMatcherTests: XCTestCase {
             .proxy
         )
     }
+
+    func testMatchesPrivateIPAddressAsDirect() throws {
+        let matcher = RouteMatcher(
+            configuration: .default,
+            cnIPRanges: try CNIPRangeList(ranges: [])
+        )
+
+        XCTAssertEqual(matcher.route(forHost: nil, ipString: "192.168.1.1"), .direct)
+        XCTAssertEqual(matcher.route(forHost: nil, ipString: "10.0.0.5"), .direct)
+        XCTAssertEqual(matcher.route(forHost: nil, ipString: "127.0.0.1"), .direct)
+        XCTAssertEqual(matcher.route(forHost: nil, ipString: "8.8.8.8"), .proxy)
+    }
+
+    func testProxyRuleTakesPrecedenceOverPrivateIPDirect() throws {
+        let matcher = RouteMatcher(
+            configuration: RoutingConfiguration(
+                bypassCNIP: false,
+                domainWhitelist: [],
+                proxyDomains: ["nas.lan"]
+            ),
+            cnIPRanges: try CNIPRangeList(ranges: [])
+        )
+
+        XCTAssertEqual(
+            matcher.route(forHost: "nas.lan", ipString: "192.168.1.10"),
+            .proxy
+        )
+    }
 }

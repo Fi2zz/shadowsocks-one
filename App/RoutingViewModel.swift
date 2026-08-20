@@ -14,12 +14,12 @@ final class RoutingViewModel: ObservableObject {
     @Published private(set) var directDomains: [String] = []
     @Published private(set) var proxyDomains: [String] = []
     @Published private(set) var directByDefault = false
+    @Published private(set) var bypassCNIP = false
     @Published var directEntry = ""
     @Published var proxyEntry = ""
     @Published private(set) var message: String?
 
     private let store: RoutingConfigurationStore?
-    private var bypassCNIP = false
 
     init(store: RoutingConfigurationStore?) {
         self.store = store
@@ -66,6 +66,11 @@ final class RoutingViewModel: ObservableObject {
 
     func setDirectByDefault(_ enabled: Bool) {
         directByDefault = enabled
+        persist()
+    }
+
+    func setBypassCNIP(_ enabled: Bool) {
+        bypassCNIP = enabled
         persist()
     }
 
