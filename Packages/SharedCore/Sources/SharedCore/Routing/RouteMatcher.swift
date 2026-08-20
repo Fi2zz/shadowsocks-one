@@ -9,6 +9,7 @@ public final class RouteMatcher {
     private let configuration: RoutingConfiguration
     private let cnIPRanges: CNIPRangeList
     private let domainRules: [DomainMatchRule]
+    private let proxyRules: [DomainMatchRule]
 
     public init(
         configuration: RoutingConfiguration,
@@ -17,9 +18,14 @@ public final class RouteMatcher {
         self.configuration = configuration
         self.cnIPRanges = cnIPRanges
         self.domainRules = configuration.domainWhitelist.map(DomainMatchRule.init(rawValue:))
+        self.proxyRules = configuration.proxyDomains.map(DomainMatchRule.init(rawValue:))
     }
 
     public func route(forHost host: String?, ipString: String) -> RouteDecision {
+        if let host, proxyRules.contains(where: { $0.matches(host) }) {
+            return .proxy
+        }
+
         if let host, domainRules.contains(where: { $0.matches(host) }) {
             return .direct
         }
@@ -28,6 +34,6 @@ public final class RouteMatcher {
             return .direct
         }
 
-        return .proxy
+        return configuration.directByDefault ? .direct : .proxy
     }
 }

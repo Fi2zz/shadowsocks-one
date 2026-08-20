@@ -33,4 +33,22 @@ final class RoutingConfigurationStoreTests: XCTestCase {
 
         XCTAssertEqual(try store.load(), .default)
     }
+
+    func testLoadsLegacyConfigurationWithoutProxyFields() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let jsonURL = directory.appendingPathComponent("routing.json")
+        let legacyJSON = #"{"bypassCNIP":true,"domainWhitelist":["*.qq.com"]}"#
+        try Data(legacyJSON.utf8).write(to: jsonURL)
+
+        let loaded = try RoutingConfigurationStore(jsonURL: jsonURL).load()
+
+        XCTAssertEqual(loaded.bypassCNIP, true)
+        XCTAssertEqual(loaded.domainWhitelist, ["*.qq.com"])
+        XCTAssertEqual(loaded.proxyDomains, [])
+        XCTAssertEqual(loaded.directByDefault, false)
+    }
 }

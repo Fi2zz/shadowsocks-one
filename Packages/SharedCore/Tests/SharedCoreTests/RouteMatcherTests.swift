@@ -76,4 +76,54 @@ final class RouteMatcherTests: XCTestCase {
             .proxy
         )
     }
+
+    func testMatchesProxyDomainAsProxyWhenDirectByDefault() throws {
+        let matcher = RouteMatcher(
+            configuration: RoutingConfiguration(
+                bypassCNIP: false,
+                domainWhitelist: [],
+                proxyDomains: ["*.google.com"],
+                directByDefault: true
+            ),
+            cnIPRanges: try CNIPRangeList(ranges: [])
+        )
+
+        XCTAssertEqual(
+            matcher.route(forHost: "www.google.com", ipString: "142.250.72.196"),
+            .proxy
+        )
+    }
+
+    func testFallsBackToDirectWhenDirectByDefault() throws {
+        let matcher = RouteMatcher(
+            configuration: RoutingConfiguration(
+                bypassCNIP: false,
+                domainWhitelist: [],
+                proxyDomains: ["*.google.com"],
+                directByDefault: true
+            ),
+            cnIPRanges: try CNIPRangeList(ranges: [])
+        )
+
+        XCTAssertEqual(
+            matcher.route(forHost: "www.qq.com", ipString: "203.0.113.10"),
+            .direct
+        )
+    }
+
+    func testProxyRuleTakesPrecedenceOverWhitelist() throws {
+        let matcher = RouteMatcher(
+            configuration: RoutingConfiguration(
+                bypassCNIP: false,
+                domainWhitelist: ["*.qq.com"],
+                proxyDomains: ["www.qq.com"]
+            ),
+            cnIPRanges: try CNIPRangeList(ranges: [])
+        )
+
+        XCTAssertEqual(
+            matcher.route(forHost: "www.qq.com", ipString: "203.0.113.10"),
+            .proxy
+        )
+    }
 }
