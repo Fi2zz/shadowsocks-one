@@ -95,11 +95,12 @@ relay 两种实现：
 | 规则 | 决策 |
 |---|---|
 | 域名命中代理名单（精确或 `*.suffix` 通配） | 代理 |
+| 目的 IP 在本地/内网网段（10/8、192.168/16、127/8 等，内置常量） | 直连 |
 | 域名命中白名单 | 直连 |
-| `bypassCNIP` 开启且目的 IP 在 CN 段内 | 直连 |
+| 「国内 IP 直连」开启且目的 IP 在 CN 段内 | 直连 |
 | 未命中 | 由「未命中名单时直连」开关决定（默认关闭 = 全局代理） |
 
-> 现状：域名白名单/代理名单均已生效——TCP 建连前按目的 IP 在 `DNSCache` 反查域名（DNS 应答缓存 + 隧道启动时白名单预热）。名单在 App 内「分流」页维护，下次连接生效。CN IP 段列表默认为空，`bypassCNIP` 暂无实际效果。
+> 现状：域名白名单/代理名单均已生效——TCP 建连前按目的 IP 在 `DNSCache` 反查域名（DNS 应答缓存 + 隧道启动时白名单预热）。名单与开关在 App 内「分流」页维护，下次连接生效。CN IP 段内置 17mon/china_ip_list（约 7.4k 条 IPv4 CIDR，打包在扩展内），由「国内 IP 直连」开关控制。
 
 ### 6. Shadowsocks 加密层
 
@@ -142,7 +143,7 @@ xcodebuild -project ShadowsocksOne.xcodeproj -scheme "Shadowsocks One" \
 ## 已知限制
 
 - 用户态 TCP 为最小实现：无重传/窗口/选项协商
-- CN IP 段为空，`bypassCNIP` 规则暂无实际效果（域名白名单已生效）
+- 域名分流依赖 DNS 缓存反查：未经过 DNS 解析的纯 IP 流量不会命中域名名单（内网/CN 网段按 IP 直接判断，不受影响）
 - 仅支持 TCP 中继；UDP（除 DNS 拦截外）不转发
 - 不支持 SS 插件（obfs 等），含插件的节点会被拒绝
 - `SharedCore/Connection/ConnectionManager` 是早期"App 内直连探测"方案的遗留设施，主链路已切换到系统 VPN，仅测试引用
