@@ -13,7 +13,7 @@ targets:
       - App
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.ShadowsocksOne
+        PRODUCT_BUNDLE_IDENTIFIER: com.fits.socks.one
         PRODUCT_NAME: ShadowsocksOne
         PRODUCT_MODULE_NAME: ShadowsocksOne
         INFOPLIST_FILE: App/Info.plist
@@ -31,7 +31,7 @@ targets:
       - PacketTunnel
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.ShadowsocksOne.PacketTunnel
+        PRODUCT_BUNDLE_IDENTIFIER: com.fits.socks.one.PacketTunnel
         PRODUCT_NAME: ShadowsocksOnePacketTunnel
         PRODUCT_MODULE_NAME: ShadowsocksOnePacketTunnel
         INFOPLIST_FILE: PacketTunnel/Info.plist
@@ -52,7 +52,7 @@ targets:
       - path: PacketTunnel/TunnelEngine.swift
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.ShadowsocksOne.ConnectionIntegrationTests
+        PRODUCT_BUNDLE_IDENTIFIER: com.fits.socks.one.ConnectionIntegrationTests
         GENERATE_INFOPLIST_FILE: YES
         TARGETED_DEVICE_FAMILY: "1,2"
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/ShadowsocksOne.app/ShadowsocksOne"
@@ -67,7 +67,7 @@ targets:
       - Packages/SharedCore/Tests/SharedCoreTests
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.ShadowsocksOne.SharedCoreXcodeTests
+        PRODUCT_BUNDLE_IDENTIFIER: com.fits.socks.one.SharedCoreXcodeTests
         GENERATE_INFOPLIST_FILE: YES
         TARGETED_DEVICE_FAMILY: "1,2"
         TEST_HOST: ""

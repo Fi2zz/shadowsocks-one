@@ -46,7 +46,7 @@ final class RootViewModel: ObservableObject {
         RootViewModel(
             parser: SSURLParser(),
             tunnelController: SystemTunnelManager(
-                providerBundleIdentifier: "com.example.ShadowsocksOne.PacketTunnel"
+                providerBundleIdentifier: "com.fits.socks.one.PacketTunnel"
             ),
             storeBuilder: {
                 try makeProfileStore()

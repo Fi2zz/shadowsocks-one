@@ -141,13 +141,13 @@
 		666EBC86BBB228A5E4DDD699 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6AF609E103E040D115FC0ABC /* DNSCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSCacheTests.swift; sourceTree = "<group>"; };
 		6C75740A83BD1E97814AB924 /* RoutingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingViewModel.swift; sourceTree = "<group>"; };
-		76D9644E37901DB767E95313 /* ConnectionIntegrationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ConnectionIntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		76D9644E37901DB767E95313 /* ConnectionIntegrationTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ConnectionIntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		798D9A584711CAF08FA0DC59 /* TunnelRuntimeStatusStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelRuntimeStatusStoreTests.swift; sourceTree = "<group>"; };
 		7E9A4A0F1B9CBFD012574448 /* RoutingViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingViewModelTests.swift; sourceTree = "<group>"; };
 		84FDDC7198230F92F2D443B7 /* ProfilePickerBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePickerBar.swift; sourceTree = "<group>"; };
 		85CF8A2952562289E2350AAD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		87B5B1FFAF3D38A45A6ED909 /* SharedCoreXcodeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SharedCoreXcodeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		9ABDC0609D55C9479A3B4076 /* ShadowsocksOne.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShadowsocksOne.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		87B5B1FFAF3D38A45A6ED909 /* SharedCoreXcodeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SharedCoreXcodeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9ABDC0609D55C9479A3B4076 /* Shadowsocks One.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "Shadowsocks One.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1D226BC615F9B80A12E60E1 /* ShadowsocksOne.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShadowsocksOne.entitlements; sourceTree = "<group>"; };
 		A2263334341B9B69EB3627B5 /* ProfilePickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePickerSheet.swift; sourceTree = "<group>"; };
 		A493938FE64057B81181D196 /* ConnectionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionButton.swift; sourceTree = "<group>"; };
@@ -155,7 +155,7 @@
 		AAAF6A83A5CA6243AAE61C6B /* ImportSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportSection.swift; sourceTree = "<group>"; };
 		B03481749C8B652EC8634D8D /* PacketTunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PacketTunnel.entitlements; sourceTree = "<group>"; };
 		B348452238ED3121BEAAF923 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		B90EBC2914BFED861B1F08B4 /* ShadowsocksOnePacketTunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShadowsocksOnePacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B90EBC2914BFED861B1F08B4 /* ShadowsocksOnePacketTunnel.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = ShadowsocksOnePacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		BA96F418A420452F3E4A37C2 /* TCPFlowState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPFlowState.swift; sourceTree = "<group>"; };
 		BFE860E71865F6B42AA89044 /* TunnelConfigurationStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelConfigurationStoreTests.swift; sourceTree = "<group>"; };
 		C02D8C9402DE8D23FEC938C8 /* PacketTunnelEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelEngineTests.swift; sourceTree = "<group>"; };
@@ -212,7 +212,7 @@
 			isa = PBXGroup;
 			children = (
 				76D9644E37901DB767E95313 /* ConnectionIntegrationTests.xctest */,
-				9ABDC0609D55C9479A3B4076 /* ShadowsocksOne.app */,
+				9ABDC0609D55C9479A3B4076 /* Shadowsocks One.app */,
 				B90EBC2914BFED861B1F08B4 /* ShadowsocksOnePacketTunnel.appex */,
 				87B5B1FFAF3D38A45A6ED909 /* SharedCoreXcodeTests.xctest */,
 			);
@@ -338,6 +338,8 @@
 				B03481749C8B652EC8634D8D /* PacketTunnel.entitlements */,
 				222C5A9A4F9B5AD863204225 /* PacketTunnelProvider.swift */,
 				2BB2C562F41F609541AC79C9 /* TunnelEngine.swift */,
+				8AC44DD766F795AEBB4380AC /* DNS */,
+				464EC3FF49A49271214414CF /* TCP */,
 			);
 			path = PacketTunnel;
 			sourceTree = "<group>";
@@ -384,7 +386,7 @@
 				C90C7558FF009F36B31AF55C /* SharedCore */,
 			);
 			productName = "Shadowsocks One";
-			productReference = 9ABDC0609D55C9479A3B4076 /* ShadowsocksOne.app */;
+			productReference = 9ABDC0609D55C9479A3B4076 /* Shadowsocks One.app */;
 			productType = "com.apple.product-type.application";
 		};
 		C56D35D5970C59250E40D3C4 /* SharedCoreXcodeTests */ = {
@@ -433,6 +435,8 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = 613093C471AFC3D8003F36B4 /* Build configuration list for PBXProject "ShadowsocksOne" */;
 			developmentRegion = en;
@@ -582,14 +586,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
-				DEVELOPMENT_TEAM = 8Z7LGX7B48;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne.PacketTunnel;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fits.socks.one.PacketTunnel;
 				PRODUCT_MODULE_NAME = ShadowsocksOnePacketTunnel;
 				PRODUCT_NAME = ShadowsocksOnePacketTunnel;
 				SDKROOT = iphoneos;
@@ -658,14 +661,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "";
-				DEVELOPMENT_TEAM = 8Z7LGX7B48;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne.SharedCoreXcodeTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fits.socks.one.SharedCoreXcodeTests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "";
@@ -678,13 +680,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/ShadowsocksOne.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = 8Z7LGX7B48;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fits.socks.one;
 				PRODUCT_MODULE_NAME = ShadowsocksOne;
 				PRODUCT_NAME = ShadowsocksOne;
 				SDKROOT = iphoneos;
@@ -696,14 +697,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				DEVELOPMENT_TEAM = 8Z7LGX7B48;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne.ConnectionIntegrationTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fits.socks.one.ConnectionIntegrationTests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ShadowsocksOne.app/ShadowsocksOne";
@@ -716,13 +716,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = App/ShadowsocksOne.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = 8Z7LGX7B48;
 				INFOPLIST_FILE = App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fits.socks.one;
 				PRODUCT_MODULE_NAME = ShadowsocksOne;
 				PRODUCT_NAME = ShadowsocksOne;
 				SDKROOT = iphoneos;
@@ -734,14 +733,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "";
-				DEVELOPMENT_TEAM = 8Z7LGX7B48;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne.SharedCoreXcodeTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fits.socks.one.SharedCoreXcodeTests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "";
@@ -815,14 +813,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
-				DEVELOPMENT_TEAM = 8Z7LGX7B48;
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne.PacketTunnel;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fits.socks.one.PacketTunnel;
 				PRODUCT_MODULE_NAME = ShadowsocksOnePacketTunnel;
 				PRODUCT_NAME = ShadowsocksOnePacketTunnel;
 				SDKROOT = iphoneos;
@@ -835,14 +832,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				DEVELOPMENT_TEAM = 8Z7LGX7B48;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.ShadowsocksOne.ConnectionIntegrationTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.fits.socks.one.ConnectionIntegrationTests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ShadowsocksOne.app/ShadowsocksOne";
