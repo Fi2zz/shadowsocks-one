@@ -90,15 +90,16 @@ relay 两种实现：
 
 ### 5. 分流
 
-`RouteMatcher`（SharedCore/Routing/）输出两种决策：
+`RouteMatcher`（SharedCore/Routing/）输出两种决策，规则按优先级生效：
 
 | 规则 | 决策 |
 |---|---|
-| 域名命中白名单（精确或 `*.suffix` 通配） | 直连 |
+| 域名命中代理名单（精确或 `*.suffix` 通配） | 代理 |
+| 域名命中白名单 | 直连 |
 | `bypassCNIP` 开启且目的 IP 在 CN 段内 | 直连 |
-| 其他 | 代理 |
+| 未命中 | 由「未命中名单时直连」开关决定（默认关闭 = 全局代理） |
 
-> 现状：域名白名单已生效——TCP 建连前按目的 IP 在 `DNSCache` 反查域名（DNS 应答缓存 + 隧道启动时白名单预热），命中即直连；白名单在 App 内"白名单"页维护，下次连接生效。CN IP 段列表默认为空，`bypassCNIP` 暂无实际效果。
+> 现状：域名白名单/代理名单均已生效——TCP 建连前按目的 IP 在 `DNSCache` 反查域名（DNS 应答缓存 + 隧道启动时白名单预热）。名单在 App 内「分流」页维护，下次连接生效。CN IP 段列表默认为空，`bypassCNIP` 暂无实际效果。
 
 ### 6. Shadowsocks 加密层
 
