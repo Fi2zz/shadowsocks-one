@@ -47,7 +47,6 @@
                 2F3A5B10018D432100000105 /* DNSMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F3A5B10018D432100000205 /* DNSMessageTests.swift */; };
 		235F8B7A83AE90F5593CA4B8 /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1FEC47B28F59CAFC641147CD /* SharedCore */; };
 		2AD669612179D4C9A3060E0C /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = B57B5A4303A0EC8CAE315325 /* SharedCore */; };
-		2CC8DC7211DE498C746E6275 /* ProfileListSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04775C03DEADC122546347A7 /* ProfileListSection.swift */; };
 		3EDDAFC260F355CA1724E792 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F958A27122C00568F7884E6 /* PacketTunnelProvider.swift */; };
 		66A8C1300F30D349CEA92A81 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1038806EC89A2BAF5BF3C148 /* RootViewModel.swift */; };
 		72EA1331BE95F059CEEC1B19 /* LocalAEADEchoServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2004BE1ACB7320CFEE62C35B /* LocalAEADEchoServer.swift */; };
@@ -55,6 +54,9 @@
 		0A31A000B19C4D1100000701 /* ProfilesTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A31A000B19C4D1100000702 /* ProfilesTabView.swift */; };
 		0A31A000B19C4D1100000703 /* ImportTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A31A000B19C4D1100000704 /* ImportTabView.swift */; };
 		0A31A000B19C4D1100000705 /* MessageSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A31A000B19C4D1100000706 /* MessageSection.swift */; };
+		0A31A000B19C4D1100000801 /* ConnectionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A31A000B19C4D1100000802 /* ConnectionButton.swift */; };
+		0A31A000B19C4D1100000803 /* ProfilePickerBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A31A000B19C4D1100000804 /* ProfilePickerBar.swift */; };
+		0A31A000B19C4D1100000805 /* ProfilePickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A31A000B19C4D1100000806 /* ProfilePickerSheet.swift */; };
 		8AD052D319723FF239C41843 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D57AE21C5F17C76ED208F77 /* RootView.swift */; };
 		9C80D1630B737BB295BB5A5D /* ImportSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37183E5D4CC5A38639E4D528 /* ImportSection.swift */; };
 		A2C0E474CED6E2AD39D11813 /* ProfileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7058C010ABFA50FF723C533 /* ProfileStoreTests.swift */; };
@@ -125,7 +127,6 @@
                 0A31A000B19C4D110000010D /* TCPFlowStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPFlowStateTests.swift; sourceTree = "<group>"; };
                 0A31A000B19C4D110000010E /* TunnelPacketWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCP/TunnelPacketWriter.swift; sourceTree = "<group>"; };
                 0A31A000B19C4D110000010F /* TCPRouterReturnPathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPRouterReturnPathTests.swift; sourceTree = "<group>"; };
-		04775C03DEADC122546347A7 /* ProfileListSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileListSection.swift; sourceTree = "<group>"; };
 		1038806EC89A2BAF5BF3C148 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
 		1825DBE658C71B8AB9ACC0FC /* PacketTunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PacketTunnel.entitlements; sourceTree = "<group>"; };
 		1F958A27122C00568F7884E6 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
@@ -149,6 +150,9 @@
 		0A31A000B19C4D1100000702 /* ProfilesTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesTabView.swift; sourceTree = "<group>"; };
 		0A31A000B19C4D1100000704 /* ImportTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportTabView.swift; sourceTree = "<group>"; };
 		0A31A000B19C4D1100000706 /* MessageSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSection.swift; sourceTree = "<group>"; };
+		0A31A000B19C4D1100000802 /* ConnectionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionButton.swift; sourceTree = "<group>"; };
+		0A31A000B19C4D1100000804 /* ProfilePickerBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePickerBar.swift; sourceTree = "<group>"; };
+		0A31A000B19C4D1100000806 /* ProfilePickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePickerSheet.swift; sourceTree = "<group>"; };
 		6D57AE21C5F17C76ED208F77 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		7EF5261CDF7B4C479ABD2C71 /* ConnectionManagerStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionManagerStateTests.swift; sourceTree = "<group>"; };
 		80780BC5E60046BAB0E37090 /* ShadowsocksOne.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShadowsocksOne.entitlements; sourceTree = "<group>"; };
@@ -242,9 +246,11 @@
 				34C46936E564679007D91EA4 /* ConnectionStateDisplay.swift */,
 				37183E5D4CC5A38639E4D528 /* ImportSection.swift */,
 				9E957BAB87C83DC3F4789B11 /* Info.plist */,
-				04775C03DEADC122546347A7 /* ProfileListSection.swift */,
 				62F2286883BC0FFDA2E2FE0A /* ProfileRow.swift */,
 				6D57AE21C5F17C76ED208F77 /* RootView.swift */,
+				0A31A000B19C4D1100000802 /* ConnectionButton.swift */,
+				0A31A000B19C4D1100000804 /* ProfilePickerBar.swift */,
+				0A31A000B19C4D1100000806 /* ProfilePickerSheet.swift */,
 				0A31A000B19C4D1100000702 /* ProfilesTabView.swift */,
 				0A31A000B19C4D1100000704 /* ImportTabView.swift */,
 				0A31A000B19C4D1100000706 /* MessageSection.swift */,
@@ -511,9 +517,11 @@
 			files = (
 				1C6B057E90FDB75F72726FB6 /* ConnectionStateDisplay.swift in Sources */,
 				9C80D1630B737BB295BB5A5D /* ImportSection.swift in Sources */,
-				2CC8DC7211DE498C746E6275 /* ProfileListSection.swift in Sources */,
 				A7F6DA479269D927924A06B9 /* ProfileRow.swift in Sources */,
 				8AD052D319723FF239C41843 /* RootView.swift in Sources */,
+				0A31A000B19C4D1100000801 /* ConnectionButton.swift in Sources */,
+				0A31A000B19C4D1100000803 /* ProfilePickerBar.swift in Sources */,
+				0A31A000B19C4D1100000805 /* ProfilePickerSheet.swift in Sources */,
 				0A31A000B19C4D1100000701 /* ProfilesTabView.swift in Sources */,
 				0A31A000B19C4D1100000703 /* ImportTabView.swift in Sources */,
 				0A31A000B19C4D1100000705 /* MessageSection.swift in Sources */,
