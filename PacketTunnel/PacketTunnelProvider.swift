@@ -45,9 +45,16 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 packetWriter: packetWriter,
                 hostResolver: { [dnsCache] ip in dnsCache.lookupDomain(forAddress: ip) }
             )
+            let udpRouter = UDPRouter(
+                launchConfiguration: launchConfiguration,
+                matcher: routeMatcher,
+                packetWriter: packetWriter,
+                hostResolver: { [dnsCache] ip in dnsCache.lookupDomain(forAddress: ip) }
+            )
             let engine = TunnelEngine(
                 dnsCoordinator: dnsCoordinator,
                 tcpRouter: tcpRouter,
+                udpRouter: udpRouter,
                 packetFlow: tunnelPacketFlow,
                 packetWriter: packetWriter
             )

@@ -27,6 +27,7 @@ final class PacketTunnelFlowAdapter: TunnelPacketFlow {
 final class TunnelEngine {
     private let dnsCoordinator: any DNSCoordinating
     private let tcpRouter: any TCPRouting
+    private let udpRouter: (any UDPRouting)?
     private let packetFlow: (any TunnelPacketFlow)?
     private let packetWriter: (any TunnelPacketWriting)?
     private var packetReaderTask: Task<Void, Never>?
@@ -34,11 +35,13 @@ final class TunnelEngine {
     init(
         dnsCoordinator: any DNSCoordinating,
         tcpRouter: any TCPRouting,
+        udpRouter: (any UDPRouting)? = nil,
         packetFlow: (any TunnelPacketFlow)? = nil,
         packetWriter: (any TunnelPacketWriting)? = nil
     ) {
         self.dnsCoordinator = dnsCoordinator
         self.tcpRouter = tcpRouter
+        self.udpRouter = udpRouter
         self.packetFlow = packetFlow
         self.packetWriter = packetWriter
     }
@@ -55,6 +58,7 @@ final class TunnelEngine {
         packetReaderTask = Task { [weak self] in
             guard let self else { return }
             self.tcpRouter.setPacketWriter(self.packetWriter)
+            self.udpRouter?.setPacketWriter(self.packetWriter)
 
             while !Task.isCancelled {
                 let packets = await self.readPackets(from: packetFlow)
@@ -78,11 +82,13 @@ final class TunnelEngine {
                 } catch {
                     onFatalError?(error)
                     await self.tcpRouter.stopAll()
+                    await self.udpRouter?.stopAll()
                     break
                 }
             }
 
             self.tcpRouter.setPacketWriter(nil)
+            self.udpRouter?.setPacketWriter(nil)
         }
     }
 
@@ -91,14 +97,7 @@ final class TunnelEngine {
 
         switch packet.protocolNumber {
         case 17:
-            let udp = try packet.udpSegment()
-            if udp.destinationPort == 53 || udp.sourcePort == 53 {
-                do {
-                    try await dnsCoordinator.handle(packet)
-                } catch {
-                    NSLog("TunnelEngine dropped DNS packet after upstream failure: %@", error.localizedDescription)
-                }
-            }
+            try await routeUDPPacket(packet)
         case 6:
             try await tcpRouter.route(packet)
         default:
@@ -110,7 +109,25 @@ final class TunnelEngine {
         packetReaderTask?.cancel()
         packetReaderTask = nil
         tcpRouter.setPacketWriter(nil)
+        udpRouter?.setPacketWriter(nil)
         await tcpRouter.stopAll()
+        await udpRouter?.stopAll()
+    }
+
+    /// 端口 53 的 DNS 拦截优先于 UDP 转发
+    private func routeUDPPacket(_ packet: IPPacket) async throws {
+        let udp = try packet.udpSegment()
+        let dnsDatagram = udp.destinationPort == 53 || udp.sourcePort == 53
+        guard dnsDatagram else {
+            try await udpRouter?.route(packet)
+            return
+        }
+
+        do {
+            try await dnsCoordinator.handle(packet)
+        } catch {
+            NSLog("TunnelEngine dropped DNS packet after upstream failure: %@", error.localizedDescription)
+        }
     }
 
     private func readPackets(from packetFlow: any TunnelPacketFlow) async -> [Data] {

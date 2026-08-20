@@ -52,6 +52,7 @@ targets:
       - Tests/ConnectionIntegrationTests
       - path: PacketTunnel/DNS
       - path: PacketTunnel/TCP
+      - path: PacketTunnel/UDP
       - path: PacketTunnel/PacketTunnelProvider.swift
       - path: PacketTunnel/TunnelEngine.swift
     settings:
