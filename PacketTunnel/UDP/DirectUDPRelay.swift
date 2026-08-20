@@ -51,7 +51,6 @@ final class DirectUDPRelay: UDPFlowRelaying {
     func stop() async {
         receiveTask?.cancel()
         receiveTask = nil
-        connection.stateUpdateHandler = nil
         connection.cancel()
     }
 

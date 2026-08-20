@@ -8,9 +8,14 @@ protocol UDPRouting: AnyObject {
     func setPacketWriter(_ packetWriter: (any TunnelPacketWriting)?)
 }
 
+enum UDPRouterError: Error, Equatable {
+    case relayTimeout
+}
+
 final class UDPRouter: UDPRouting {
     private let matcher: RouteMatcher
     private let sessionStore: UDPSessionStore
+    private let relayTimeoutNanoseconds: UInt64
     private let packetWriterLock = NSLock()
     private var packetWriter: (any TunnelPacketWriting)?
     private let directRelayFactory: RelayFactory
@@ -27,10 +32,12 @@ final class UDPRouter: UDPRouting {
         packetWriter: (any TunnelPacketWriting)? = nil,
         directRelayFactory: RelayFactory? = nil,
         proxyRelayFactory: RelayFactory? = nil,
-        hostResolver: HostResolver? = nil
+        hostResolver: HostResolver? = nil,
+        relayTimeoutNanoseconds: UInt64 = 5_000_000_000
     ) {
         self.matcher = matcher
         self.sessionStore = sessionStore
+        self.relayTimeoutNanoseconds = relayTimeoutNanoseconds
         self.packetWriter = packetWriter
         self.hostResolver = hostResolver
         self.directRelayFactory = directRelayFactory ?? { key in
@@ -54,10 +61,7 @@ final class UDPRouter: UDPRouting {
         let session = try makeSession(for: key, packet: packet)
 
         stopEvicted(session.evictedRelays)
-        if session.sessionCreated {
-            try await session.relay.start()
-        }
-        try await session.relay.forwardOutboundPayload(udp.payload)
+        dispatch(udp.payload, through: session, key: key)
     }
 
     func stopAll() async {
@@ -121,6 +125,48 @@ final class UDPRouter: UDPRouting {
             payload: data
         )
         packetWriter.write([packet], protocols: [NSNumber(value: AF_INET)])
+    }
+
+    /// UDP 尽力而为：relay 启动与发送不阻塞引擎读包循环，超时或失败即回收会话
+    private func dispatch(
+        _ payload: Data,
+        through session: UDPSessionStore.SessionResult,
+        key: UDPFlowKey
+    ) {
+        let timeout = relayTimeoutNanoseconds
+        Task {
+            do {
+                try await withTimeout(nanoseconds: timeout) {
+                    if session.sessionCreated {
+                        try await session.relay.start()
+                    }
+                    try await session.relay.forwardOutboundPayload(payload)
+                }
+            } catch {
+                NSLog("UDPRouter dropped datagram after relay failure: %@", error.localizedDescription)
+                await tearDownSession(for: key)
+            }
+        }
+    }
+
+    private func withTimeout(
+        nanoseconds: UInt64,
+        operation: @escaping @Sendable () async throws -> Void
+    ) async throws {
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            group.addTask { try await operation() }
+            group.addTask {
+                try await Task.sleep(nanoseconds: nanoseconds)
+                throw UDPRouterError.relayTimeout
+            }
+            defer { group.cancelAll() }
+            try await group.next()!
+        }
+    }
+
+    private func tearDownSession(for key: UDPFlowKey) async {
+        let relay = sessionStore.removeRelay(for: key)
+        await relay?.stop()
     }
 
     private func stopEvicted(_ relays: [any UDPFlowRelaying]) {

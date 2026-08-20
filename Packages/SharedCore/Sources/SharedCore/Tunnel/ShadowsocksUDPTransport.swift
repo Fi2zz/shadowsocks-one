@@ -76,7 +76,6 @@ public final class ShadowsocksUDPTransport {
     }
 
     public func stop() {
-        connection.stateUpdateHandler = nil
         connection.cancel()
     }
 

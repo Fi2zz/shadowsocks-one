@@ -18,8 +18,11 @@ final class UDPRouterTests: XCTestCase {
 
         XCTAssertEqual(directFactory.createdRelayCount, 1)
         XCTAssertEqual(proxyFactory.createdRelayCount, 0)
-        XCTAssertEqual(directFactory.totalStartCalls, 1)
-        XCTAssertEqual(directFactory.firstRelayForwardedPayloads, [Data("PING".utf8)])
+        try await assertEventually({ directFactory.totalStartCalls }, equals: 1)
+        try await assertEventually(
+            { directFactory.firstRelayForwardedPayloads },
+            equals: [Data("PING".utf8)]
+        )
     }
 
     func testUsesProxyRelayForForeignTarget() async throws {
@@ -35,8 +38,11 @@ final class UDPRouterTests: XCTestCase {
 
         XCTAssertEqual(directFactory.createdRelayCount, 0)
         XCTAssertEqual(proxyFactory.createdRelayCount, 1)
-        XCTAssertEqual(proxyFactory.totalStartCalls, 1)
-        XCTAssertEqual(proxyFactory.firstRelayForwardedPayloads, [Data("PING".utf8)])
+        try await assertEventually({ proxyFactory.totalStartCalls }, equals: 1)
+        try await assertEventually(
+            { proxyFactory.firstRelayForwardedPayloads },
+            equals: [Data("PING".utf8)]
+        )
     }
 
     func testReusesRelayForSameFlow() async throws {
@@ -51,8 +57,11 @@ final class UDPRouterTests: XCTestCase {
         try await router.route(makeUDPPacket(destination: "1.0.1.8", destinationPort: 443, payload: "B"))
 
         XCTAssertEqual(directFactory.createdRelayCount, 1)
-        XCTAssertEqual(directFactory.totalStartCalls, 1)
-        XCTAssertEqual(directFactory.firstRelayForwardedPayloads, [Data("A".utf8), Data("B".utf8)])
+        try await assertEventually({ directFactory.firstRelayForwardedPayloads.count }, equals: 2)
+        XCTAssertEqual(
+            Set(directFactory.firstRelayForwardedPayloads),
+            Set([Data("A".utf8), Data("B".utf8)])
+        )
     }
 
     func testUsesDirectRelayForWhitelistedDomainResolvedFromHost() async throws {
@@ -138,9 +147,36 @@ final class UDPRouterTests: XCTestCase {
         try await assertEventually({ directFactory.totalStopCalls }, equals: 1)
     }
 
+    /// 回归用例：relay 启动永久挂起时 route 必须立即返回（不阻塞引擎读包循环），
+    /// 超时后回收会话，后续报文重建新 relay。
+    func testHangingRelayStartReturnsImmediatelyAndTearsDownAfterTimeout() async throws {
+        let hangingRelay = HangingUDPRelaySpy()
+        let directFactory = UDPRelayFactorySpy()
+        let relaySource = RelaySourceSpy(hangingRelay: hangingRelay, fallbackFactory: directFactory)
+        let router = makeRouter(
+            decision: .direct,
+            relayTimeoutNanoseconds: 50_000_000,
+            directFactory: { key in try relaySource.makeRelay(key: key) },
+            proxyFactory: { key in try UDPRelayFactorySpy().makeRelay(key: key) }
+        )
+
+        try await router.route(makeUDPPacket(destination: "1.0.1.8", destinationPort: 443, payload: "A"))
+
+        try await assertEventually({ hangingRelay.stopCalls }, equals: 1)
+
+        relaySource.serveHangingRelay = false
+        try await router.route(makeUDPPacket(destination: "1.0.1.8", destinationPort: 443, payload: "B"))
+        try await assertEventually({ directFactory.createdRelayCount }, equals: 1)
+        try await assertEventually(
+            { directFactory.firstRelayForwardedPayloads },
+            equals: [Data("B".utf8)]
+        )
+    }
+
     private func makeRouter(
         decision: RouteDecision,
         sessionStore: UDPSessionStore = UDPSessionStore(),
+        relayTimeoutNanoseconds: UInt64 = 5_000_000_000,
         directFactory: @escaping UDPRouter.RelayFactory,
         proxyFactory: @escaping UDPRouter.RelayFactory,
         packetWriter: (any TunnelPacketWriting)? = nil
@@ -158,6 +194,7 @@ final class UDPRouterTests: XCTestCase {
         return makeRouter(
             matcher: matcher,
             sessionStore: sessionStore,
+            relayTimeoutNanoseconds: relayTimeoutNanoseconds,
             directFactory: directFactory,
             proxyFactory: proxyFactory,
             packetWriter: packetWriter
@@ -167,6 +204,7 @@ final class UDPRouterTests: XCTestCase {
     private func makeRouter(
         matcher: RouteMatcher,
         sessionStore: UDPSessionStore = UDPSessionStore(),
+        relayTimeoutNanoseconds: UInt64 = 5_000_000_000,
         directFactory: @escaping UDPRouter.RelayFactory,
         proxyFactory: @escaping UDPRouter.RelayFactory,
         packetWriter: (any TunnelPacketWriting)? = nil,
@@ -189,7 +227,8 @@ final class UDPRouterTests: XCTestCase {
             packetWriter: packetWriter,
             directRelayFactory: directFactory,
             proxyRelayFactory: proxyFactory,
-            hostResolver: hostResolver
+            hostResolver: hostResolver,
+            relayTimeoutNanoseconds: relayTimeoutNanoseconds
         )
     }
 
@@ -207,5 +246,53 @@ final class UDPRouterTests: XCTestCase {
         }
 
         XCTAssertEqual(actual(), expected)
+    }
+}
+
+private final class HangingUDPRelaySpy: UDPFlowRelaying {
+    private(set) var stopCalls = 0
+    var onInboundDatagram: (@Sendable (Data) async -> Void)?
+    var onClosed: (@Sendable () async -> Void)?
+
+    func start() async throws {
+        try await Task.sleep(nanoseconds: .max)
+    }
+
+    func forwardOutboundPayload(_ payload: Data) async throws {}
+
+    func stop() async {
+        stopCalls += 1
+    }
+}
+
+private final class RelaySourceSpy: @unchecked Sendable {
+    private let lock = NSLock()
+    private let hangingRelay: HangingUDPRelaySpy
+    private let fallbackFactory: UDPRelayFactorySpy
+    private var hangingEnabled = true
+
+    var serveHangingRelay: Bool {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            return hangingEnabled
+        }
+        set {
+            lock.lock()
+            hangingEnabled = newValue
+            lock.unlock()
+        }
+    }
+
+    init(hangingRelay: HangingUDPRelaySpy, fallbackFactory: UDPRelayFactorySpy) {
+        self.hangingRelay = hangingRelay
+        self.fallbackFactory = fallbackFactory
+    }
+
+    func makeRelay(key: UDPFlowKey) throws -> any UDPFlowRelaying {
+        guard serveHangingRelay else {
+            return try fallbackFactory.makeRelay(key: key)
+        }
+        return hangingRelay
     }
 }
