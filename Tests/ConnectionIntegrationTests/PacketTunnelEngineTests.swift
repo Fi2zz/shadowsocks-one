@@ -141,6 +141,60 @@ final class PacketTunnelEngineTests: XCTestCase {
         XCTAssertEqual(udp.payload, makeDNSResponsePayload())
     }
 
+    func testDNSCoordinatorRoutesWhitelistedDomainToLocalUpstream() async throws {
+        let proxySpy = DNSUpstreamClientSpy(responsePayload: makeDNSResponsePayload())
+        let localSpy = DNSUpstreamClientSpy(responsePayload: makeDNSResponsePayload())
+        let matcher = RouteMatcher(
+            configuration: RoutingConfiguration(
+                bypassCNIP: false,
+                domainWhitelist: ["example.com"]
+            ),
+            cnIPRanges: try CNIPRangeList(ranges: [])
+        )
+        let dnsCoordinator = DNSCoordinator(
+            cache: DNSCache(now: Date.init),
+            whitelist: [],
+            upstreamClient: proxySpy,
+            localUpstreamClient: localSpy,
+            matcher: matcher,
+            packetWriter: TunnelPacketWriter(packetFlow: PacketFlowSpy(batches: []))
+        )
+
+        try await dnsCoordinator.handle(IPPacket(data: makeDNSPacket()))
+
+        let localQuery = await localSpy.lastQuery
+        let proxyQuery = await proxySpy.lastQuery
+        XCTAssertNotNil(localQuery)
+        XCTAssertNil(proxyQuery)
+    }
+
+    func testDNSCoordinatorRoutesUnlistedDomainToProxyUpstream() async throws {
+        let proxySpy = DNSUpstreamClientSpy(responsePayload: makeDNSResponsePayload())
+        let localSpy = DNSUpstreamClientSpy(responsePayload: makeDNSResponsePayload())
+        let matcher = RouteMatcher(
+            configuration: RoutingConfiguration(
+                bypassCNIP: false,
+                domainWhitelist: []
+            ),
+            cnIPRanges: try CNIPRangeList(ranges: [])
+        )
+        let dnsCoordinator = DNSCoordinator(
+            cache: DNSCache(now: Date.init),
+            whitelist: [],
+            upstreamClient: proxySpy,
+            localUpstreamClient: localSpy,
+            matcher: matcher,
+            packetWriter: TunnelPacketWriter(packetFlow: PacketFlowSpy(batches: []))
+        )
+
+        try await dnsCoordinator.handle(IPPacket(data: makeDNSPacket()))
+
+        let localQuery = await localSpy.lastQuery
+        let proxyQuery = await proxySpy.lastQuery
+        XCTAssertNil(localQuery)
+        XCTAssertNotNil(proxyQuery)
+    }
+
     private func assertEventually<T: Equatable>(
         _ actual: @escaping () async -> T,
         equals expected: T,

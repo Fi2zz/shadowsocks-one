@@ -37,6 +37,7 @@
 		5CE71082AB5242FD2C3877E7 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222C5A9A4F9B5AD863204225 /* PacketTunnelProvider.swift */; };
 		5E85A4567697FC1CA0E52453 /* TCPFlowKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201D3DA8D62A0AD6AEFE22A9 /* TCPFlowKey.swift */; };
 		61CD69D2C091E6A1516C2744 /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5F375B6A9750588195206151 /* SharedCore */; };
+		62B0F8B9D4BFE6D8927B97AB /* LocalDNSUpstreamClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8876B4F346D5ACE972E03D /* LocalDNSUpstreamClient.swift */; };
 		651004ED5C7F04DD463DACAE /* IPPacketTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326AADE761E2BD4797982673 /* IPPacketTests.swift */; };
 		6523C20EAB578B5D6ED4DA8B /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C6827946DEEF6A298D71EC /* RootViewModel.swift */; };
 		68B99B8058D378DF6436F26B /* ProfilePickerBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FDDC7198230F92F2D443B7 /* ProfilePickerBar.swift */; };
@@ -79,6 +80,7 @@
 		E49C264771AC31DAC5BCAE7D /* TCPRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ED1CEEDDCE7CB8545830B13 /* TCPRouterTests.swift */; };
 		E687AF63906F24E2E144226C /* ConnectionStateDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B249DA0A152DE0A8220C05 /* ConnectionStateDisplay.swift */; };
 		ED08A51E5637F1AE8A614A43 /* ShadowsocksCodecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26326E09C300A99FABA7E8A /* ShadowsocksCodecTests.swift */; };
+		EFD005CC5679B80167C4604D /* LocalDNSUpstreamClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8876B4F346D5ACE972E03D /* LocalDNSUpstreamClient.swift */; };
 		FCE816D1C820004A246E0ED3 /* SSURLParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CBCE0B79532877194A5BC9D /* SSURLParserTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -145,6 +147,7 @@
 		58471BB0C0452CA2EDDB333A /* RootViewModelSystemTunnelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModelSystemTunnelTests.swift; sourceTree = "<group>"; };
 		5ED1CEEDDCE7CB8545830B13 /* TCPRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPRouterTests.swift; sourceTree = "<group>"; };
 		666EBC86BBB228A5E4DDD699 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		6A8876B4F346D5ACE972E03D /* LocalDNSUpstreamClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDNSUpstreamClient.swift; sourceTree = "<group>"; };
 		6AF609E103E040D115FC0ABC /* DNSCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSCacheTests.swift; sourceTree = "<group>"; };
 		6C75740A83BD1E97814AB924 /* RoutingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingViewModel.swift; sourceTree = "<group>"; };
 		76D9644E37901DB767E95313 /* ConnectionIntegrationTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ConnectionIntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -314,6 +317,7 @@
 			isa = PBXGroup;
 			children = (
 				E7F9E86CEF1F56C672F17DAA /* DNSCoordinator.swift */,
+				6A8876B4F346D5ACE972E03D /* LocalDNSUpstreamClient.swift */,
 				C3C1DBB5591720309FAA57BE /* ProxyDNSUpstreamClient.swift */,
 			);
 			name = DNS;
@@ -513,6 +517,7 @@
 				32ADDC4C2155994506D44DAE /* DirectTCPRelay.swift in Sources */,
 				09DCCE5CED7F2D05D4106BCD /* IPListViewModelTests.swift in Sources */,
 				DEB28782E3D5B189A8A89B12 /* LocalAEADEchoServer.swift in Sources */,
+				62B0F8B9D4BFE6D8927B97AB /* LocalDNSUpstreamClient.swift in Sources */,
 				CBB4A75A7254E8AB7943E5DD /* PacketTunnelEngineTests.swift in Sources */,
 				A09FE08570F67E9975F418F9 /* PacketTunnelProvider.swift in Sources */,
 				7D932B4C176C1D3CC71E9736 /* ProxyDNSUpstreamClient.swift in Sources */,
@@ -563,6 +568,7 @@
 			files = (
 				867DBCAE1ABCDE9D580E3CFD /* DNSCoordinator.swift in Sources */,
 				18E608472BBEB835730DCEAA /* DirectTCPRelay.swift in Sources */,
+				EFD005CC5679B80167C4604D /* LocalDNSUpstreamClient.swift in Sources */,
 				5CE71082AB5242FD2C3877E7 /* PacketTunnelProvider.swift in Sources */,
 				82B167B866016CDB0B4628CA /* ProxyDNSUpstreamClient.swift in Sources */,
 				E059FC9F338B4B053C61EE60 /* ShadowsocksTCPRelay.swift in Sources */,

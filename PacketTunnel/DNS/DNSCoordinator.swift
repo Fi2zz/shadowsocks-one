@@ -78,6 +78,8 @@ final class DNSCoordinator: DNSCoordinating {
     private let whitelist: [String]
     private let resolver: any DNSResolving
     private let upstreamClient: any DNSPayloadQuerying
+    private let localUpstreamClient: (any DNSPayloadQuerying)?
+    private let matcher: RouteMatcher?
     private let packetWriter: any TunnelPacketWriting
 
     init(
@@ -85,12 +87,16 @@ final class DNSCoordinator: DNSCoordinating {
         whitelist: [String],
         resolver: any DNSResolving = SystemDNSResolver(),
         upstreamClient: any DNSPayloadQuerying,
+        localUpstreamClient: (any DNSPayloadQuerying)? = nil,
+        matcher: RouteMatcher? = nil,
         packetWriter: any TunnelPacketWriting
     ) {
         self.cache = cache
         self.whitelist = whitelist
         self.resolver = resolver
         self.upstreamClient = upstreamClient
+        self.localUpstreamClient = localUpstreamClient
+        self.matcher = matcher
         self.packetWriter = packetWriter
     }
 
@@ -115,7 +121,7 @@ final class DNSCoordinator: DNSCoordinating {
             return
         }
 
-        let responsePayload = try await upstreamClient.query(
+        let responsePayload = try await selectUpstream(for: udp.payload).query(
             serverIP: packet.destinationAddress,
             payload: udp.payload
         )
@@ -136,6 +142,25 @@ final class DNSCoordinator: DNSCoordinating {
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .trimmingCharacters(in: CharacterSet(charactersIn: "."))
             .lowercased()
+    }
+
+    private func selectUpstream(for queryPayload: Data) -> any DNSPayloadQuerying {
+        guard let matcher, let localUpstreamClient,
+              let host = Self.queryHost(in: queryPayload) else {
+            return upstreamClient
+        }
+
+        return matcher.dnsDecision(forHost: host) == .direct
+            ? localUpstreamClient
+            : upstreamClient
+    }
+
+    private static func queryHost(in payload: Data) -> String? {
+        guard let message = try? DNSMessage(data: payload),
+              let question = message.questions.first else {
+            return nil
+        }
+        return normalizeHost(question.name)
     }
 
     private func cacheResponse(_ responsePayload: Data) throws {

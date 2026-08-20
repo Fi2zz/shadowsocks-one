@@ -35,6 +35,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 upstreamClient: ProxyDNSUpstreamClient(
                     config: launchConfiguration.connection
                 ),
+                localUpstreamClient: LocalDNSUpstreamClient(),
+                matcher: routeMatcher,
                 packetWriter: packetWriter
             )
             let tcpRouter = TCPRouter(

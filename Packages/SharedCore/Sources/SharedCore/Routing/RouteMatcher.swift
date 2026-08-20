@@ -48,6 +48,18 @@ public final class RouteMatcher {
         return configuration.directByDefault ? .direct : .proxy
     }
 
+    /// DNS 解析路径决策：只看域名规则与默认路由，不看 IP 规则
+    ///（解析发生时尚无目的 IP；CN 段判断保留给 TCP 建连时做）。
+    public func dnsDecision(forHost host: String) -> RouteDecision {
+        if proxyRules.contains(where: { $0.matches(host) }) {
+            return .proxy
+        }
+        if domainRules.contains(where: { $0.matches(host) }) {
+            return .direct
+        }
+        return configuration.directByDefault ? .direct : .proxy
+    }
+
     private func matchesDirectRule(host: String?, ipString: String) -> Bool {
         if privateRanges.contains(ipString) {
             return true
