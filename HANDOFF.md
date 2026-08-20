@@ -1,50 +1,58 @@
-# Handoff — Shadowsocks One 仓库重构与后续事项
+# Handoff — UDP 转发 / 弱网 TCP 增强
 
-> 写给下一个接手会话/协作者。日期：2026-08-20。
+> 写给下一个接手会话。日期：2026-08-20。
+> 本仓库的 SS iOS 客户端（Shadowsocks One）分流闭环已完成并**真机验证通过**。本会话目标是在此基础上做：A) UDP 转发（QUIC/HTTP3、语音类 App）；或 B) 弱网 TCP 体感优化。两个任务相互独立，可单做。
 
-## 仓库现状
+## 仓库与流程（必读）
 
-- 远端：`git@github.com:Fi2zz/shadowsocks-one.git`，主分支 `master`，本地已建立跟踪。
-- 本地路径：`/Users/fitz/REPO/ShadowsocksX-NG`（目录名未改，建议择期重命名为 `shadowsocks-one`）。
-- 本仓库原为 ShadowsocksX-NG 的 fork，已删除全部旧内容，只保留 iOS 新项目并提升到仓库根目录。
-- 历史：已 unshallow（含原仓库完整历史）；旧 tag 已全部删除。
-- 分支：`master` 为唯一分支（历史遗留本地分支已删除）。
-- 调试设施（`TunnelDebugReporter` 及全部 `#region debug-point` 埋点）已摘除；`.dbg/` 调试残留已删除。
+- 路径 `/Users/fitz/REPO/ShadowsocksX-NG`（目录名未改，可择期 rename 为 shadowsocks-one）；远端 `git@github.com:Fi2zz/shadowsocks-one.git`，唯一分支 `master`。
+- 工程由 XcodeGen 生成：**新增/删除源文件后必须跑 `xcodegen`**（`make` 各目标已内置）。
+- Makefile：`make test`（模拟器）、`make run`（构建+安装+启动到真机 iPhone 16，device id `14EDD430-3B6F-5969-B920-F1C427404CA4`）。
+- **测试不要加 `CODE_SIGNING_ALLOWED=NO`**：会导致测试宿主 Keychain 失败、RootViewModel 用例挂。只有纯 `make build` 用了它。
+- 提交规范（用户全局 AGENTS.md）：中文交流；函数 ≤20 行、文件 ≤200 行、单函数分支 ≤3；布尔命名禁 is/has 前缀；完成改动后用 `git-commit` skill 按逻辑分类提交并直接 push（已授权）。
+- 项目决定**不上架 App Store**，无需考虑审核相关约束。
 
-## 本次会话已完成（均已推送）
+## 当前架构状态（已完成，勿重做）
 
-| 提交 | 内容 |
-|---|---|
-| `90d9c85` | 删除 ShadowsocksX-NG 旧内容（620 文件，含 Pods/submodules/.github） |
-| `74baf5b` | 清理 deps 残留；恢复误删的 `docs/`（Shadowsocks One 设计文档） |
-| `a5ffa73` | 后台保活加固（见下） |
-| `385137e` | `Shadowsocks One/` 子目录内容上提到仓库根目录（纯 rename） |
+- 三层：App（SwiftUI + `SystemTunnelManager`）→ Packet Tunnel 扩展（`TunnelEngine` 读 TUN 分发）→ `Packages/SharedCore`（加密/路由/存储，纯逻辑可单测）。
+- `TunnelEngine.swift:92` 按协议分发：**UDP/53 → `DNSCoordinator`，TCP → `TCPRouter`，其余全部丢弃**。
+- 分流闭环已生效（真机已验证）：
+  - `RouteMatcher`（SharedCore/Routing）：`route(forHost:ipString:)` 给 TCP 用，`dnsDecision(forHost:)` 给 DNS 用；代理名单 > 内网段（内置常量）> 域名白名单 > CN 段 > 默认开关。
+  - DNS：`DNSCoordinator` 按 `dnsDecision` 分流——直连域名走 `LocalDNSUpstreamClient`（本地 UDP 223.5.5.5），其余走 `ProxyDNSUpstreamClient`（8.8.8.8 over SS TCP）。A 记录入 `DNSCache`，TCP 建连时 `TCPRouter` 用 `DNSCache.lookupDomain` 反查域名做名单判定。
+  - CN IP 库：内置 `PacketTunnel/china-ip-list.txt`（17mon，约 7.4k 条），App 内可下载更新，下载版优先。
+  - UI：「导入与分流」单 Tab；名单每行有「测试」按钮（`App/DomainRouteTester.swift`：本地解析 → RouteMatcher 决策 → 直连时实测 TCP 443 耗时）。
+- Bundle ID `com.fits.socks.one`（扩展 `.PacketTunnel`）、app group `group.com.fitz.app`、keychain `com.fits.socks.one.shared`、`DEVELOPMENT_TEAM=8Z7LGX7B48` 均已固化在 `project.yml` / entitlements。
 
-后台保活加固（`a5ffa73`）细节：
+## 任务 A：UDP 转发
 
-- `App/TunnelControlling.swift` / `App/SystemTunnelManager.swift`：新增 `refreshStatus()`。
-- `App/RootView.swift` / `App/RootViewModel.swift`：`scenePhase == .active` 时 re-sync 连接状态。
-- `PacketTunnel/PacketTunnelProvider.swift`：实现 `sleep/wake`（停/启引擎，`startEngine()` 提取自 startTunnel 内联闭包）。
-- 测试 spy 同步补 `refreshStatus()`。
-- 结论性认知：Packet Tunnel 由系统托管，App 退后台/被杀 VPN 本来就不断（真机已验证），以上只是健壮性补齐。
+**现状**：除 DNS 拦截外 UDP 全部丢弃（`TunnelEngine` 的 `case 17` 只处理源/目的端口 53）。QUIC 会回退 TCP（能上网但首次有回退延迟）；WebRTC/FaceTime 语音视频、部分游戏不可用。
 
-## 待办（按优先级）
+**实现要点**：
 
-1. ~~提交 README.md~~ 已完成（`bd9982a`）。
-2. ~~xcodeproj 改名~~ 已完成（`3131e7b`）：`ShadowsocksOne.xcodeproj`，只改了 `project.yml` 的 `name`，target/scheme 名未动。
-3. ~~既有测试失败~~ 已解决：根因有二。(a) 旧 pbxproj 里手动维护的测试目标配置（`PacketTunnel` 源码编入测试 bundle、以 App 为 TEST_HOST）不在 project.yml 里，xcodegen 重新生成后丢失，已在 project.yml 补齐；(b) `CODE_SIGNING_ALLOWED=NO` 时测试宿主 App 无签名 → Keychain `SecItemAdd` 失败 → `importProfile` 保存抛错导致 `selectedProfile` 为 nil。**测试必须带默认签名运行（不要加 `CODE_SIGNING_ALLOWED=NO`）。** 修复后全部测试通过。
-4. ~~未跟踪文件~~ 已处理：`.dbg/` 已删除，`debug-vpn-webpage-blocked.md` 已不存在。
-5. ~~Bundle ID / 签名占位值~~ 已全部替换：Bundle ID `com.fits.socks.one*`、app group `group.com.fitz.app`、keychain service `com.fits.socks.one.shared`（两个 target 的 `keychain-access-groups` 已同步）；`project.yml` 已固化 `DEVELOPMENT_TEAM=8Z7LGX7B48` + 自动签名。
+1. **SS UDP 协议**：每个数据报独立加密——`[salt][AEAD( ATYP + 目的地址 + 端口 + payload )]`，子密钥 `HKDF-SHA1(masterKey, salt, "ss-subkey")`；响应同格式。积木都在 `SharedCore/Connection/`：`ShadowsocksAEADCipher`、`ShadowsocksSessionKey`、`ShadowsocksAddressEncoder`——**注意这三个目前是 internal**。推荐做法：在 `SharedCore/Tunnel/` 新增 public 的 `ShadowsocksUDPTransport`（对齐 `ShadowsocksTCPTransport` 的分层），而不是把这些类型逐个改 public。
+2. **NAT 会话表**：key = 四元组（srcIP, srcPort, dstIP, dstPort），参照 `PacketTunnel/TCP/TCPFlowKey.swift`。每个 session 一条到 SS 服务器的 `NWConnection`（UDP），加空闲超时回收（QUIC 空闲可达 30s+）；表要有上限，防止内存膨胀。
+3. **分流**：UDP 也应过 `RouteMatcher`（目的 IP 反查 `DNSCache` 域名 + CN 段 + 内网段），直连的用 `NWConnection` UDP 直接发出（模式参照 `PacketTunnel/DNS/LocalDNSUpstreamClient.swift`）。
+4. **回包**：`UDPPacketBuilder.build` 已有，写回 TUN 即可。
+5. **优先级**：现有 DNS 拦截（端口 53）保持优先，别被 UDP 转发截胡。
+6. **测试**：参照 `Tests/ConnectionIntegrationTests/` 现有 spy 模式（`PacketFlowSpy`、`DNSUpstreamClientSpy`）；可加 UDP echo 集成测试。
 
-## 环境注意事项
+## 任务 B：弱网 TCP
 
-- **上一会话的 shell 因会话工作目录（已删除的 `Shadowsocks One/` 子目录）消失而完全不可用**（spawn ENOENT）。新会话请以 `/Users/fitz/REPO/ShadowsocksX-NG` 为工作目录启动。
-- 构建：`xcodebuild -project ShadowsocksOne.xcodeproj -scheme "Shadowsocks One" -destination 'generic/platform=iOS' build CODE_SIGNING_ALLOWED=NO`
-- 测试：`... -destination 'platform=iOS Simulator,name=iPhone 17' test`（**不要加 `CODE_SIGNING_ALLOWED=NO`**，否则 Keychain 失败导致 RootViewModel 相关用例失败）。SharedCore 与集成测试当前全绿。
+**现状**：用户态最小 TCP 终结——无重传、无窗口/拥塞控制、ISN 固定；丢包靠客户端 TCP 自身重传兜底（router 对重传包只重 ACK，语义正确但出口方向丢包 = 该连接卡死）。
 
-## 架构速览（详见根目录 README.md）
+**关键文件**（`PacketTunnel/TCP/`，共约 750 行）：`TCPFlowState.swift`（状态机：consume 事件 → 响应）、`TCPRouter.swift`（272 行，会话分发）、`DirectTCPRelay.swift` / `ShadowsocksTCPRelay.swift`、`TCPFlowSessionStore.swift`。
 
-- 三层：App（SwiftUI + `SystemTunnelManager` 管 `NETunnelProviderManager`）→ Packet Tunnel 扩展（`TunnelEngine` 读 TUN 分发 UDP/53→`DNSCoordinator`、TCP→`TCPRouter`）→ `Packages/SharedCore`（加密/路由/存储，纯逻辑可单测）。
-- 用户态最小 TCP 终结：伪造 SYN-ACK、按序接收、1460 切片回包；无重传/窗口。
-- DNS：经 SS TCP 转发 8.8.8.8 出口侧解析，A 记录入 `DNSCache`；域名分流反查**尚未接入** TCP 决策，CN IP 列表为空 → 当前等同全局代理。
-- 配置通道：App Group JSON + 共享 Keychain + suite UserDefaults，无 IPC。
+**按收益排序**：
+
+1. **出站重传**：relay 发出的 payload 段未被 ACK 时需要重传（当前发完即忘）。需要发送缓冲 + RTO 定时器（可先固定 RTO，再做 RTT 估计）。
+2. **接收窗口通告**：按缓冲余量收缩通告窗口，防止高速发送方打爆内存。
+3. 拥塞控制（cwnd/slow start）——最后做，前两项收益更大。
+
+序列号/ISN 逻辑都在 `TCPFlowState`，改动要保持现有测试全绿。
+
+## 验证
+
+- 每次改动：`xcodegen && make test` 全绿 → 分类 commit → push。
+- 真机验证（`make run`）：
+  - UDP/QUIC：Safari 访问 Google 系站点，用 Mac 端 `tcpdump` 或路由表观察 UDP/443 是否走通；语音用 FaceTime/微信语音实测。
+  - 弱网 TCP：iOS 开发者设置里的 Network Link Conditioner 模拟丢包/高延迟，对比改进前后的加载体验。
