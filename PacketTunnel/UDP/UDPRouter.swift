@@ -111,7 +111,13 @@ final class UDPRouter: UDPRouting {
 
     private func attachCallbacks(to relay: any UDPFlowRelaying, for key: UDPFlowKey) {
         relay.onInboundDatagram = { [weak self] data in
-            try? await self?.writeInboundDatagram(data, for: key)
+            do {
+                try await self?.writeInboundDatagram(data, for: key)
+            } catch {
+                self?.diagnostics?(
+                    "UDP inbound drop \(key.destinationAddress):\(key.destinationPort): \(error.localizedDescription)"
+                )
+            }
         }
         relay.onClosed = { [weak self] in
             _ = self?.sessionStore.removeRelay(for: key)

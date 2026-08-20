@@ -40,14 +40,16 @@ final class TCPRouter: TCPRouting {
         self.directRelayFactory = directRelayFactory ?? { key in
             try DirectTCPRelay(
                 host: key.destinationAddress,
-                port: key.destinationPort
+                port: key.destinationPort,
+                diagnostics: diagnostics
             )
         }
         self.proxyRelayFactory = proxyRelayFactory ?? { key in
             try ShadowsocksTCPRelay(
                 launchConfiguration: launchConfiguration,
                 destinationHost: key.destinationAddress,
-                destinationPort: key.destinationPort
+                destinationPort: key.destinationPort,
+                diagnostics: diagnostics
             )
         }
     }
@@ -81,7 +83,13 @@ final class TCPRouter: TCPRouting {
                 clientSequenceNumber: tcp.sequenceNumber
             )
             relay.onInboundBytes = { [weak self] data in
-                try? await self?.handleInboundBytes(data, for: key)
+                do {
+                    try await self?.handleInboundBytes(data, for: key)
+                } catch {
+                    self?.diagnostics?(
+                        "TCP inbound drop \(key.destinationAddress):\(key.destinationPort): \(error.localizedDescription)"
+                    )
+                }
             }
             relay.onClosed = { [weak self] in
                 await self?.handleRelayClosed(for: key)

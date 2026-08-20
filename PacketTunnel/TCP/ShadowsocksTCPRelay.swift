@@ -3,21 +3,27 @@ import SharedCore
 
 final class ShadowsocksTCPRelay: TCPFlowRelaying {
     private let transport: ShadowsocksTCPTransport
+    private let endpoint: String
+    private let diagnostics: TunnelDiagnosticsLogging?
     private var receiveTask: Task<Void, Never>?
     private var sendChain: Task<Void, Error>?
+    private var firstReceiveLogged = false
     var onInboundBytes: (@Sendable (Data) async -> Void)?
     var onClosed: (@Sendable () async -> Void)?
 
     init(
         launchConfiguration: TunnelLaunchConfiguration,
         destinationHost: String,
-        destinationPort: UInt16
+        destinationPort: UInt16,
+        diagnostics: TunnelDiagnosticsLogging? = nil
     ) throws {
         self.transport = try ShadowsocksTCPTransport(
             config: launchConfiguration.connection,
             destinationHost: destinationHost,
             destinationPort: destinationPort
         )
+        self.endpoint = "\(destinationHost):\(destinationPort)"
+        self.diagnostics = diagnostics
     }
 
     func start() async throws {
@@ -29,7 +35,9 @@ final class ShadowsocksTCPRelay: TCPFlowRelaying {
             do {
                 try await self?.transport.start()
                 try await self?.transport.waitUntilReady()
+                self?.diagnostics?("PROXY \(self?.endpoint ?? "?") ready")
             } catch {
+                self?.diagnostics?("PROXY \(self?.endpoint ?? "?") connect failed: \(error.localizedDescription)")
                 await self?.onClosed?()
                 return
             }
@@ -61,14 +69,26 @@ final class ShadowsocksTCPRelay: TCPFlowRelaying {
                     break
                 }
 
+                logFirstReceive(payloads)
                 for payload in payloads where !payload.isEmpty {
                     await onInboundBytes?(payload)
                 }
             } catch {
+                diagnostics?("PROXY \(endpoint) recv error: \(error.localizedDescription)")
                 break
             }
         }
 
+        diagnostics?("PROXY \(endpoint) closed")
         await onClosed?()
+    }
+
+    private func logFirstReceive(_ payloads: [Data]) {
+        guard !firstReceiveLogged, let first = payloads.first else {
+            return
+        }
+
+        firstReceiveLogged = true
+        diagnostics?("PROXY \(endpoint) recv \(first.count)B")
     }
 }

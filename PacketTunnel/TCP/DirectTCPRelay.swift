@@ -8,18 +8,27 @@ enum TCPRelayError: Error, Equatable {
 
 final class DirectTCPRelay: TCPFlowRelaying {
     private let connection: NWConnection
+    private let endpoint: String
+    private let diagnostics: TunnelDiagnosticsLogging?
     private let queue = DispatchQueue(label: "ShadowsocksOne.PacketTunnel.DirectTCPRelay")
     private let stateLock = NSLock()
     private var didStart = false
+    private var firstReceiveLogged = false
     private var receiveTask: Task<Void, Never>?
     var onInboundBytes: (@Sendable (Data) async -> Void)?
     var onClosed: (@Sendable () async -> Void)?
 
-    init(host: String, port: UInt16) throws {
+    init(
+        host: String,
+        port: UInt16,
+        diagnostics: TunnelDiagnosticsLogging? = nil
+    ) throws {
         guard let endpointPort = NWEndpoint.Port(rawValue: port) else {
             throw TCPRelayError.invalidPort(port)
         }
 
+        self.endpoint = "\(host):\(port)"
+        self.diagnostics = diagnostics
         self.connection = NWConnection(
             host: NWEndpoint.Host(host),
             port: endpointPort,
@@ -32,24 +41,12 @@ final class DirectTCPRelay: TCPFlowRelaying {
             return
         }
 
-        try await withCheckedThrowingContinuation { continuation in
-            let resume = ContinuationResumer<Void>(continuation)
-            connection.stateUpdateHandler = { [weak connection] state in
-                switch state {
-                case .ready:
-                    connection?.stateUpdateHandler = nil
-                    resume.resume(returning: ())
-                case .failed(let error):
-                    connection?.stateUpdateHandler = nil
-                    resume.resume(throwing: error)
-                case .cancelled:
-                    connection?.stateUpdateHandler = nil
-                    resume.resume(throwing: TCPRelayError.connectionCancelled)
-                default:
-                    break
-                }
-            }
-            connection.start(queue: queue)
+        do {
+            try await waitUntilReady()
+            diagnostics?("DIRECT \(endpoint) ready")
+        } catch {
+            diagnostics?("DIRECT \(endpoint) connect failed: \(error.localizedDescription)")
+            throw error
         }
 
         receiveTask = Task { [weak self] in
@@ -94,6 +91,28 @@ final class DirectTCPRelay: TCPFlowRelaying {
         return true
     }
 
+    private func waitUntilReady() async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            let resume = ContinuationResumer<Void>(continuation)
+            connection.stateUpdateHandler = { [weak connection] state in
+                switch state {
+                case .ready:
+                    connection?.stateUpdateHandler = nil
+                    resume.resume(returning: ())
+                case .failed(let error):
+                    connection?.stateUpdateHandler = nil
+                    resume.resume(throwing: error)
+                case .cancelled:
+                    connection?.stateUpdateHandler = nil
+                    resume.resume(throwing: TCPRelayError.connectionCancelled)
+                default:
+                    break
+                }
+            }
+            connection.start(queue: queue)
+        }
+    }
+
     private func runReceiveLoop() async {
         while !Task.isCancelled {
             do {
@@ -102,13 +121,27 @@ final class DirectTCPRelay: TCPFlowRelaying {
                     break
                 }
 
+                logFirstReceive(chunk)
                 await onInboundBytes?(chunk)
             } catch {
+                diagnostics?("DIRECT \(endpoint) recv error: \(error.localizedDescription)")
                 break
             }
         }
 
+        diagnostics?("DIRECT \(endpoint) closed")
         await onClosed?()
+    }
+
+    private func logFirstReceive(_ chunk: Data) {
+        stateLock.withLock {
+            guard !firstReceiveLogged else {
+                return
+            }
+
+            firstReceiveLogged = true
+            diagnostics?("DIRECT \(endpoint) recv \(chunk.count)B")
+        }
     }
 
     private func receiveChunk(maximumLength: Int = 4096) async throws -> Data {
