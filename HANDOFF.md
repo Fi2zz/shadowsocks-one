@@ -1,7 +1,7 @@
-# Handoff — UDP 转发 / 弱网 TCP 增强
+# Handoff — 弱网 TCP 增强（任务 B）
 
 > 写给下一个接手会话。日期：2026-08-20。
-> 本仓库的 SS iOS 客户端（Shadowsocks One）分流闭环已完成并**真机验证通过**。本会话目标是在此基础上做：A) UDP 转发（QUIC/HTTP3、语音类 App）；或 B) 弱网 TCP 体感优化。两个任务相互独立，可单做。
+> 任务 A（UDP 转发）已完成并真机验证通过（见下文「任务 A」节的结论与坑）。剩余目标：任务 B 弱网 TCP 体感优化。
 
 ## 仓库与流程（必读）
 
@@ -23,18 +23,15 @@
   - UI：「导入与分流」单 Tab；名单每行有「测试」按钮（`App/DomainRouteTester.swift`：本地解析 → RouteMatcher 决策 → 直连时实测 TCP 443 耗时）。
 - Bundle ID `com.fits.socks.one`（扩展 `.PacketTunnel`）、app group `group.com.fitz.app`、keychain `com.fits.socks.one.shared`、`DEVELOPMENT_TEAM=8Z7LGX7B48` 均已固化在 `project.yml` / entitlements。
 
-## 任务 A：UDP 转发
+## 任务 A：UDP 转发（已完成，2026-08-20）
 
-**现状**：除 DNS 拦截外 UDP 全部丢弃（`TunnelEngine` 的 `case 17` 只处理源/目的端口 53）。QUIC 会回退 TCP（能上网但首次有回退延迟）；WebRTC/FaceTime 语音视频、部分游戏不可用。
+已实现并推送：SharedCore 新增 `ShadowsocksUDPPacketCodec`（SIP004 AEAD，全零 nonce）与 `ShadowsocksUDPTransport`；`PacketTunnel/UDP/` 新增 `UDPRouter`（四元组 NAT 会话，过 `RouteMatcher` 分流，上限 256、空闲 60s 回收）+ `DirectUDPRelay` / `ShadowsocksUDPRelay`；端口 53 的 DNS 拦截保持优先。真机验证：默认代理配置下 Google/百度/QQ 均可访问。
 
-**实现要点**：
+**踩过的坑（勿回退）**：`UDPRouter.route` 不得内联 `await` relay 的 start/send——引擎读包循环是串行的，一个卡在 `.waiting` 的 UDP NWConnection（mDNS/STUN/不可达端点）会冻结整个隧道（DNS+TCP 全挂）。现在是 fire-and-forget 派发 + 5s 超时回收会话（`UDPRouter.dispatch`）。relay 的 `stop()` 不要先清 `stateUpdateHandler` 再 cancel，否则挂起的 ready 等待永不释放。
 
-1. **SS UDP 协议**：每个数据报独立加密——`[salt][AEAD( ATYP + 目的地址 + 端口 + payload )]`，子密钥 `HKDF-SHA1(masterKey, salt, "ss-subkey")`；响应同格式。积木都在 `SharedCore/Connection/`：`ShadowsocksAEADCipher`、`ShadowsocksSessionKey`、`ShadowsocksAddressEncoder`——**注意这三个目前是 internal**。推荐做法：在 `SharedCore/Tunnel/` 新增 public 的 `ShadowsocksUDPTransport`（对齐 `ShadowsocksTCPTransport` 的分层），而不是把这些类型逐个改 public。
-2. **NAT 会话表**：key = 四元组（srcIP, srcPort, dstIP, dstPort），参照 `PacketTunnel/TCP/TCPFlowKey.swift`。每个 session 一条到 SS 服务器的 `NWConnection`（UDP），加空闲超时回收（QUIC 空闲可达 30s+）；表要有上限，防止内存膨胀。
-3. **分流**：UDP 也应过 `RouteMatcher`（目的 IP 反查 `DNSCache` 域名 + CN 段 + 内网段），直连的用 `NWConnection` UDP 直接发出（模式参照 `PacketTunnel/DNS/LocalDNSUpstreamClient.swift`）。
-4. **回包**：`UDPPacketBuilder.build` 已有，写回 TUN 即可。
-5. **优先级**：现有 DNS 拦截（端口 53）保持优先，别被 UDP 转发截胡。
-6. **测试**：参照 `Tests/ConnectionIntegrationTests/` 现有 spy 模式（`PacketFlowSpy`、`DNSUpstreamClientSpy`）；可加 UDP echo 集成测试。
+**新增诊断设施**：`TunnelDiagnosticsStore`（SharedCore，app group UserDefaults 环形缓冲 200 行）+ App「导入与分流」页底部「隧道诊断」区块（可全选复制）。隧道侧通过 `TunnelDiagnosticsLogging` 闭包注入 DNSCoordinator/TCPRouter/UDPRouter/Engine/relays，记录会话级事件（DNS 决策与应答 IP、TCP/UDP 分流决策、relay ready/recv/closed、ENGINE fatal、tunnel stop reason）。真机排障先让用户看这个。
+
+**配置注意**：「未命中名单时直连」开启时，**所有未列入代理名单的域名都走本地 DNS 解析**——被墙站点会拿到污染 IP 导致直连失败（真机实测 google.com.hk → 199.16.158.8）。这不是 bug，是该开关的语义；被墙站点须加代理名单。
 
 ## 任务 B：弱网 TCP
 
