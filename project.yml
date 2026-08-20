@@ -46,13 +46,17 @@ targets:
     platform: iOS
     sources:
       - Tests/ConnectionIntegrationTests
+      - path: PacketTunnel/DNS
+      - path: PacketTunnel/TCP
+      - path: PacketTunnel/PacketTunnelProvider.swift
+      - path: PacketTunnel/TunnelEngine.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.example.ShadowsocksOne.ConnectionIntegrationTests
         GENERATE_INFOPLIST_FILE: YES
         TARGETED_DEVICE_FAMILY: "1,2"
-        TEST_HOST: ""
-        BUNDLE_LOADER: ""
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/ShadowsocksOne.app/ShadowsocksOne"
+        BUNDLE_LOADER: "$(TEST_HOST)"
     dependencies:
       - target: Shadowsocks One
       - package: SharedCore
