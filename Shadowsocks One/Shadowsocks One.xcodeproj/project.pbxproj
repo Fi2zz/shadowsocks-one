@@ -52,6 +52,9 @@
 		66A8C1300F30D349CEA92A81 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1038806EC89A2BAF5BF3C148 /* RootViewModel.swift */; };
 		72EA1331BE95F059CEEC1B19 /* LocalAEADEchoServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2004BE1ACB7320CFEE62C35B /* LocalAEADEchoServer.swift */; };
 		840AD25108C3F3A951625A5C /* ConnectionManagerStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EF5261CDF7B4C479ABD2C71 /* ConnectionManagerStateTests.swift */; };
+		0A31A000B19C4D1100000701 /* ProfilesTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A31A000B19C4D1100000702 /* ProfilesTabView.swift */; };
+		0A31A000B19C4D1100000703 /* ImportTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A31A000B19C4D1100000704 /* ImportTabView.swift */; };
+		0A31A000B19C4D1100000705 /* MessageSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A31A000B19C4D1100000706 /* MessageSection.swift */; };
 		8AD052D319723FF239C41843 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D57AE21C5F17C76ED208F77 /* RootView.swift */; };
 		9C80D1630B737BB295BB5A5D /* ImportSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37183E5D4CC5A38639E4D528 /* ImportSection.swift */; };
 		A2C0E474CED6E2AD39D11813 /* ProfileStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7058C010ABFA50FF723C533 /* ProfileStoreTests.swift */; };
@@ -143,6 +146,9 @@
 		5519DEF871B151F8350A2985 /* SSURLParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSURLParserTests.swift; sourceTree = "<group>"; };
 		553800809424D576BC2ADAEC /* ShadowsocksOnePacketTunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShadowsocksOnePacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		62F2286883BC0FFDA2E2FE0A /* ProfileRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileRow.swift; sourceTree = "<group>"; };
+		0A31A000B19C4D1100000702 /* ProfilesTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesTabView.swift; sourceTree = "<group>"; };
+		0A31A000B19C4D1100000704 /* ImportTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportTabView.swift; sourceTree = "<group>"; };
+		0A31A000B19C4D1100000706 /* MessageSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSection.swift; sourceTree = "<group>"; };
 		6D57AE21C5F17C76ED208F77 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		7EF5261CDF7B4C479ABD2C71 /* ConnectionManagerStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionManagerStateTests.swift; sourceTree = "<group>"; };
 		80780BC5E60046BAB0E37090 /* ShadowsocksOne.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShadowsocksOne.entitlements; sourceTree = "<group>"; };
@@ -239,6 +245,9 @@
 				04775C03DEADC122546347A7 /* ProfileListSection.swift */,
 				62F2286883BC0FFDA2E2FE0A /* ProfileRow.swift */,
 				6D57AE21C5F17C76ED208F77 /* RootView.swift */,
+				0A31A000B19C4D1100000702 /* ProfilesTabView.swift */,
+				0A31A000B19C4D1100000704 /* ImportTabView.swift */,
+				0A31A000B19C4D1100000706 /* MessageSection.swift */,
 				1038806EC89A2BAF5BF3C148 /* RootViewModel.swift */,
 				80780BC5E60046BAB0E37090 /* ShadowsocksOne.entitlements */,
 				D5866B304A5569D52BD070BC /* ShadowsocksOneApp.swift */,
@@ -505,6 +514,9 @@
 				2CC8DC7211DE498C746E6275 /* ProfileListSection.swift in Sources */,
 				A7F6DA479269D927924A06B9 /* ProfileRow.swift in Sources */,
 				8AD052D319723FF239C41843 /* RootView.swift in Sources */,
+				0A31A000B19C4D1100000701 /* ProfilesTabView.swift in Sources */,
+				0A31A000B19C4D1100000703 /* ImportTabView.swift in Sources */,
+				0A31A000B19C4D1100000705 /* MessageSection.swift in Sources */,
 				66A8C1300F30D349CEA92A81 /* RootViewModel.swift in Sources */,
 				F527CD0D4274C70AB55E5467 /* ShadowsocksOneApp.swift in Sources */,
 				B52A3A1E78EDFEFCDCDCD479 /* SystemTunnelManager.swift in Sources */,
