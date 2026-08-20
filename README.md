@@ -137,7 +137,7 @@ xcodebuild -project ShadowsocksOne.xcodeproj -scheme "Shadowsocks One" \
   -destination 'generic/platform=iOS' build
 ```
 
-> 注意：Bundle ID / App Group 目前是占位值（`com.example.ShadowsocksOne*`），真机运行前需要替换成自己的签名配置。
+> 注意：App Group 已替换为正式值 `group.com.fitz.lifts`；Bundle ID（`com.example.ShadowsocksOne*`）与 keychain service（`com.example.ShadowsocksOne.shared`）仍是占位值，真机运行前需要替换成自己的签名配置。
 
 ## 已知限制
 

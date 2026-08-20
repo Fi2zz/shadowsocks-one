@@ -33,7 +33,7 @@
 2. ~~xcodeproj 改名~~ 已完成（`3131e7b`）：`ShadowsocksOne.xcodeproj`，只改了 `project.yml` 的 `name`，target/scheme 名未动。
 3. ~~既有测试失败~~ 已解决：根因有二。(a) 旧 pbxproj 里手动维护的测试目标配置（`PacketTunnel` 源码编入测试 bundle、以 App 为 TEST_HOST）不在 project.yml 里，xcodegen 重新生成后丢失，已在 project.yml 补齐；(b) `CODE_SIGNING_ALLOWED=NO` 时测试宿主 App 无签名 → Keychain `SecItemAdd` 失败 → `importProfile` 保存抛错导致 `selectedProfile` 为 nil。**测试必须带默认签名运行（不要加 `CODE_SIGNING_ALLOWED=NO`）。** 修复后全部测试通过。
 4. **未跟踪文件**：`.dbg/`、`debug-vpn-webpage-blocked.md`（调试残留，用户决定是否删除/提交）。
-5. **Bundle ID / App Group 占位值**：`com.example.ShadowsocksOne*`（含 app group `group.com.example.ShadowsocksOne`、keychain service `com.example.ShadowsocksOne.shared`），真机发布前需替换为正式签名配置。
+5. **Bundle ID 占位值**：app group 已换为正式值 `group.com.fitz.lifts`；`com.example.ShadowsocksOne*` 与 keychain service `com.example.ShadowsocksOne.shared` 仍为占位，真机发布前需替换为正式签名配置。
 
 ## 环境注意事项
 
