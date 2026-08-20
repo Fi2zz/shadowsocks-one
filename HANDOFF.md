@@ -1,0 +1,60 @@
+# Handoff — Shadowsocks One 仓库重构与后续事项
+
+> 写给下一个接手会话/协作者。日期：2026-08-20。
+
+## 仓库现状
+
+- 远端：`git@github.com:Fi2zz/shadowsocks-one.git`，主分支 `master`，本地已建立跟踪。
+- 本地路径：`/Users/fitz/REPO/ShadowsocksX-NG`（目录名未改，建议择期重命名为 `shadowsocks-one`）。
+- 本仓库原为 ShadowsocksX-NG 的 fork，已删除全部旧内容，只保留 iOS 新项目并提升到仓库根目录。
+- 历史：已 unshallow（含原仓库完整历史与 tag v1.9.x；tag 未推送，如不需要可 `git tag | xargs git tag -d` 清理）。
+- 分支：`master` 为唯一活跃分支；`develop`、`feat/shadowsocks-one-bootstrap`、`feat/shadowsocks-one-direct-connection` 为历史遗留本地分支。
+
+## 本次会话已完成（均已推送）
+
+| 提交 | 内容 |
+|---|---|
+| `90d9c85` | 删除 ShadowsocksX-NG 旧内容（620 文件，含 Pods/submodules/.github） |
+| `74baf5b` | 清理 deps 残留；恢复误删的 `docs/`（Shadowsocks One 设计文档） |
+| `a5ffa73` | 后台保活加固（见下） |
+| `385137e` | `Shadowsocks One/` 子目录内容上提到仓库根目录（纯 rename） |
+
+后台保活加固（`a5ffa73`）细节：
+
+- `App/TunnelControlling.swift` / `App/SystemTunnelManager.swift`：新增 `refreshStatus()`。
+- `App/RootView.swift` / `App/RootViewModel.swift`：`scenePhase == .active` 时 re-sync 连接状态。
+- `PacketTunnel/PacketTunnelProvider.swift`：实现 `sleep/wake`（停/启引擎，`startEngine()` 提取自 startTunnel 内联闭包）。
+- 测试 spy 同步补 `refreshStatus()`。
+- 结论性认知：Packet Tunnel 由系统托管，App 退后台/被杀 VPN 本来就不断（真机已验证），以上只是健壮性补齐。
+
+## 待办（按优先级）
+
+1. **提交 README.md**（阻塞中）：已写到仓库根目录，内容是架构原理 + 数据面工作细节，未提交未推送。命令：
+   ```bash
+   cd /Users/fitz/REPO/ShadowsocksX-NG
+   git add README.md && git commit -m "docs: add README covering architecture and data-plane internals" && git push
+   ```
+2. **xcodeproj 改名**（已与用户达成意向，方案已确认）：把 `project.yml` 第 1 行 `name: Shadowsocks One` 改为 `ShadowsocksOne`，然后：
+   ```bash
+   xcodegen
+   git rm -r "Shadowsocks One.xcodeproj"
+   git add ShadowsocksOne.xcodeproj project.yml
+   # 编译验证后提交
+   ```
+   target/scheme 名是否一并去空格未定（不影响产物名，最小改动是只改 `name`）。
+3. **既有测试失败（非本次引入）**：`Tests/ConnectionIntegrationTests/RootViewModelSystemTunnelTests.swift` 的 `testConnectSelectedProfileUsesSystemTunnelController` 和 `testConnectFailureShowsSystemVPNError` 在未改动的 HEAD 上同样失败，疑似模拟器 Keychain 环境导致 `ProfileStore` 初始化失败（表现为 `selectedProfile` 为 nil）。需要单独排查。
+4. **未跟踪文件**：`.dbg/`、`debug-vpn-webpage-blocked.md`（调试残留，用户决定是否删除/提交）。
+5. **Bundle ID / App Group 占位值**：`com.example.ShadowsocksOne*`（含 app group `group.com.example.ShadowsocksOne`、keychain service `com.example.ShadowsocksOne.shared`），真机发布前需替换为正式签名配置。
+
+## 环境注意事项
+
+- **上一会话的 shell 因会话工作目录（已删除的 `Shadowsocks One/` 子目录）消失而完全不可用**（spawn ENOENT）。新会话请以 `/Users/fitz/REPO/ShadowsocksX-NG` 为工作目录启动。
+- 构建：`xcodebuild -project "Shadowsocks One.xcodeproj" -scheme "Shadowsocks One" -destination 'generic/platform=iOS' build CODE_SIGNING_ALLOWED=NO`（改名后路径相应变化）。
+- 测试：`... -destination 'platform=iOS Simulator,name=iPhone 17' test`。SharedCore 全过；集成测试有上面第 3 条的既有失败。
+
+## 架构速览（详见根目录 README.md）
+
+- 三层：App（SwiftUI + `SystemTunnelManager` 管 `NETunnelProviderManager`）→ Packet Tunnel 扩展（`TunnelEngine` 读 TUN 分发 UDP/53→`DNSCoordinator`、TCP→`TCPRouter`）→ `Packages/SharedCore`（加密/路由/存储，纯逻辑可单测）。
+- 用户态最小 TCP 终结：伪造 SYN-ACK、按序接收、1460 切片回包；无重传/窗口。
+- DNS：经 SS TCP 转发 8.8.8.8 出口侧解析，A 记录入 `DNSCache`；域名分流反查**尚未接入** TCP 决策，CN IP 列表为空 → 当前等同全局代理。
+- 配置通道：App Group JSON + 共享 Keychain + suite UserDefaults，无 IPC。
