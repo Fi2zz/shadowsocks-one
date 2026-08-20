@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RootView: View {
     @StateObject private var viewModel = RootViewModel.makeDefault()
+    @StateObject private var whitelistViewModel = WhitelistViewModel.makeDefault()
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
@@ -14,6 +15,11 @@ struct RootView: View {
             ImportTabView(viewModel: viewModel)
                 .tabItem {
                     Label("导入", systemImage: "square.and.arrow.down")
+                }
+
+            WhitelistTabView(viewModel: whitelistViewModel)
+                .tabItem {
+                    Label("白名单", systemImage: "checklist")
                 }
         }
         .onChange(of: scenePhase) { newPhase in

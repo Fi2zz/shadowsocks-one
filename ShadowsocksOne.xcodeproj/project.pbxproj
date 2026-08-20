@@ -28,6 +28,7 @@
 		42785E75A80F957C21056B2B /* DNSMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187496B5BAC158A4D023DF87 /* DNSMessageTests.swift */; };
 		45F9D2277491756E28765BB1 /* ConnectionManagerStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB6B334E34D445586874356 /* ConnectionManagerStateTests.swift */; };
 		462E3668FCDBE6C04CDF317D /* TCPFlowRelaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099B09012909CB5D35B16E64 /* TCPFlowRelaying.swift */; };
+		528AEF311232D2C17627FBB9 /* WhitelistViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F19F07D29010802B373DABAF /* WhitelistViewModel.swift */; };
 		571C561022DF1300C936978F /* ShadowsocksOneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CC927DDCD78C937F61E09F /* ShadowsocksOneApp.swift */; };
 		5CE71082AB5242FD2C3877E7 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222C5A9A4F9B5AD863204225 /* PacketTunnelProvider.swift */; };
 		5E85A4567697FC1CA0E52453 /* TCPFlowKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201D3DA8D62A0AD6AEFE22A9 /* TCPFlowKey.swift */; };
@@ -64,6 +65,7 @@
 		CBB4A75A7254E8AB7943E5DD /* PacketTunnelEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02D8C9402DE8D23FEC938C8 /* PacketTunnelEngineTests.swift */; };
 		CCDE9A370C1C0B7343113F7C /* ProfileRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13A139AE9DAA550962E2D7DA /* ProfileRow.swift */; };
 		CEC33A8A9477F430E8DEE23B /* RootViewModelSystemTunnelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58471BB0C0452CA2EDDB333A /* RootViewModelSystemTunnelTests.swift */; };
+		D00084ECA677DC83CC3F5237 /* WhitelistViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBFCD1803295878CD03B5AD1 /* WhitelistViewModelTests.swift */; };
 		D35A2B4683EC16D6C4F10CCA /* TunnelControlling.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7D90D1887AF9F1ADEFB8178 /* TunnelControlling.swift */; };
 		D5CBD7F549C76E318EF8A578 /* TCPFlowRelaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099B09012909CB5D35B16E64 /* TCPFlowRelaying.swift */; };
 		DEB28782E3D5B189A8A89B12 /* LocalAEADEchoServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0246B1DA9710B6AAAF1A8A94 /* LocalAEADEchoServer.swift */; };
@@ -72,6 +74,7 @@
 		E49C264771AC31DAC5BCAE7D /* TCPRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ED1CEEDDCE7CB8545830B13 /* TCPRouterTests.swift */; };
 		E687AF63906F24E2E144226C /* ConnectionStateDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B249DA0A152DE0A8220C05 /* ConnectionStateDisplay.swift */; };
 		ED08A51E5637F1AE8A614A43 /* ShadowsocksCodecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26326E09C300A99FABA7E8A /* ShadowsocksCodecTests.swift */; };
+		F406D94B927CD8E243D3DDBD /* WhitelistTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7635D11AFBB23E2609E87F7 /* WhitelistTabView.swift */; };
 		FCE816D1C820004A246E0ED3 /* SSURLParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CBCE0B79532877194A5BC9D /* SSURLParserTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -161,9 +164,12 @@
 		D7D90D1887AF9F1ADEFB8178 /* TunnelControlling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlling.swift; sourceTree = "<group>"; };
 		DA84D3A582E45B3675497B6A /* DirectTCPRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectTCPRelay.swift; sourceTree = "<group>"; };
 		E26326E09C300A99FABA7E8A /* ShadowsocksCodecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksCodecTests.swift; sourceTree = "<group>"; };
+		E7635D11AFBB23E2609E87F7 /* WhitelistTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhitelistTabView.swift; sourceTree = "<group>"; };
 		E7F9E86CEF1F56C672F17DAA /* DNSCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSCoordinator.swift; sourceTree = "<group>"; };
 		F00A9DCA06E2AD0836FE6FD1 /* ImportTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportTabView.swift; sourceTree = "<group>"; };
+		F19F07D29010802B373DABAF /* WhitelistViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhitelistViewModel.swift; sourceTree = "<group>"; };
 		F5C6827946DEEF6A298D71EC /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
+		FBFCD1803295878CD03B5AD1 /* WhitelistViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhitelistViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -223,6 +229,7 @@
 				18985CA62D01B7E4D9046CBA /* TCPFlowStateTests.swift */,
 				5028A1A1A9885EE724704BEE /* TCPRouterReturnPathTests.swift */,
 				5ED1CEEDDCE7CB8545830B13 /* TCPRouterTests.swift */,
+				FBFCD1803295878CD03B5AD1 /* WhitelistViewModelTests.swift */,
 			);
 			name = ConnectionIntegrationTests;
 			path = Tests/ConnectionIntegrationTests;
@@ -265,6 +272,8 @@
 				D7CC927DDCD78C937F61E09F /* ShadowsocksOneApp.swift */,
 				18D29D84F03C1E6831AEDDF2 /* SystemTunnelManager.swift */,
 				D7D90D1887AF9F1ADEFB8178 /* TunnelControlling.swift */,
+				E7635D11AFBB23E2609E87F7 /* WhitelistTabView.swift */,
+				F19F07D29010802B373DABAF /* WhitelistViewModel.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -490,6 +499,7 @@
 				E49C264771AC31DAC5BCAE7D /* TCPRouterTests.swift in Sources */,
 				6A83C9EBF8AC88C2CA6CD7E9 /* TunnelEngine.swift in Sources */,
 				A3B9B84F86858544A0AD4D50 /* TunnelPacketWriter.swift in Sources */,
+				D00084ECA677DC83CC3F5237 /* WhitelistViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -511,6 +521,8 @@
 				571C561022DF1300C936978F /* ShadowsocksOneApp.swift in Sources */,
 				C65C1A66E4278569DB741743 /* SystemTunnelManager.swift in Sources */,
 				D35A2B4683EC16D6C4F10CCA /* TunnelControlling.swift in Sources */,
+				F406D94B927CD8E243D3DDBD /* WhitelistTabView.swift in Sources */,
+				528AEF311232D2C17627FBB9 /* WhitelistViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

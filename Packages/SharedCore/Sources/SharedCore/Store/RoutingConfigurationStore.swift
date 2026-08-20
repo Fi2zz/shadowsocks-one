@@ -15,7 +15,7 @@ public final class RoutingConfigurationStore {
         self.jsonURL = containerURL.appendingPathComponent("routing-configuration.json")
     }
 
-    init(jsonURL: URL) {
+    public init(jsonURL: URL) {
         self.jsonURL = jsonURL
     }
 
