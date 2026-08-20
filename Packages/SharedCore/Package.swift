@@ -5,7 +5,6 @@ let package = Package(
     name: "SharedCore",
     platforms: [
         .iOS(.v17),
-        .macOS(.v14),
     ],
     products: [
         .library(
