@@ -98,7 +98,7 @@ relay 两种实现：
 | `bypassCNIP` 开启且目的 IP 在 CN 段内 | 直连 |
 | 其他 | 代理 |
 
-> 现状：TCP 分流目前只按目的 IP 判断（按 IP 反查域名 + DNS 缓存的闭环尚未接入）；CN IP 段列表默认为空。即当前实际上是**全局代理**，分流框架已就绪待接入。
+> 现状：域名白名单已生效——TCP 建连前按目的 IP 在 `DNSCache` 反查域名（DNS 应答缓存 + 隧道启动时白名单预热），命中即直连；白名单在 App 内"白名单"页维护，下次连接生效。CN IP 段列表默认为空，`bypassCNIP` 暂无实际效果。
 
 ### 6. Shadowsocks 加密层
 
@@ -132,7 +132,7 @@ SharedCore/Connection/ + SharedCore/Tunnel/ShadowsocksTCPTransport.swift：
 
 ```bash
 xcodegen   # 如改过 project.yml
-xcodebuild -project "Shadowsocks One.xcodeproj" -scheme "Shadowsocks One" \
+xcodebuild -project ShadowsocksOne.xcodeproj -scheme "Shadowsocks One" \
   -destination 'generic/platform=iOS' build
 ```
 
@@ -141,7 +141,7 @@ xcodebuild -project "Shadowsocks One.xcodeproj" -scheme "Shadowsocks One" \
 ## 已知限制
 
 - 用户态 TCP 为最小实现：无重传/窗口/选项协商
-- 分流尚未按域名生效（DNS 缓存反查未接入 TCP 决策），CN IP 段为空，当前等同全局代理
+- CN IP 段为空，`bypassCNIP` 规则暂无实际效果（域名白名单已生效）
 - 仅支持 TCP 中继；UDP（除 DNS 拦截外）不转发
 - 不支持 SS 插件（obfs 等），含插件的节点会被拒绝
 - `SharedCore/Connection/ConnectionManager` 是早期"App 内直连探测"方案的遗留设施，主链路已切换到系统 VPN，仅测试引用
