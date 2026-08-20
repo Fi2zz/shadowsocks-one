@@ -138,7 +138,7 @@ xcodebuild -project ShadowsocksOne.xcodeproj -scheme "Shadowsocks One" \
   -destination 'generic/platform=iOS' build
 ```
 
-> 注意：App Group 与 Bundle ID 已替换为正式值（`group.com.fitz.app`、`com.fits.socks.one*`）；keychain service（`com.example.ShadowsocksOne.shared`）仍是占位值，需要时连同两个 target 的 `keychain-access-groups` 一起替换。
+> 注意：App Group 与 Bundle ID 已替换为正式值（`group.com.fitz.app`、`com.fits.socks.one*`）；keychain service（`com.fits.socks.one.shared`）仍是占位值，需要时连同两个 target 的 `keychain-access-groups` 一起替换。
 
 ## 已知限制
 
