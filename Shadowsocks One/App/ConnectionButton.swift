@@ -26,7 +26,6 @@ struct ConnectionButton: View {
             ZStack {
                 Circle()
                     .fill(connected ? Self.teal : .white)
-                    .shadow(color: .black.opacity(0.10), radius: 16, y: 8)
                 Circle()
                     .stroke(.black.opacity(0.06), lineWidth: 1)
 

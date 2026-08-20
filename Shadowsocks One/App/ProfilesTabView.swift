@@ -41,12 +41,11 @@ struct ProfilesTabView: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
                 }
-                Spacer()
                 ProfilePickerBar(title: pickerTitle) {
                     pickerPresented = true
                 }
                 .padding(.horizontal, 40)
-                .padding(.bottom, 16)
+                Spacer()
             }
         }
         .sheet(isPresented: $pickerPresented) {
