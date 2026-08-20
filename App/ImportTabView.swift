@@ -13,15 +13,19 @@ struct ImportTabView: View {
                     importAction: viewModel.importProfile
                 )
 
+                MessageSection(message: mergedMessage)
+
                 RoutingSections(
                     viewModel: routingViewModel,
                     ipListViewModel: ipListViewModel
                 )
-
-                MessageSection(message: viewModel.message)
             }
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("导入与分流")
         }
+    }
+
+    private var mergedMessage: String? {
+        ipListViewModel.message ?? routingViewModel.message ?? viewModel.message
     }
 }

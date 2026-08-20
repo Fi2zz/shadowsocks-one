@@ -9,7 +9,6 @@ enum RouteListKind {
 @MainActor
 final class RoutingViewModel: ObservableObject {
     private static let storeUnavailableMessage = "路由配置存储不可用，本次修改仅在当前会话有效。"
-    private static let changeHintMessage = "名单内的域名按规则直连或走代理，修改在下次连接时生效。"
 
     @Published private(set) var directDomains: [String] = []
     @Published private(set) var proxyDomains: [String] = []
@@ -85,7 +84,6 @@ final class RoutingViewModel: ObservableObject {
         proxyDomains = configuration.proxyDomains
         directByDefault = configuration.directByDefault
         bypassCNIP = configuration.bypassCNIP
-        message = Self.changeHintMessage
     }
 
     private func persist() {

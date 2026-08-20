@@ -12,7 +12,7 @@ struct RoutingSections: View {
             } header: {
                 Text("分流")
             } footer: {
-                Text("本地/内网 IP 始终直连。「未命中名单时直连」关闭：默认走代理，白名单内域名直连；开启：默认直连，代理名单内域名走代理。")
+                Text("本地/内网 IP 始终直连。「未命中名单时直连」关闭：默认走代理，白名单内域名直连；开启：默认直连，代理名单内域名走代理。名单与开关修改后，下次连接生效。")
             }
 
             domainSection(for: .direct, title: "白名单（直连）", entry: $viewModel.directEntry)
@@ -39,9 +39,6 @@ struct RoutingSections: View {
             } footer: {
                 Text("下载的列表存入共享容器，下次连接生效；未下载或下载失败时使用扩展内置列表。")
             }
-
-            MessageSection(message: viewModel.message)
-            MessageSection(message: ipListViewModel.message)
         }
     }
 
