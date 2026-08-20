@@ -4,58 +4,82 @@ import SharedCore
 @testable import ShadowsocksOne
 
 @MainActor
-final class WhitelistViewModelTests: XCTestCase {
+final class RoutingViewModelTests: XCTestCase {
     func testAddEntryAppendsNormalizedDomainAndPersists() throws {
         let (viewModel, store) = try makeViewModel()
 
-        viewModel.newEntry = " WWW.QQ.COM. "
-        viewModel.addEntry()
+        viewModel.directEntry = " WWW.QQ.COM. "
+        viewModel.addEntry(for: .direct)
 
-        XCTAssertEqual(viewModel.domains, ["www.qq.com"])
-        XCTAssertEqual(viewModel.newEntry, "")
+        XCTAssertEqual(viewModel.directDomains, ["www.qq.com"])
+        XCTAssertEqual(viewModel.directEntry, "")
         XCTAssertEqual(try store.load().domainWhitelist, ["www.qq.com"])
     }
 
     func testAddEntryRejectsEmptyAndDuplicateEntries() throws {
         let (viewModel, _) = try makeViewModel()
 
-        viewModel.newEntry = "   "
-        viewModel.addEntry()
-        viewModel.newEntry = "qq.com"
-        viewModel.addEntry()
-        viewModel.newEntry = "qq.com"
-        viewModel.addEntry()
+        viewModel.directEntry = "   "
+        viewModel.addEntry(for: .direct)
+        viewModel.directEntry = "qq.com"
+        viewModel.addEntry(for: .direct)
+        viewModel.directEntry = "qq.com"
+        viewModel.addEntry(for: .direct)
 
-        XCTAssertEqual(viewModel.domains, ["qq.com"])
+        XCTAssertEqual(viewModel.directDomains, ["qq.com"])
     }
 
     func testDeleteEntriesRemovesDomainAndPersists() throws {
         let (viewModel, store) = try makeViewModel()
 
-        viewModel.newEntry = "qq.com"
-        viewModel.addEntry()
-        viewModel.newEntry = "*.baidu.com"
-        viewModel.addEntry()
-        viewModel.deleteEntries(at: IndexSet(integer: 0))
+        viewModel.directEntry = "qq.com"
+        viewModel.addEntry(for: .direct)
+        viewModel.directEntry = "*.baidu.com"
+        viewModel.addEntry(for: .direct)
+        viewModel.deleteEntries(at: IndexSet(integer: 0), for: .direct)
 
-        XCTAssertEqual(viewModel.domains, ["*.baidu.com"])
+        XCTAssertEqual(viewModel.directDomains, ["*.baidu.com"])
         XCTAssertEqual(try store.load().domainWhitelist, ["*.baidu.com"])
+    }
+
+    func testProxyListEntriesPersistSeparately() throws {
+        let (viewModel, store) = try makeViewModel()
+
+        viewModel.proxyEntry = "*.google.com"
+        viewModel.addEntry(for: .proxy)
+        viewModel.deleteEntries(at: IndexSet(integer: 0), for: .proxy)
+        viewModel.proxyEntry = "google.com"
+        viewModel.addEntry(for: .proxy)
+
+        let persisted = try store.load()
+        XCTAssertEqual(viewModel.proxyDomains, ["google.com"])
+        XCTAssertEqual(persisted.proxyDomains, ["google.com"])
+        XCTAssertEqual(persisted.domainWhitelist, [])
+    }
+
+    func testSetDirectByDefaultPersistsMode() throws {
+        let (viewModel, store) = try makeViewModel()
+
+        viewModel.setDirectByDefault(true)
+
+        XCTAssertTrue(viewModel.directByDefault)
+        XCTAssertTrue(try store.load().directByDefault)
     }
 
     func testPersistPreservesBypassCNIPFromLoadedConfiguration() throws {
         let (_, store) = try makeViewModel()
         try store.save(RoutingConfiguration(bypassCNIP: true, domainWhitelist: []))
-        let viewModel = WhitelistViewModel(store: store)
+        let viewModel = RoutingViewModel(store: store)
 
-        viewModel.newEntry = "qq.com"
-        viewModel.addEntry()
+        viewModel.directEntry = "qq.com"
+        viewModel.addEntry(for: .direct)
 
         let persisted = try store.load()
         XCTAssertTrue(persisted.bypassCNIP)
         XCTAssertEqual(persisted.domainWhitelist, ["qq.com"])
     }
 
-    private func makeViewModel() throws -> (WhitelistViewModel, RoutingConfigurationStore) {
+    private func makeViewModel() throws -> (RoutingViewModel, RoutingConfigurationStore) {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(
@@ -65,6 +89,6 @@ final class WhitelistViewModelTests: XCTestCase {
         let store = RoutingConfigurationStore(
             jsonURL: directory.appendingPathComponent("routing-configuration.json")
         )
-        return (WhitelistViewModel(store: store), store)
+        return (RoutingViewModel(store: store), store)
     }
 }

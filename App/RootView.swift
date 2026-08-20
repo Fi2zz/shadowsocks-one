@@ -2,7 +2,7 @@ import SwiftUI
 
 struct RootView: View {
     @StateObject private var viewModel = RootViewModel.makeDefault()
-    @StateObject private var whitelistViewModel = WhitelistViewModel.makeDefault()
+    @StateObject private var routingViewModel = RoutingViewModel.makeDefault()
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
@@ -17,9 +17,9 @@ struct RootView: View {
                     Label("导入", systemImage: "square.and.arrow.down")
                 }
 
-            WhitelistTabView(viewModel: whitelistViewModel)
+            RoutingTabView(viewModel: routingViewModel)
                 .tabItem {
-                    Label("白名单", systemImage: "checklist")
+                    Label("分流", systemImage: "arrow.triangle.branch")
                 }
         }
         .onChange(of: scenePhase) { newPhase in

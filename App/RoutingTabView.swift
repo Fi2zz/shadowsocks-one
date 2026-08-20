@@ -1,46 +1,64 @@
 import SwiftUI
 
-struct WhitelistTabView: View {
-    @ObservedObject var viewModel: WhitelistViewModel
-
-    private var newEntryEmpty: Bool {
-        viewModel.newEntry.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
+struct RoutingTabView: View {
+    @ObservedObject var viewModel: RoutingViewModel
 
     var body: some View {
         NavigationStack {
             List {
                 Section {
-                    HStack {
-                        TextField("example.com 或 *.example.com", text: $viewModel.newEntry)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .keyboardType(.URL)
-                            .onSubmit(viewModel.addEntry)
-                        Button("添加", action: viewModel.addEntry)
-                            .disabled(newEntryEmpty)
-                    }
-                } header: {
-                    Text("添加域名")
+                    Toggle("未命中名单时直连", isOn: directByDefaultBinding)
+                } footer: {
+                    Text("关闭：默认走代理，白名单内域名直连；开启：默认直连，代理名单内域名走代理。")
                 }
 
-                Section {
-                    ForEach(viewModel.domains, id: \.self) { domain in
-                        Text(domain)
-                    }
-                    .onDelete(perform: viewModel.deleteEntries)
-                } header: {
-                    Text("白名单")
-                }
+                domainSection(for: .direct, title: "白名单（直连）", entry: $viewModel.directEntry)
+                domainSection(for: .proxy, title: "代理名单", entry: $viewModel.proxyEntry)
 
                 MessageSection(message: viewModel.message)
             }
             .scrollDismissesKeyboard(.interactively)
-            .navigationTitle("白名单")
+            .navigationTitle("分流")
         }
+    }
+
+    private var directByDefaultBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.directByDefault },
+            set: viewModel.setDirectByDefault
+        )
+    }
+
+    private func domainSection(
+        for kind: RouteListKind,
+        title: String,
+        entry: Binding<String>
+    ) -> some View {
+        Section {
+            HStack {
+                TextField("example.com 或 *.example.com", text: entry)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .keyboardType(.URL)
+                    .onSubmit { viewModel.addEntry(for: kind) }
+                Button("添加") { viewModel.addEntry(for: kind) }
+                    .disabled(entryEmpty(entry.wrappedValue))
+            }
+
+            ForEach(viewModel.domains(for: kind), id: \.self) { domain in
+                Text(domain)
+            }
+            .onDelete { viewModel.deleteEntries(at: $0, for: kind) }
+        } header: {
+            Text(title)
+        }
+    }
+
+    private func entryEmpty(_ entry: String) -> Bool {
+        entry.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }
 
 #Preview {
-    WhitelistTabView(viewModel: WhitelistViewModel(store: nil))
+    RoutingTabView(viewModel: RoutingViewModel(store: nil))
 }
