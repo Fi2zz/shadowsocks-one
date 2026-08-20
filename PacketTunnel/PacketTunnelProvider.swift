@@ -22,6 +22,15 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 keychainService: SharedContainerSettings.keychainService
             ).loadLaunchConfiguration()
             let routingConfiguration = try loadRoutingConfiguration()
+            let diagnosticsStore = try? TunnelDiagnosticsStore(
+                appGroupID: SharedContainerSettings.appGroupID
+            )
+            let diagnostics: TunnelDiagnosticsLogging? = diagnosticsStore.map { store in
+                { message in store.append(message) }
+            }
+            diagnostics?(
+                "tunnel start directByDefault=\(routingConfiguration.directByDefault) bypassCN=\(routingConfiguration.bypassCNIP)"
+            )
             let dnsCache = DNSCache(now: Date.init)
             let routeMatcher = RouteMatcher(
                 configuration: routingConfiguration,
@@ -37,19 +46,22 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 ),
                 localUpstreamClient: LocalDNSUpstreamClient(),
                 matcher: routeMatcher,
-                packetWriter: packetWriter
+                packetWriter: packetWriter,
+                diagnostics: diagnostics
             )
             let tcpRouter = TCPRouter(
                 launchConfiguration: launchConfiguration,
                 matcher: routeMatcher,
                 packetWriter: packetWriter,
-                hostResolver: { [dnsCache] ip in dnsCache.lookupDomain(forAddress: ip) }
+                hostResolver: { [dnsCache] ip in dnsCache.lookupDomain(forAddress: ip) },
+                diagnostics: diagnostics
             )
             let udpRouter = UDPRouter(
                 launchConfiguration: launchConfiguration,
                 matcher: routeMatcher,
                 packetWriter: packetWriter,
-                hostResolver: { [dnsCache] ip in dnsCache.lookupDomain(forAddress: ip) }
+                hostResolver: { [dnsCache] ip in dnsCache.lookupDomain(forAddress: ip) },
+                diagnostics: diagnostics
             )
             let engine = TunnelEngine(
                 dnsCoordinator: dnsCoordinator,

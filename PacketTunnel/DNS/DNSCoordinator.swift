@@ -12,6 +12,12 @@ protocol DNSPayloadQuerying {
 }
 
 final class DNSCoordinator: DNSCoordinating {
+    private struct UpstreamChoice {
+        let client: any DNSPayloadQuerying
+        let host: String
+        let label: String
+    }
+
     private let cache: DNSCache
     private let whitelist: [String]
     private let resolver: any DNSResolving
@@ -19,6 +25,7 @@ final class DNSCoordinator: DNSCoordinating {
     private let localUpstreamClient: (any DNSPayloadQuerying)?
     private let matcher: RouteMatcher?
     private let packetWriter: any TunnelPacketWriting
+    private let diagnostics: TunnelDiagnosticsLogging?
 
     init(
         cache: DNSCache,
@@ -27,7 +34,8 @@ final class DNSCoordinator: DNSCoordinating {
         upstreamClient: any DNSPayloadQuerying,
         localUpstreamClient: (any DNSPayloadQuerying)? = nil,
         matcher: RouteMatcher? = nil,
-        packetWriter: any TunnelPacketWriting
+        packetWriter: any TunnelPacketWriting,
+        diagnostics: TunnelDiagnosticsLogging? = nil
     ) {
         self.cache = cache
         self.whitelist = whitelist
@@ -36,6 +44,7 @@ final class DNSCoordinator: DNSCoordinating {
         self.localUpstreamClient = localUpstreamClient
         self.matcher = matcher
         self.packetWriter = packetWriter
+        self.diagnostics = diagnostics
     }
 
     func warmUpWhitelistCache() async {
@@ -59,10 +68,21 @@ final class DNSCoordinator: DNSCoordinating {
             return
         }
 
-        let responsePayload = try await selectUpstream(for: udp.payload).query(
-            serverIP: packet.destinationAddress,
-            payload: udp.payload
-        )
+        let choice = selectUpstream(for: udp.payload)
+        do {
+            let responsePayload = try await choice.client.query(
+                serverIP: packet.destinationAddress,
+                payload: udp.payload
+            )
+            diagnostics?("DNS \(choice.host) via \(choice.label) ok")
+            try writeResponse(responsePayload, for: packet, udp: udp)
+        } catch {
+            diagnostics?("DNS \(choice.host) via \(choice.label) failed: \(error.localizedDescription)")
+            throw error
+        }
+    }
+
+    private func writeResponse(_ responsePayload: Data, for packet: IPPacket, udp: UDPPacket) throws {
         try? cacheResponse(responsePayload)
 
         let responsePacket = try UDPPacketBuilder.build(
@@ -82,15 +102,16 @@ final class DNSCoordinator: DNSCoordinating {
             .lowercased()
     }
 
-    private func selectUpstream(for queryPayload: Data) -> any DNSPayloadQuerying {
+    private func selectUpstream(for queryPayload: Data) -> UpstreamChoice {
         guard let matcher, let localUpstreamClient,
               let host = Self.queryHost(in: queryPayload) else {
-            return upstreamClient
+            return UpstreamChoice(client: upstreamClient, host: "?", label: "proxy")
         }
 
-        return matcher.dnsDecision(forHost: host) == .direct
-            ? localUpstreamClient
-            : upstreamClient
+        let directChoice = matcher.dnsDecision(forHost: host) == .direct
+        return directChoice
+            ? UpstreamChoice(client: localUpstreamClient, host: host, label: "local")
+            : UpstreamChoice(client: upstreamClient, host: host, label: "proxy")
     }
 
     private static func queryHost(in payload: Data) -> String? {

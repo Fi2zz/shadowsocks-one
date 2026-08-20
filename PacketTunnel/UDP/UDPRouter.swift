@@ -21,6 +21,7 @@ final class UDPRouter: UDPRouting {
     private let directRelayFactory: RelayFactory
     private let proxyRelayFactory: RelayFactory
     private let hostResolver: HostResolver?
+    private let diagnostics: TunnelDiagnosticsLogging?
 
     typealias RelayFactory = @Sendable (UDPFlowKey) throws -> any UDPFlowRelaying
     typealias HostResolver = @Sendable (String) -> String?
@@ -33,13 +34,15 @@ final class UDPRouter: UDPRouting {
         directRelayFactory: RelayFactory? = nil,
         proxyRelayFactory: RelayFactory? = nil,
         hostResolver: HostResolver? = nil,
-        relayTimeoutNanoseconds: UInt64 = 5_000_000_000
+        relayTimeoutNanoseconds: UInt64 = 5_000_000_000,
+        diagnostics: TunnelDiagnosticsLogging? = nil
     ) {
         self.matcher = matcher
         self.sessionStore = sessionStore
         self.relayTimeoutNanoseconds = relayTimeoutNanoseconds
         self.packetWriter = packetWriter
         self.hostResolver = hostResolver
+        self.diagnostics = diagnostics
         self.directRelayFactory = directRelayFactory ?? { key in
             try DirectUDPRelay(
                 host: key.destinationAddress,
@@ -85,6 +88,9 @@ final class UDPRouter: UDPRouting {
         let decision = matcher.route(forHost: resolvedHost, ipString: packet.destinationAddress)
 
         return try sessionStore.session(for: key) {
+            self.diagnostics?(
+                "UDP \(decision.rawValue) \(key.destinationAddress):\(key.destinationPort) host=\(resolvedHost ?? "-")"
+            )
             let relay = try self.makeRelay(for: key, decision: decision)
             self.attachCallbacks(to: relay, for: key)
             return relay
@@ -143,7 +149,9 @@ final class UDPRouter: UDPRouting {
                     try await session.relay.forwardOutboundPayload(payload)
                 }
             } catch {
+                let detail = "UDP drop \(key.destinationAddress):\(key.destinationPort): \(error.localizedDescription)"
                 NSLog("UDPRouter dropped datagram after relay failure: %@", error.localizedDescription)
+                diagnostics?(detail)
                 await tearDownSession(for: key)
             }
         }

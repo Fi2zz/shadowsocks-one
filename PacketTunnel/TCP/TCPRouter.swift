@@ -17,6 +17,7 @@ final class TCPRouter: TCPRouting {
     private let directRelayFactory: RelayFactory
     private let proxyRelayFactory: RelayFactory
     private let hostResolver: HostResolver?
+    private let diagnostics: TunnelDiagnosticsLogging?
 
     typealias RelayFactory = @Sendable (TCPFlowKey) throws -> any TCPFlowRelaying
     typealias HostResolver = @Sendable (String) -> String?
@@ -28,12 +29,14 @@ final class TCPRouter: TCPRouting {
         packetWriter: (any TunnelPacketWriting)? = nil,
         directRelayFactory: RelayFactory? = nil,
         proxyRelayFactory: RelayFactory? = nil,
-        hostResolver: HostResolver? = nil
+        hostResolver: HostResolver? = nil,
+        diagnostics: TunnelDiagnosticsLogging? = nil
     ) {
         self.matcher = matcher
         self.sessionStore = sessionStore
         self.packetWriter = packetWriter
         self.hostResolver = hostResolver
+        self.diagnostics = diagnostics
         self.directRelayFactory = directRelayFactory ?? { key in
             try DirectTCPRelay(
                 host: key.destinationAddress,
@@ -59,6 +62,9 @@ final class TCPRouter: TCPRouting {
             return
         }
         let session = try sessionStore.session(for: key) {
+            diagnostics?(
+                "TCP \(decision.rawValue) \(key.destinationAddress):\(key.destinationPort) host=\(resolvedHost ?? "-")"
+            )
             let relay: any TCPFlowRelaying
             switch decision {
             case .direct:

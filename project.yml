@@ -54,6 +54,7 @@ targets:
       - path: PacketTunnel/TCP
       - path: PacketTunnel/UDP
       - path: PacketTunnel/PacketTunnelProvider.swift
+      - path: PacketTunnel/TunnelDiagnostics.swift
       - path: PacketTunnel/TunnelEngine.swift
     settings:
       base:

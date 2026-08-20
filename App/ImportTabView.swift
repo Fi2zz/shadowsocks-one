@@ -19,6 +19,8 @@ struct ImportTabView: View {
                     viewModel: routingViewModel,
                     ipListViewModel: ipListViewModel
                 )
+
+                DiagnosticsSection()
             }
             .scrollDismissesKeyboard(.interactively)
             .navigationTitle("导入与分流")
