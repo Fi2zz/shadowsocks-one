@@ -73,11 +73,34 @@ struct RoutingSections: View {
             }
 
             ForEach(viewModel.domains(for: kind), id: \.self) { domain in
-                Text(domain)
+                HStack {
+                    Text(domain)
+                    Spacer()
+                    testStatusLabel(for: domain)
+                    Button("测试") {
+                        Task { await viewModel.testConnection(for: domain) }
+                    }
+                    .font(.footnote)
+                    .disabled(viewModel.testingDomains.contains(domain))
+                }
             }
             .onDelete { viewModel.deleteEntries(at: $0, for: kind) }
         } header: {
             Text(title)
+        } footer: {
+            Text("「测试」按当前名单与开关模拟分流：显示直连/代理判定，直连时实测 TCP 443 连通耗时。")
+        }
+    }
+
+    @ViewBuilder
+    private func testStatusLabel(for domain: String) -> some View {
+        if viewModel.testingDomains.contains(domain) {
+            ProgressView()
+                .controlSize(.small)
+        } else if let result = viewModel.testResults[domain] {
+            Text(result.summaryText)
+                .font(.footnote)
+                .foregroundStyle(result.decision == .direct ? Color.green : Color.secondary)
         }
     }
 

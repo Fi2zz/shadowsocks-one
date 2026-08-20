@@ -5,6 +5,9 @@ public enum CNIPRangeListError: Error, Equatable {
 }
 
 public struct CNIPRangeList: Sendable {
+    // 空列表不含任何 CIDR，解析不会失败
+    public static let empty = try! CNIPRangeList(ranges: [])
+
     private let ranges: [IPv4CIDR]
 
     public init(ranges: [String]) throws {

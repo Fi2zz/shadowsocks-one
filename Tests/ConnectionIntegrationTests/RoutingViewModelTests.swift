@@ -88,7 +88,49 @@ final class RoutingViewModelTests: XCTestCase {
         XCTAssertEqual(persisted.domainWhitelist, ["qq.com"])
     }
 
+    func testConnectionStoresResultAndClearsTestingState() async throws {
+        let expected = DomainRouteTestResult(
+            decision: .direct,
+            addresses: ["1.1.1.1"],
+            connectMilliseconds: 12,
+            failureDescription: nil
+        )
+        let (viewModel, _) = try makeViewModel { _, _, _ in expected }
+
+        await viewModel.testConnection(for: "qq.com")
+
+        XCTAssertEqual(viewModel.testResults["qq.com"], expected)
+        XCTAssertTrue(viewModel.testingDomains.isEmpty)
+    }
+
+    func testConnectionPassesCurrentConfiguration() async throws {
+        let recorder = ConfigurationRecorder()
+        let (viewModel, _) = try makeViewModel { _, configuration, _ in
+            recorder.record(configuration)
+            return DomainRouteTestResult(
+                decision: .proxy,
+                addresses: [],
+                connectMilliseconds: nil,
+                failureDescription: nil
+            )
+        }
+        viewModel.directEntry = "qq.com"
+        viewModel.addEntry(for: .direct)
+        viewModel.setBypassCNIP(true)
+
+        await viewModel.testConnection(for: "qq.com")
+
+        XCTAssertEqual(recorder.configuration?.domainWhitelist, ["qq.com"])
+        XCTAssertTrue(recorder.configuration?.bypassCNIP ?? false)
+    }
+
     private func makeViewModel() throws -> (RoutingViewModel, RoutingConfigurationStore) {
+        try makeViewModel(routeTestHandler: nil)
+    }
+
+    private func makeViewModel(
+        routeTestHandler: RoutingViewModel.RouteTestHandler?
+    ) throws -> (RoutingViewModel, RoutingConfigurationStore) {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(
@@ -98,6 +140,15 @@ final class RoutingViewModelTests: XCTestCase {
         let store = RoutingConfigurationStore(
             jsonURL: directory.appendingPathComponent("routing-configuration.json")
         )
-        return (RoutingViewModel(store: store), store)
+        let viewModel = RoutingViewModel(store: store, routeTestHandler: routeTestHandler)
+        return (viewModel, store)
+    }
+}
+
+private final class ConfigurationRecorder {
+    private(set) var configuration: RoutingConfiguration?
+
+    func record(_ configuration: RoutingConfiguration) {
+        self.configuration = configuration
     }
 }

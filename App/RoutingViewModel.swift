@@ -17,20 +17,49 @@ final class RoutingViewModel: ObservableObject {
     @Published var directEntry = ""
     @Published var proxyEntry = ""
     @Published private(set) var message: String?
+    @Published private(set) var testResults: [String: DomainRouteTestResult] = [:]
+    @Published private(set) var testingDomains: Set<String> = []
+
+    typealias RouteTestHandler = (
+        String, RoutingConfiguration, CNIPRangeList
+    ) async -> DomainRouteTestResult
 
     private let store: RoutingConfigurationStore?
+    private let cnIPRanges: CNIPRangeList
+    private let routeTestHandler: RouteTestHandler
 
-    init(store: RoutingConfigurationStore?) {
+    init(
+        store: RoutingConfigurationStore?,
+        cnIPRanges: CNIPRangeList = .empty,
+        routeTestHandler: RouteTestHandler? = nil
+    ) {
         self.store = store
+        self.cnIPRanges = cnIPRanges
+        self.routeTestHandler = routeTestHandler ?? DomainRouteTester().test
         load()
     }
 
     static func makeDefault() -> RoutingViewModel {
-        RoutingViewModel(
-            store: try? RoutingConfigurationStore(
-                appGroupID: SharedContainerSettings.appGroupID
-            )
+        let groupID = SharedContainerSettings.appGroupID
+        let downloaded = try? CNIPListStore(appGroupID: groupID).load()
+        let ranges = downloaded.flatMap { try? CNIPRangeList(textContent: $0) } ?? .empty
+        return RoutingViewModel(
+            store: try? RoutingConfigurationStore(appGroupID: groupID),
+            cnIPRanges: ranges
         )
+    }
+
+    func testConnection(for domain: String) async {
+        testingDomains.insert(domain)
+        defer { testingDomains.remove(domain) }
+
+        let configuration = RoutingConfiguration(
+            bypassCNIP: bypassCNIP,
+            domainWhitelist: directDomains,
+            proxyDomains: proxyDomains,
+            directByDefault: directByDefault
+        )
+        testResults[domain] = await routeTestHandler(domain, configuration, cnIPRanges)
     }
 
     func domains(for kind: RouteListKind) -> [String] {
