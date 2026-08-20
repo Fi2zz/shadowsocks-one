@@ -16,8 +16,10 @@ final class TCPRouter: TCPRouting {
     private var packetWriter: (any TunnelPacketWriting)?
     private let directRelayFactory: RelayFactory
     private let proxyRelayFactory: RelayFactory
+    private let hostResolver: HostResolver?
 
     typealias RelayFactory = @Sendable (TCPFlowKey) throws -> any TCPFlowRelaying
+    typealias HostResolver = @Sendable (String) -> String?
 
     init(
         launchConfiguration: TunnelLaunchConfiguration,
@@ -25,11 +27,13 @@ final class TCPRouter: TCPRouting {
         sessionStore: TCPFlowSessionStore = TCPFlowSessionStore(),
         packetWriter: (any TunnelPacketWriting)? = nil,
         directRelayFactory: RelayFactory? = nil,
-        proxyRelayFactory: RelayFactory? = nil
+        proxyRelayFactory: RelayFactory? = nil,
+        hostResolver: HostResolver? = nil
     ) {
         self.matcher = matcher
         self.sessionStore = sessionStore
         self.packetWriter = packetWriter
+        self.hostResolver = hostResolver
         self.directRelayFactory = directRelayFactory ?? { key in
             try DirectTCPRelay(
                 host: key.destinationAddress,
@@ -48,7 +52,8 @@ final class TCPRouter: TCPRouting {
     func route(_ packet: IPPacket) async throws {
         let tcp = try packet.tcpSegment()
         let key = TCPFlowKey(packet: packet, tcp: tcp)
-        let decision = matcher.route(forHost: nil, ipString: packet.destinationAddress)
+        let resolvedHost = hostResolver?(packet.destinationAddress)
+        let decision = matcher.route(forHost: resolvedHost, ipString: packet.destinationAddress)
         let existingState = sessionStore.state(for: key)
         // #region debug-point B:tcp-route-entry
         TunnelDebugReporter.send(
@@ -65,6 +70,7 @@ final class TCPRouter: TCPRouting {
                 "isFIN": tcp.isFIN,
                 "isRST": tcp.isRST,
                 "payloadBytes": tcp.payload.count,
+                "resolvedHost": resolvedHost ?? "",
                 "decision": String(describing: decision),
             ]
         )

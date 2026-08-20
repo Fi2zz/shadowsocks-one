@@ -99,6 +99,52 @@ final class TCPRouterTests: XCTestCase {
         XCTAssertEqual(payloads, [Data("BODY".utf8), Data("NEXT".utf8)])
     }
 
+    func testUsesDirectRelayForWhitelistedDomainResolvedFromHost() async throws {
+        let directFactory = RelayFactorySpy()
+        let proxyFactory = RelayFactorySpy()
+        let matcher = RouteMatcher(
+            configuration: RoutingConfiguration(
+                bypassCNIP: false,
+                domainWhitelist: ["*.qq.com"]
+            ),
+            cnIPRanges: try! CNIPRangeList(ranges: [])
+        )
+        let router = makeRouter(
+            matcher: matcher,
+            directFactory: { [directFactory] key in try directFactory.makeRelay(key: key) },
+            proxyFactory: { [proxyFactory] key in try proxyFactory.makeRelay(key: key) },
+            hostResolver: { ip in ip == "203.0.113.10" ? "www.qq.com" : nil }
+        )
+
+        try await router.route(makeTCPPacket(destination: "203.0.113.10", port: 443, payload: "", flags: 0x02))
+
+        XCTAssertEqual(directFactory.createdRelayCount, 1)
+        XCTAssertEqual(proxyFactory.createdRelayCount, 0)
+    }
+
+    func testUsesProxyRelayWhenHostResolverMisses() async throws {
+        let directFactory = RelayFactorySpy()
+        let proxyFactory = RelayFactorySpy()
+        let matcher = RouteMatcher(
+            configuration: RoutingConfiguration(
+                bypassCNIP: false,
+                domainWhitelist: ["*.qq.com"]
+            ),
+            cnIPRanges: try! CNIPRangeList(ranges: [])
+        )
+        let router = makeRouter(
+            matcher: matcher,
+            directFactory: { [directFactory] key in try directFactory.makeRelay(key: key) },
+            proxyFactory: { [proxyFactory] key in try proxyFactory.makeRelay(key: key) },
+            hostResolver: { _ in nil }
+        )
+
+        try await router.route(makeTCPPacket(destination: "142.250.72.196", port: 443, payload: "", flags: 0x02))
+
+        XCTAssertEqual(directFactory.createdRelayCount, 0)
+        XCTAssertEqual(proxyFactory.createdRelayCount, 1)
+    }
+
     private func makeRouter(
         decision: RouteDecision,
         directFactory: @escaping TCPRouter.RelayFactory,
@@ -114,7 +160,20 @@ final class TCPRouterTests: XCTestCase {
             )
         )
 
-        return TCPRouter(
+        return makeRouter(
+            matcher: matcher,
+            directFactory: directFactory,
+            proxyFactory: proxyFactory
+        )
+    }
+
+    private func makeRouter(
+        matcher: RouteMatcher,
+        directFactory: @escaping TCPRouter.RelayFactory,
+        proxyFactory: @escaping TCPRouter.RelayFactory,
+        hostResolver: TCPRouter.HostResolver? = nil
+    ) -> TCPRouter {
+        TCPRouter(
             launchConfiguration: TunnelLaunchConfiguration(
                 profileID: UUID(),
                 connection: ConnectionConfig(
@@ -128,7 +187,8 @@ final class TCPRouterTests: XCTestCase {
             ),
             matcher: matcher,
             directRelayFactory: directFactory,
-            proxyRelayFactory: proxyFactory
+            proxyRelayFactory: proxyFactory,
+            hostResolver: hostResolver
         )
     }
 }

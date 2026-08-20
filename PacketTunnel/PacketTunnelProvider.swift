@@ -47,7 +47,8 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             let tcpRouter = TCPRouter(
                 launchConfiguration: launchConfiguration,
                 matcher: routeMatcher,
-                packetWriter: packetWriter
+                packetWriter: packetWriter,
+                hostResolver: { [dnsCache] ip in dnsCache.lookupDomain(forAddress: ip) }
             )
             let engine = TunnelEngine(
                 dnsCoordinator: dnsCoordinator,

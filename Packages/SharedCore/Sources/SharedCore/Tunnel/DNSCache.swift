@@ -8,6 +8,7 @@ public final class DNSCache: @unchecked Sendable {
 
     private let now: () -> Date
     private var storage: [String: Entry] = [:]
+    private var reverseIndex: [String: [String: Date]] = [:]
     private let lock = NSLock()
 
     public init(now: @escaping () -> Date = Date.init) {
@@ -31,7 +32,24 @@ public final class DNSCache: @unchecked Sendable {
 
         lock.lock()
         storage[normalizedDomain] = entry
+        for address in entry.addresses {
+            reverseIndex[address, default: [:]][normalizedDomain] = entry.expiresAt
+        }
         lock.unlock()
+    }
+
+    public func lookupDomain(forAddress address: String) -> String? {
+        lock.lock()
+        defer { lock.unlock() }
+
+        guard let candidates = reverseIndex[address] else {
+            return nil
+        }
+
+        let current = now()
+        let liveCandidates = candidates.filter { $0.value > current }
+        reverseIndex[address] = liveCandidates.isEmpty ? nil : liveCandidates
+        return liveCandidates.keys.first
     }
 
     public func contains(domain: String, address: String) -> Bool {

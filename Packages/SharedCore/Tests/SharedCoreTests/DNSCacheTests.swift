@@ -35,4 +35,23 @@ final class DNSCacheTests: XCTestCase {
 
         XCTAssertFalse(cache.contains(domain: "www.qq.com", address: "203.0.113.12"))
     }
+
+    func testLookupDomainReturnsCachedDomainForAddress() {
+        let cache = DNSCache(now: { Date(timeIntervalSince1970: 0) })
+
+        cache.insert(domain: "TaObAo.Com.", addresses: ["203.0.113.20"], ttl: 60)
+
+        XCTAssertEqual(cache.lookupDomain(forAddress: "203.0.113.20"), "taobao.com")
+        XCTAssertNil(cache.lookupDomain(forAddress: "203.0.113.21"))
+    }
+
+    func testLookupDomainReturnsNilAfterTTLExpires() {
+        var now = Date(timeIntervalSince1970: 0)
+        let cache = DNSCache(now: { now })
+
+        cache.insert(domain: "www.qq.com", addresses: ["203.0.113.10"], ttl: 10)
+        now = Date(timeIntervalSince1970: 11)
+
+        XCTAssertNil(cache.lookupDomain(forAddress: "203.0.113.10"))
+    }
 }
