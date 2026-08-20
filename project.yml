@@ -1,4 +1,4 @@
-name: Shadowsocks One
+name: ShadowsocksOne
 options:
   deploymentTarget:
     iOS: "17.0"
