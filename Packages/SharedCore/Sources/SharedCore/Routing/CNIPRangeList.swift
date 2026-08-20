@@ -11,6 +11,17 @@ public struct CNIPRangeList: Sendable {
         self.ranges = try ranges.map(IPv4CIDR.init(cidrNotation:))
     }
 
+    public init(textContent: String) throws {
+        let ranges = textContent
+            .split(whereSeparator: \.isNewline)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+        guard !ranges.isEmpty else {
+            throw CNIPRangeListError.invalidCIDR("(empty)")
+        }
+        try self.init(ranges: ranges)
+    }
+
     public func contains(_ ipString: String) -> Bool {
         guard let address = IPv4Address(ipString) else {
             return false
