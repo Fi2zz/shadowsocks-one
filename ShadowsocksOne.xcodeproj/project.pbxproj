@@ -80,6 +80,7 @@
 		A1BCB92B6B7E6D92353D7023 /* TunnelDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EA9BDD5427487271DC3C269 /* TunnelDiagnostics.swift */; };
 		A3B9B84F86858544A0AD4D50 /* TunnelPacketWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 488EF0DC7A388D3F575FA343 /* TunnelPacketWriter.swift */; };
 		A41BFBB018CB4B15289DD6A5 /* DNSCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F9E86CEF1F56C672F17DAA /* DNSCoordinator.swift */; };
+		A8A582D3AA218B006AC64219 /* PasteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40C94A64E21436DC0CB8E9B0 /* PasteButton.swift */; };
 		A9A48AFB0A6DC65C8EDD719C /* ShadowsocksUDPRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A39A983FC4B226C85A0225B /* ShadowsocksUDPRelay.swift */; };
 		AA3B84C0FE16EFA960E1E6F3 /* RoutingViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E9A4A0F1B9CBFD012574448 /* RoutingViewModelTests.swift */; };
 		AC305E051E542B1FE803A0BD /* DirectUDPRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C4136A81BECA706F6AB9FF /* DirectUDPRelay.swift */; };
@@ -164,6 +165,7 @@
 		39BA75A098135606CFA590D9 /* UDPSessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPSessionStore.swift; sourceTree = "<group>"; };
 		3B01D8A4711C79BC04609012 /* china-ip-list.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "china-ip-list.txt"; sourceTree = "<group>"; };
 		3BC27D9CEF943FD217B263B1 /* IPListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPListViewModelTests.swift; sourceTree = "<group>"; };
+		40C94A64E21436DC0CB8E9B0 /* PasteButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteButton.swift; sourceTree = "<group>"; };
 		42642D728D2808C91C26E5B4 /* CNIPListStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CNIPListStoreTests.swift; sourceTree = "<group>"; };
 		432C79304587402E633E9428 /* MessageSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageSection.swift; sourceTree = "<group>"; };
 		488EF0DC7A388D3F575FA343 /* TunnelPacketWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelPacketWriter.swift; sourceTree = "<group>"; };
@@ -338,6 +340,7 @@
 				85CF8A2952562289E2350AAD /* Info.plist */,
 				E18107D19B051C69B17265EE /* IPListViewModel.swift */,
 				432C79304587402E633E9428 /* MessageSection.swift */,
+				40C94A64E21436DC0CB8E9B0 /* PasteButton.swift */,
 				84FDDC7198230F92F2D443B7 /* ProfilePickerBar.swift */,
 				A2263334341B9B69EB3627B5 /* ProfilePickerSheet.swift */,
 				13A139AE9DAA550962E2D7DA /* ProfileRow.swift */,
@@ -631,6 +634,7 @@
 				3E7084564ED7A2D94C52CA61 /* ImportSection.swift in Sources */,
 				08F6A07392CA43091539C529 /* ImportTabView.swift in Sources */,
 				0984C7E6CEEBD8D40E29E382 /* MessageSection.swift in Sources */,
+				A8A582D3AA218B006AC64219 /* PasteButton.swift in Sources */,
 				68B99B8058D378DF6436F26B /* ProfilePickerBar.swift in Sources */,
 				1A5C8640F9413CE2CE719180 /* ProfilePickerSheet.swift in Sources */,
 				CCDE9A370C1C0B7343113F7C /* ProfileRow.swift in Sources */,

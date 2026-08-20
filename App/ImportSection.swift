@@ -10,15 +10,16 @@ struct ImportSection: View {
         !rawURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    private var clipboardText: String {
-        UIPasteboard.general.string ?? ""
-    }
-
     private func triggerImport() {
         editorFocused = false
         DispatchQueue.main.async {
             importAction()
         }
+    }
+
+    private func applyPaste(_ text: String) {
+        rawURL = text
+        editorFocused = true
     }
 
     var body: some View {
@@ -36,19 +37,6 @@ struct ImportSection: View {
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(.quaternary, lineWidth: 1)
                     }
-                    .contextMenu {
-                        Button("粘贴") {
-                            rawURL = clipboardText
-                            editorFocused = true
-                        }
-                        .disabled(clipboardText.isEmpty)
-
-                        Button("清空", role: .destructive) {
-                            rawURL = ""
-                            editorFocused = true
-                        }
-                        .disabled(!hasInput)
-                    }
 
                 if rawURL.isEmpty {
                     Text("粘贴 `ss://` 节点到这里")
@@ -60,11 +48,8 @@ struct ImportSection: View {
             }
 
             HStack {
-                Button("粘贴") {
-                    rawURL = clipboardText
-                    editorFocused = true
-                }
-                .disabled(clipboardText.isEmpty)
+                PasteButton(onPaste: applyPaste)
+                    .fixedSize()
 
                 Button("清空") {
                     rawURL = ""
