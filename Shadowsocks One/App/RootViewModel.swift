@@ -124,6 +124,10 @@ final class RootViewModel: ObservableObject {
         tunnelController.disconnect()
     }
 
+    func refreshTunnelStatus() {
+        tunnelController.refreshStatus()
+    }
+
     func deleteProfile(id: UUID) {
         do {
             try store?.deleteProfile(id: id, from: profiles)

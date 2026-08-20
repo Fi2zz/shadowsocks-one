@@ -8,4 +8,5 @@ protocol TunnelControlling: AnyObject {
     func prepare() async
     func connect() async throws
     func disconnect()
+    func refreshStatus()
 }

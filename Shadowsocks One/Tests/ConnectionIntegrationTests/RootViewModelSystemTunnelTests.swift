@@ -174,6 +174,8 @@ private final class TunnelControllerSpy: TunnelControlling {
         disconnectCalls += 1
     }
 
+    func refreshStatus() {}
+
     func send(_ newState: ConnectionState) {
         state = newState
         continuation.yield(newState)
@@ -192,6 +194,8 @@ private final class FailingTunnelControllerSpy: TunnelControlling {
     }
 
     func disconnect() {}
+
+    func refreshStatus() {}
 }
 
 private extension ServerProfile {

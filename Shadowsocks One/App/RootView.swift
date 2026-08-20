@@ -2,6 +2,7 @@ import SwiftUI
 
 struct RootView: View {
     @StateObject private var viewModel = RootViewModel.makeDefault()
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         TabView {
@@ -14,6 +15,11 @@ struct RootView: View {
                 .tabItem {
                     Label("导入", systemImage: "square.and.arrow.down")
                 }
+        }
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .active {
+                viewModel.refreshTunnelStatus()
+            }
         }
     }
 }

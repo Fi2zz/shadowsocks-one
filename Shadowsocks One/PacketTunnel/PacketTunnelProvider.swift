@@ -123,18 +123,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 message: "network settings applied and engine starting"
             )
             // #endregion
-            self.engine?.start { [weak self] error in
-                self?.persistRuntimeFailureDetail(error)
-                // #region debug-point E:engine-fatal
-                TunnelDebugReporter.send(
-                    "E",
-                    location: "PacketTunnelProvider.engineFatal",
-                    message: "engine reported fatal error",
-                    data: ["error": error.localizedDescription]
-                )
-                // #endregion
-                self?.cancelTunnelWithError(error)
-            }
+            self.startEngine()
 
             completionHandler(nil)
         }
@@ -158,6 +147,32 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         Task {
             await engine?.stop()
             completionHandler()
+        }
+    }
+
+    override func sleep(completionHandler: @escaping () -> Void) {
+        Task {
+            await engine?.stop()
+            completionHandler()
+        }
+    }
+
+    override func wake() {
+        startEngine()
+    }
+
+    private func startEngine() {
+        engine?.start { [weak self] error in
+            self?.persistRuntimeFailureDetail(error)
+            // #region debug-point E:engine-fatal
+            TunnelDebugReporter.send(
+                "E",
+                location: "PacketTunnelProvider.engineFatal",
+                message: "engine reported fatal error",
+                data: ["error": error.localizedDescription]
+            )
+            // #endregion
+            self?.cancelTunnelWithError(error)
         }
     }
 

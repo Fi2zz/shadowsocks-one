@@ -75,6 +75,13 @@ final class SystemTunnelManager: TunnelControlling {
         }
     }
 
+    func refreshStatus() {
+        guard let manager else {
+            return
+        }
+        updateState(mapStatus(manager.connection.status))
+    }
+
     private func loadOrCreateManager() async throws -> NETunnelProviderManager {
         let managers = try await loadAllManagers()
         let manager = managers.first {
