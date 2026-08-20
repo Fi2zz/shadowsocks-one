@@ -29,28 +29,17 @@
 
 ## 待办（按优先级）
 
-1. **提交 README.md**（阻塞中）：已写到仓库根目录，内容是架构原理 + 数据面工作细节，未提交未推送。命令：
-   ```bash
-   cd /Users/fitz/REPO/ShadowsocksX-NG
-   git add README.md && git commit -m "docs: add README covering architecture and data-plane internals" && git push
-   ```
-2. **xcodeproj 改名**（已与用户达成意向，方案已确认）：把 `project.yml` 第 1 行 `name: Shadowsocks One` 改为 `ShadowsocksOne`，然后：
-   ```bash
-   xcodegen
-   git rm -r "Shadowsocks One.xcodeproj"
-   git add ShadowsocksOne.xcodeproj project.yml
-   # 编译验证后提交
-   ```
-   target/scheme 名是否一并去空格未定（不影响产物名，最小改动是只改 `name`）。
-3. **既有测试失败（非本次引入）**：`Tests/ConnectionIntegrationTests/RootViewModelSystemTunnelTests.swift` 的 `testConnectSelectedProfileUsesSystemTunnelController` 和 `testConnectFailureShowsSystemVPNError` 在未改动的 HEAD 上同样失败，疑似模拟器 Keychain 环境导致 `ProfileStore` 初始化失败（表现为 `selectedProfile` 为 nil）。需要单独排查。
+1. ~~提交 README.md~~ 已完成（`bd9982a`）。
+2. ~~xcodeproj 改名~~ 已完成（`3131e7b`）：`ShadowsocksOne.xcodeproj`，只改了 `project.yml` 的 `name`，target/scheme 名未动。
+3. ~~既有测试失败~~ 已解决：根因有二。(a) 旧 pbxproj 里手动维护的测试目标配置（`PacketTunnel` 源码编入测试 bundle、以 App 为 TEST_HOST）不在 project.yml 里，xcodegen 重新生成后丢失，已在 project.yml 补齐；(b) `CODE_SIGNING_ALLOWED=NO` 时测试宿主 App 无签名 → Keychain `SecItemAdd` 失败 → `importProfile` 保存抛错导致 `selectedProfile` 为 nil。**测试必须带默认签名运行（不要加 `CODE_SIGNING_ALLOWED=NO`）。** 修复后全部测试通过。
 4. **未跟踪文件**：`.dbg/`、`debug-vpn-webpage-blocked.md`（调试残留，用户决定是否删除/提交）。
 5. **Bundle ID / App Group 占位值**：`com.example.ShadowsocksOne*`（含 app group `group.com.example.ShadowsocksOne`、keychain service `com.example.ShadowsocksOne.shared`），真机发布前需替换为正式签名配置。
 
 ## 环境注意事项
 
 - **上一会话的 shell 因会话工作目录（已删除的 `Shadowsocks One/` 子目录）消失而完全不可用**（spawn ENOENT）。新会话请以 `/Users/fitz/REPO/ShadowsocksX-NG` 为工作目录启动。
-- 构建：`xcodebuild -project "Shadowsocks One.xcodeproj" -scheme "Shadowsocks One" -destination 'generic/platform=iOS' build CODE_SIGNING_ALLOWED=NO`（改名后路径相应变化）。
-- 测试：`... -destination 'platform=iOS Simulator,name=iPhone 17' test`。SharedCore 全过；集成测试有上面第 3 条的既有失败。
+- 构建：`xcodebuild -project ShadowsocksOne.xcodeproj -scheme "Shadowsocks One" -destination 'generic/platform=iOS' build CODE_SIGNING_ALLOWED=NO`
+- 测试：`... -destination 'platform=iOS Simulator,name=iPhone 17' test`（**不要加 `CODE_SIGNING_ALLOWED=NO`**，否则 Keychain 失败导致 RootViewModel 相关用例失败）。SharedCore 与集成测试当前全绿。
 
 ## 架构速览（详见根目录 README.md）
 
