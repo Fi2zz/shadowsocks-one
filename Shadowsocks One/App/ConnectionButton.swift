@@ -30,9 +30,15 @@ struct ConnectionButton: View {
                     .stroke(.black.opacity(0.06), lineWidth: 1)
 
                 VStack(spacing: 14) {
-                    Image(systemName: "power")
-                        .font(.system(size: 42, weight: .semibold))
-                    Text(connected ? "点击断开" : "点击连接")
+                    if connecting {
+                        ProgressView()
+                            .controlSize(.large)
+                            .frame(height: 50)
+                    } else {
+                        Image(systemName: "power")
+                            .font(.system(size: 42, weight: .semibold))
+                    }
+                    Text(buttonTitle)
                         .font(.headline)
                 }
                 .foregroundStyle(connected ? .white : Self.teal)
@@ -41,7 +47,14 @@ struct ConnectionButton: View {
         }
         .buttonStyle(.plain)
         .disabled(connecting)
-        .opacity(connecting ? 0.6 : 1)
         .animation(.easeInOut(duration: 0.2), value: connected)
+        .animation(.easeInOut(duration: 0.2), value: connecting)
+    }
+
+    private var buttonTitle: String {
+        if connecting {
+            return "连接中…"
+        }
+        return connected ? "点击断开" : "点击连接"
     }
 }
