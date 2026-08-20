@@ -14,6 +14,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.fits.socks.one
+        DEVELOPMENT_TEAM: 8Z7LGX7B48
+        CODE_SIGN_STYLE: Automatic
         PRODUCT_NAME: ShadowsocksOne
         PRODUCT_MODULE_NAME: ShadowsocksOne
         INFOPLIST_FILE: App/Info.plist
@@ -32,6 +34,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.fits.socks.one.PacketTunnel
+        DEVELOPMENT_TEAM: 8Z7LGX7B48
+        CODE_SIGN_STYLE: Automatic
         PRODUCT_NAME: ShadowsocksOnePacketTunnel
         PRODUCT_MODULE_NAME: ShadowsocksOnePacketTunnel
         INFOPLIST_FILE: PacketTunnel/Info.plist
