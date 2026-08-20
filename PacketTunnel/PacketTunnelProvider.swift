@@ -11,13 +11,6 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         options: [String : NSObject]?,
         completionHandler: @escaping (Error?) -> Void
     ) {
-        // #region debug-point E:start-tunnel-entry
-        TunnelDebugReporter.send(
-            "E",
-            location: "PacketTunnelProvider.startTunnel",
-            message: "startTunnel invoked"
-        )
-        // #endregion
         do {
             runtimeStatusStore = try TunnelRuntimeStatusStore(
                 appGroupID: SharedContainerSettings.appGroupID
@@ -60,29 +53,9 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             Task {
                 await engine.warmUpDNSCache()
             }
-            // #region debug-point A:configuration-loaded
-            TunnelDebugReporter.send(
-                "A",
-                location: "PacketTunnelProvider.startTunnel",
-                message: "tunnel configuration loaded",
-                data: [
-                    "whitelistCount": routingConfiguration.domainWhitelist.count,
-                    "serverHost": launchConfiguration.connection.host,
-                    "serverPort": launchConfiguration.connection.port,
-                ]
-            )
-            // #endregion
         } catch {
             persistRuntimeFailureDetail(error)
             NSLog("PacketTunnel startTunnel failed while loading configuration: %@", error.localizedDescription)
-            // #region debug-point E:start-tunnel-load-failed
-            TunnelDebugReporter.send(
-                "E",
-                location: "PacketTunnelProvider.startTunnel",
-                message: "configuration load failed",
-                data: ["error": error.localizedDescription]
-            )
-            // #endregion
             completionHandler(error)
             return
         }
@@ -105,25 +78,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             if let error {
                 self.persistRuntimeFailureDetail(error)
                 NSLog("PacketTunnel setTunnelNetworkSettings failed: %@", error.localizedDescription)
-                // #region debug-point E:settings-failed
-                TunnelDebugReporter.send(
-                    "E",
-                    location: "PacketTunnelProvider.setTunnelNetworkSettings",
-                    message: "network settings failed",
-                    data: ["error": error.localizedDescription]
-                )
-                // #endregion
                 completionHandler(error)
                 return
             }
 
-            // #region debug-point A:settings-ready
-            TunnelDebugReporter.send(
-                "A",
-                location: "PacketTunnelProvider.setTunnelNetworkSettings",
-                message: "network settings applied and engine starting"
-            )
-            // #endregion
             self.startEngine()
 
             completionHandler(nil)
@@ -134,14 +92,6 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         with reason: NEProviderStopReason,
         completionHandler: @escaping () -> Void
     ) {
-        // #region debug-point E:stop-tunnel
-        TunnelDebugReporter.send(
-            "E",
-            location: "PacketTunnelProvider.stopTunnel",
-            message: "stopTunnel invoked",
-            data: ["reason": reason.rawValue]
-        )
-        // #endregion
         let engine = self.engine
         self.engine = nil
 
@@ -165,14 +115,6 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private func startEngine() {
         engine?.start { [weak self] error in
             self?.persistRuntimeFailureDetail(error)
-            // #region debug-point E:engine-fatal
-            TunnelDebugReporter.send(
-                "E",
-                location: "PacketTunnelProvider.engineFatal",
-                message: "engine reported fatal error",
-                data: ["error": error.localizedDescription]
-            )
-            // #endregion
             self?.cancelTunnelWithError(error)
         }
     }

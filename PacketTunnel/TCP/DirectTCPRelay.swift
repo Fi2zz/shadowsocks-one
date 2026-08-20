@@ -32,46 +32,17 @@ final class DirectTCPRelay: TCPFlowRelaying {
             return
         }
 
-        // #region debug-point E:direct-relay-start
-        TunnelDebugReporter.send(
-            "E",
-            location: "DirectTCPRelay.start",
-            message: "starting direct relay"
-        )
-        // #endregion
         try await withCheckedThrowingContinuation { continuation in
             let resume = ContinuationResumer<Void>(continuation)
             connection.stateUpdateHandler = { [weak connection] state in
                 switch state {
                 case .ready:
-                    // #region debug-point E:direct-relay-ready
-                    TunnelDebugReporter.send(
-                        "E",
-                        location: "DirectTCPRelay.start",
-                        message: "direct relay ready"
-                    )
-                    // #endregion
                     connection?.stateUpdateHandler = nil
                     resume.resume(returning: ())
                 case .failed(let error):
-                    // #region debug-point E:direct-relay-failed
-                    TunnelDebugReporter.send(
-                        "E",
-                        location: "DirectTCPRelay.start",
-                        message: "direct relay failed",
-                        data: ["error": error.localizedDescription]
-                    )
-                    // #endregion
                     connection?.stateUpdateHandler = nil
                     resume.resume(throwing: error)
                 case .cancelled:
-                    // #region debug-point E:direct-relay-cancelled
-                    TunnelDebugReporter.send(
-                        "E",
-                        location: "DirectTCPRelay.start",
-                        message: "direct relay cancelled before ready"
-                    )
-                    // #endregion
                     connection?.stateUpdateHandler = nil
                     resume.resume(throwing: TCPRelayError.connectionCancelled)
                 default:
@@ -91,26 +62,10 @@ final class DirectTCPRelay: TCPFlowRelaying {
             return
         }
 
-        // #region debug-point E:direct-relay-send
-        TunnelDebugReporter.send(
-            "E",
-            location: "DirectTCPRelay.forwardOutboundPayload",
-            message: "sending payload over direct relay",
-            data: ["payloadBytes": payload.count]
-        )
-        // #endregion
         try await start()
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             connection.send(content: payload, completion: .contentProcessed { error in
                 if let error {
-                    // #region debug-point E:direct-relay-send-failed
-                    TunnelDebugReporter.send(
-                        "E",
-                        location: "DirectTCPRelay.forwardOutboundPayload",
-                        message: "direct relay send failed",
-                        data: ["error": error.localizedDescription]
-                    )
-                    // #endregion
                     continuation.resume(throwing: error)
                     return
                 }
@@ -147,35 +102,12 @@ final class DirectTCPRelay: TCPFlowRelaying {
                     break
                 }
 
-                // #region debug-point E:direct-relay-receive
-                TunnelDebugReporter.send(
-                    "E",
-                    location: "DirectTCPRelay.runReceiveLoop",
-                    message: "direct relay received payload",
-                    data: ["payloadBytes": chunk.count]
-                )
-                // #endregion
                 await onInboundBytes?(chunk)
             } catch {
-                // #region debug-point E:direct-relay-receive-failed
-                TunnelDebugReporter.send(
-                    "E",
-                    location: "DirectTCPRelay.runReceiveLoop",
-                    message: "direct relay receive loop failed",
-                    data: ["error": error.localizedDescription]
-                )
-                // #endregion
                 break
             }
         }
 
-        // #region debug-point E:direct-relay-closed
-        TunnelDebugReporter.send(
-            "E",
-            location: "DirectTCPRelay.runReceiveLoop",
-            message: "direct relay receive loop closed"
-        )
-        // #endregion
         await onClosed?()
     }
 

@@ -2,46 +2,6 @@ import Foundation
 @preconcurrency import NetworkExtension
 import SharedCore
 
-// #region debug-point instrumentation:reporter
-enum TunnelDebugReporter {
-    private static let serverURL = URL(string: "http://192.168.0.136:7777/event")
-    private static let enabled = UserDefaults(
-        suiteName: SharedContainerSettings.appGroupID
-    )?.bool(forKey: "tunnelDebugEnabled") ?? false
-
-    static func send(
-        _ hypothesisId: String,
-        location: String,
-        message: String,
-        data: [String: Any] = [:]
-    ) {
-        guard enabled else {
-            return
-        }
-
-        guard let serverURL,
-              let body = try? JSONSerialization.data(
-                withJSONObject: [
-                    "sessionId": "vpn-webpage-blocked",
-                    "runId": "post-fix",
-                    "hypothesisId": hypothesisId,
-                    "location": location,
-                    "msg": "[DEBUG] \(message)",
-                    "data": data,
-                    "ts": Int(Date().timeIntervalSince1970 * 1000),
-                ]
-              ) else {
-            return
-        }
-
-        var request = URLRequest(url: serverURL)
-        request.httpMethod = "POST"
-        request.httpBody = body
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        URLSession.shared.dataTask(with: request).resume()
-    }
-}
-// #endregion
 
 protocol TunnelPacketFlow: AnyObject {
     func readPackets(completionHandler: @escaping ([Data], [NSNumber]) -> Void)
@@ -92,27 +52,12 @@ final class TunnelEngine {
             return
         }
 
-        // #region debug-point D:engine-start
-        TunnelDebugReporter.send(
-            "D",
-            location: "TunnelEngine.start",
-            message: "packet read loop starting"
-        )
-        // #endregion
         packetReaderTask = Task { [weak self] in
             guard let self else { return }
             self.tcpRouter.setPacketWriter(self.packetWriter)
 
             while !Task.isCancelled {
                 let packets = await self.readPackets(from: packetFlow)
-                // #region debug-point D:packet-batch
-                TunnelDebugReporter.send(
-                    "D",
-                    location: "TunnelEngine.start",
-                    message: "packet batch received",
-                    data: ["packetCount": packets.count]
-                )
-                // #endregion
                 if Task.isCancelled {
                     break
                 }
@@ -144,19 +89,6 @@ final class TunnelEngine {
     func handleOutboundPacket(_ data: Data) async throws {
         let packet = try IPPacket(data: data)
 
-        // #region debug-point D:packet-dispatch
-        TunnelDebugReporter.send(
-            "D",
-            location: "TunnelEngine.handleOutboundPacket",
-            message: "dispatching outbound packet",
-            data: [
-                "protocol": packet.protocolNumber,
-                "sourceIP": packet.sourceAddress,
-                "destinationIP": packet.destinationAddress,
-                "totalLength": packet.totalLength,
-            ]
-        )
-        // #endregion
         switch packet.protocolNumber {
         case 17:
             let udp = try packet.udpSegment()

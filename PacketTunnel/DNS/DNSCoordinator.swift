@@ -115,19 +115,6 @@ final class DNSCoordinator: DNSCoordinating {
             return
         }
 
-        // #region debug-point A:dns-query
-        TunnelDebugReporter.send(
-            "A",
-            location: "DNSCoordinator.handle",
-            message: "handling DNS query packet",
-            data: [
-                "serverIP": packet.destinationAddress,
-                "clientIP": packet.sourceAddress,
-                "sourcePort": udp.sourcePort,
-                "payloadBytes": udp.payload.count,
-            ]
-        )
-        // #endregion
         let responsePayload = try await upstreamClient.query(
             serverIP: packet.destinationAddress,
             payload: udp.payload
@@ -141,17 +128,6 @@ final class DNSCoordinator: DNSCoordinating {
             destinationPort: udp.sourcePort,
             payload: responsePayload
         )
-        // #region debug-point A:dns-response-written
-        TunnelDebugReporter.send(
-            "A",
-            location: "DNSCoordinator.handle",
-            message: "writing DNS response back to packet flow",
-            data: [
-                "responseBytes": responsePayload.count,
-                "packetBytes": responsePacket.count,
-            ]
-        )
-        // #endregion
         packetWriter.write([responsePacket], protocols: [NSNumber(value: AF_INET)])
     }
 
@@ -164,17 +140,6 @@ final class DNSCoordinator: DNSCoordinating {
 
     private func cacheResponse(_ responsePayload: Data) throws {
         let message = try DNSMessage(data: responsePayload)
-        // #region debug-point C:dns-cache-parse
-        TunnelDebugReporter.send(
-            "C",
-            location: "DNSCoordinator.cacheResponse",
-            message: "parsed DNS response for caching",
-            data: [
-                "questionCount": message.questions.count,
-                "answerCount": message.answers.count,
-            ]
-        )
-        // #endregion
         var cachedAnswers: [String: (addresses: Set<String>, ttl: UInt32)] = [:]
 
         for answer in message.answers {
@@ -202,18 +167,6 @@ final class DNSCoordinator: DNSCoordinating {
                 addresses: Array(entry.addresses),
                 ttl: TimeInterval(entry.ttl)
             )
-            // #region debug-point C:dns-cache-insert
-            TunnelDebugReporter.send(
-                "C",
-                location: "DNSCoordinator.cacheResponse",
-                message: "cached DNS answer",
-                data: [
-                    "host": host,
-                    "addressCount": entry.addresses.count,
-                    "ttl": entry.ttl,
-                ]
-            )
-            // #endregion
         }
     }
 }
