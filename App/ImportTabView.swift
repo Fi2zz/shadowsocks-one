@@ -20,6 +20,8 @@ struct ImportTabView: View {
                     ipListViewModel: ipListViewModel
                 )
 
+                ConnectionTestSection()
+
                 DiagnosticsSection()
             }
             .scrollDismissesKeyboard(.interactively)
