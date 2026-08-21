@@ -7,21 +7,11 @@ struct RootView: View {
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
-        TabView {
-            ProfilesTabView(viewModel: viewModel)
-                .tabItem {
-                    Label("节点", systemImage: "network")
-                }
-
-            ImportTabView(
-                viewModel: viewModel,
-                routingViewModel: routingViewModel,
-                ipListViewModel: ipListViewModel
-            )
-            .tabItem {
-                Label("导入", systemImage: "square.and.arrow.down")
-            }
-        }
+        BrowserRootView(
+            viewModel: viewModel,
+            routingViewModel: routingViewModel,
+            ipListViewModel: ipListViewModel
+        )
         .onChange(of: scenePhase) { newPhase in
             if newPhase == .active {
                 viewModel.refreshTunnelStatus()
