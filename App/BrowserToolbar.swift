@@ -4,10 +4,10 @@ import SharedCore
 struct BrowserToolbar: View {
     @ObservedObject var tabManager: BrowserTabManager
     let connectionState: ConnectionState
+    @FocusState.Binding var addressFocused: Bool
     let showMore: () -> Void
 
     @State private var addressInput = ""
-    @FocusState private var addressFocused: Bool
 
     var body: some View {
         HStack(spacing: 12) {
@@ -23,8 +23,8 @@ struct BrowserToolbar: View {
         .onChange(of: addressFocused) { focused in
             handleFocusChange(focused)
         }
-        .onChange(of: tabManager.selectedTabID) { _ in syncAddressInput() }
-        .onChange(of: tabManager.selectedTab?.currentURL) { _ in syncAddressInput() }
+        .onChange(of: tabManager.selectedTabID) { _ in syncAddressInputIfUnfocused() }
+        .onChange(of: tabManager.selectedTab?.currentURL) { _ in syncAddressInputIfUnfocused() }
     }
 
     @ViewBuilder
@@ -38,6 +38,7 @@ struct BrowserToolbar: View {
 
     private func handleFocusChange(_ focused: Bool) {
         if focused {
+            showFullAddress()
             selectAllText()
             return
         }
@@ -182,6 +183,20 @@ struct BrowserToolbar: View {
     }
 
     private func syncAddressInput() {
-        addressInput = tabManager.selectedTab?.currentURL?.absoluteString ?? ""
+        addressInput = tabManager.selectedTab?.currentURL?.host ?? ""
+    }
+
+    private func syncAddressInputIfUnfocused() {
+        guard !addressFocused else {
+            return
+        }
+        syncAddressInput()
+    }
+
+    private func showFullAddress() {
+        guard let fullAddress = tabManager.selectedTab?.currentURL?.absoluteString else {
+            return
+        }
+        addressInput = fullAddress
     }
 }

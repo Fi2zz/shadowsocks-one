@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 import SharedCore
 
@@ -8,6 +9,7 @@ final class BrowserTabManager: ObservableObject {
     @Published private(set) var history: [BrowserHistoryEntry] = []
 
     private let historyStore: BrowserHistoryStore?
+    private var tabObservers: [UUID: AnyCancellable] = [:]
 
     init(historyStore: BrowserHistoryStore?) {
         self.historyStore = historyStore
@@ -38,6 +40,7 @@ final class BrowserTabManager: ObservableObject {
             return
         }
         tabs.remove(at: index)
+        tabObservers.removeValue(forKey: id)
         ensureSelection(afterClosingAt: index)
     }
 
@@ -71,6 +74,11 @@ final class BrowserTabManager: ObservableObject {
     private func wireHistoryRecording(to tab: WebViewStore) {
         tab.onFinishNavigation = { [weak self] url, title in
             self?.recordHistory(url: url, title: title)
+        }
+        // 子对象的 @Published 变化不会自动冒泡：转发给上层，
+        // 否则观察 tabManager 的视图拿不到标签内的状态更新（折叠、导航态、进度）
+        tabObservers[tab.id] = tab.objectWillChange.sink { [weak self] _ in
+            self?.objectWillChange.send()
         }
     }
 
