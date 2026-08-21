@@ -12,7 +12,7 @@ struct BrowserMoreMenu: View {
     private enum Destination: Identifiable {
         case tabs
         case history
-        case profiles
+        case nodePicker
         case importing
 
         var id: Self { self }
@@ -29,10 +29,10 @@ struct BrowserMoreMenu: View {
                         Label("历史记录", systemImage: "clock")
                     }
                 }
-                Section("代理") {
-                    Button { destination = .profiles } label: {
-                        Label("节点", systemImage: "network")
-                    }
+                VPNControlSection(viewModel: viewModel) {
+                    destination = .nodePicker
+                }
+                Section("分流") {
                     Button { destination = .importing } label: {
                         Label("导入与分流", systemImage: "square.and.arrow.down")
                     }
@@ -52,12 +52,8 @@ struct BrowserMoreMenu: View {
             NavigationStack {
                 BrowserHistoryView(tabManager: tabManager, openURL: openHistoryURL)
             }
-        case .profiles:
-            NavigationStack {
-                ProfilesTabView(viewModel: viewModel)
-                    .navigationTitle("节点")
-                    .navigationBarTitleDisplayMode(.inline)
-            }
+        case .nodePicker:
+            NodePickerSheet(viewModel: viewModel)
         case .importing:
             ImportTabView(
                 viewModel: viewModel,

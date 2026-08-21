@@ -1,4 +1,5 @@
 import SharedCore
+import SwiftUI
 
 extension ConnectionState {
     var displayText: String {
@@ -32,5 +33,16 @@ extension ConnectionState {
             return false
         }
         return true
+    }
+
+    var statusColor: Color {
+        switch self {
+        case .connected:
+            return .green
+        case .connecting:
+            return .orange
+        case .idle, .failed:
+            return .gray
+        }
     }
 }

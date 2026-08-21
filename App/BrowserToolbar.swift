@@ -141,19 +141,8 @@ struct BrowserToolbar: View {
 
     private var statusDot: some View {
         Circle()
-            .fill(statusColor)
+            .fill(connectionState.statusColor)
             .frame(width: 8, height: 8)
-    }
-
-    private var statusColor: Color {
-        switch connectionState {
-        case .connected:
-            return .green
-        case .connecting:
-            return .orange
-        case .idle, .failed:
-            return .gray
-        }
     }
 
     private var clearButton: some View {
