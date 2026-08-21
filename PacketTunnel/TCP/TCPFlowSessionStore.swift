@@ -56,8 +56,20 @@ final class TCPFlowSessionStore: @unchecked Sendable {
         }
     }
 
-    func acknowledgeSentBytes(upTo acknowledgment: UInt32, for key: TCPFlowKey) {
-        mutateSession(for: key) { $0.sendBuffer.acknowledge(upTo: acknowledgment) }
+    /// 累积确认，返回被移除的段（供 RTT 采样）
+    @discardableResult
+    func acknowledgeSentBytes(
+        upTo acknowledgment: UInt32,
+        for key: TCPFlowKey
+    ) -> [TCPSendBuffer.Segment] {
+        lock.lock()
+        defer { lock.unlock() }
+        guard var session = sessions[key] else {
+            return []
+        }
+        let removed = session.sendBuffer.acknowledge(upTo: acknowledgment)
+        sessions[key] = session
+        return removed
     }
 
     /// 取出各会话到期未确认的段并推进其重传计时，附带建包所需的状态快照

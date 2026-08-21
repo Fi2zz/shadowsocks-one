@@ -88,4 +88,26 @@ final class TCPSendBufferTests: XCTestCase {
         XCTAssertTrue(buffer.popDueSegments(now: now, rto: 1).isEmpty)
         XCTAssertEqual(buffer.unackedPayloadBytes, 4)
     }
+
+    func testAcknowledgeReturnsRemovedSegmentsForSampling() {
+        var buffer = TCPSendBuffer()
+        buffer.append(sequenceNumber: 10, payload: Data(repeating: 1, count: 5), now: t0)
+        buffer.append(sequenceNumber: 15, payload: Data(repeating: 2, count: 5), now: t0)
+
+        let removed = buffer.acknowledge(upTo: 15)
+
+        XCTAssertEqual(removed.count, 1)
+        XCTAssertEqual(removed.first?.sequenceNumber, 10)
+        XCTAssertEqual(removed.first?.firstSentAt, t0)
+    }
+
+    func testRetransmissionKeepsFirstSentAt() {
+        var buffer = TCPSendBuffer()
+        buffer.append(sequenceNumber: 1, payload: Data(repeating: 1, count: 4), now: t0)
+
+        let due = buffer.popDueSegments(now: t0.addingTimeInterval(2), rto: 1)
+
+        XCTAssertEqual(due.first?.firstSentAt, t0)
+        XCTAssertEqual(due.first?.retransmitCount, 1)
+    }
 }

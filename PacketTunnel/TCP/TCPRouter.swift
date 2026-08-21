@@ -114,7 +114,11 @@ final class TCPRouter: TCPRouting {
         }
 
         if tcp.isACK {
-            sessionStore.acknowledgeSentBytes(upTo: tcp.acknowledgmentNumber, for: key)
+            let acknowledged = sessionStore.acknowledgeSentBytes(
+                upTo: tcp.acknowledgmentNumber,
+                for: key
+            )
+            retransmitter.recordAcknowledgedSegments(acknowledged, now: now())
         }
 
         let relay = session.relay

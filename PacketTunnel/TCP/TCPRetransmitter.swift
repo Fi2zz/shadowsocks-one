@@ -8,11 +8,11 @@ final class TCPRetransmitter: @unchecked Sendable {
     private let sessionStore: TCPFlowSessionStore
     private let diagnostics: TunnelDiagnosticsLogging?
     private let now: @Sendable () -> Date
-    private let retransmitTimeout: TimeInterval
     private let sweepIntervalNanoseconds: UInt64
     private let lock = NSLock()
     private var task: Task<Void, Never>?
     private var packetWriter: (any TunnelPacketWriting)?
+    private var rttEstimator: RTTEstimator
 
     init(
         sessionStore: TCPFlowSessionStore,
@@ -24,8 +24,17 @@ final class TCPRetransmitter: @unchecked Sendable {
         self.sessionStore = sessionStore
         self.diagnostics = diagnostics
         self.now = now
-        self.retransmitTimeout = retransmitTimeout
+        self.rttEstimator = RTTEstimator(initialRTO: retransmitTimeout)
         self.sweepIntervalNanoseconds = sweepIntervalNanoseconds
+    }
+
+    /// Karn 规则：重传过的段不参与 RTT 采样（ACK 二义性）
+    func recordAcknowledgedSegments(_ segments: [TCPSendBuffer.Segment], now: Date) {
+        lock.lock()
+        defer { lock.unlock() }
+        for segment in segments where segment.retransmitCount == 0 {
+            rttEstimator.recordSample(now.timeIntervalSince(segment.firstSentAt))
+        }
     }
 
     func setPacketWriter(_ packetWriter: (any TunnelPacketWriting)?) {
@@ -68,21 +77,26 @@ final class TCPRetransmitter: @unchecked Sendable {
     }
 
     private func retransmitDueSegments() {
-        let due = sessionStore.popDueSegments(now: now(), rto: retransmitTimeout)
+        lock.lock()
+        let rto = rttEstimator.rto
+        lock.unlock()
+
+        let due = sessionStore.popDueSegments(now: now(), rto: rto)
         for entry in due {
-            writeRetransmission(entry)
+            writeRetransmission(entry, rto: rto)
         }
     }
 
     private func writeRetransmission(
-        _ entry: (key: TCPFlowKey, state: TCPFlowState, segment: TCPSendBuffer.Segment)
+        _ entry: (key: TCPFlowKey, state: TCPFlowState, segment: TCPSendBuffer.Segment),
+        rto: TimeInterval
     ) {
         guard let packet = buildRetransmissionPacket(for: entry) else {
             return
         }
 
         diagnostics?(
-            "TCP rexmit \(entry.key.destinationAddress):\(entry.key.destinationPort) seq=\(entry.segment.sequenceNumber) bytes=\(entry.segment.payload.count) tries=\(entry.segment.retransmitCount)"
+            "TCP rexmit \(entry.key.destinationAddress):\(entry.key.destinationPort) seq=\(entry.segment.sequenceNumber) bytes=\(entry.segment.payload.count) tries=\(entry.segment.retransmitCount) rto=\(String(format: "%.2f", rto))s"
         )
         packetWriter?.write([packet], protocols: [NSNumber(value: AF_INET)])
     }

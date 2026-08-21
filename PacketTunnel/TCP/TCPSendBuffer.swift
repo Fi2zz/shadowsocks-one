@@ -6,8 +6,17 @@ struct TCPSendBuffer: Equatable, Sendable {
     struct Segment: Equatable, Sendable {
         let sequenceNumber: UInt32
         let payload: Data
+        let firstSentAt: Date
         private(set) var lastSentAt: Date
         private(set) var retransmitCount: Int
+
+        init(sequenceNumber: UInt32, payload: Data, now: Date) {
+            self.sequenceNumber = sequenceNumber
+            self.payload = payload
+            self.firstSentAt = now
+            self.lastSentAt = now
+            self.retransmitCount = 0
+        }
 
         mutating func markRetransmitted(at now: Date) {
             lastSentAt = now
@@ -36,16 +45,21 @@ struct TCPSendBuffer: Equatable, Sendable {
             Segment(
                 sequenceNumber: sequenceNumber,
                 payload: payload,
-                lastSentAt: now,
-                retransmitCount: 0
+                now: now
             )
         )
     }
 
-    mutating func acknowledge(upTo acknowledgment: UInt32) {
+    /// 累积确认并返回被移除的段，供调用方做 RTT 采样
+    @discardableResult
+    mutating func acknowledge(upTo acknowledgment: UInt32) -> [Segment] {
+        let removed = segments.filter { segment in
+            Self.ackCoversEnd(ack: acknowledgment, end: Self.endSequence(of: segment))
+        }
         segments.removeAll { segment in
             Self.ackCoversEnd(ack: acknowledgment, end: Self.endSequence(of: segment))
         }
+        return removed
     }
 
     /// 取出到期未确认的段并推进其重传计时（指数退避，封顶 8 倍 RTO）

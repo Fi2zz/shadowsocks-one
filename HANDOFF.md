@@ -37,15 +37,17 @@
 
 **现状**：用户态最小 TCP 终结——无窗口/拥塞控制、ISN 固定；客户端 → 服务端方向靠客户端 TCP 自身重传兜底（router 对重传包只重 ACK，语义正确）。
 
-**已完成（2026-08-21）**：**服务端 → 客户端方向的出站重传**。`TCPSendBuffer`（按段记录已发未 ACK 的 payload，整段累积确认，序号回绕安全）+ `TCPRetransmitter`（250ms 周期扫描，固定 RTO 1s 起步、指数退避封顶 8s、单段最多重发 10 次），重发包保持原序列号，诊断日志前缀 `TCP rexmit`。客户端 ACK 在 `TCPRouter.route` 里挂钩清除缓冲。
+**已完成（2026-08-21）**：
+
+1. **服务端 → 客户端方向的出站重传**。`TCPSendBuffer`（按段记录已发未 ACK 的 payload，整段累积确认，序号回绕安全）+ `TCPRetransmitter`（250ms 周期扫描，指数退避封顶 8 倍 RTO、单段最多重发 10 次），重发包保持原序列号，诊断日志前缀 `TCP rexmit`。客户端 ACK 在 `TCPRouter.route` 里挂钩清除缓冲。
+2. **RTT 估计（Jacobson/Karn）**。`RTTEstimator`（srtt/rttvar → RTO = srtt + 4·var，钳制 [0.2s, 8s]，初始 1s）；只采样未重传过的段（Karn 规则），rexmit 日志带当前 `rto=`。
 
 **关键文件**（`PacketTunnel/TCP/`）：`TCPFlowState.swift`（状态机：consume 事件 → 响应）、`TCPRouter.swift`（会话分发）、`TCPRetransmitter.swift` / `TCPSendBuffer.swift`（重传）、`DirectTCPRelay.swift` / `ShadowsocksTCPRelay.swift`、`TCPFlowSessionStore.swift`（会话 + 发送缓冲存储）。
 
 **按收益排序（剩余）**：
 
-1. **RTT 估计**：用 ACK 到达时间替换固定 1s RTO（Jacobson/Karn）。
-2. **接收窗口通告**：目前 SYN-ACK/包窗口恒为 0xFFFF（`TCPPacketBuilder` 写死），按缓冲余量收缩通告窗口，防止高速发送方打爆内存。
-3. 拥塞控制（cwnd/slow start）——最后做，前两项收益更大。
+1. **接收窗口通告**：目前 SYN-ACK/包窗口恒为 0xFFFF（`TCPPacketBuilder` 写死），按缓冲余量收缩通告窗口，防止高速发送方打爆内存。
+2. 拥塞控制（cwnd/slow start）——最后做，窗口通告收益更大。
 
 序列号/ISN 逻辑都在 `TCPFlowState`，改动要保持现有测试全绿（ISN 目前固定为 1，多个测试断言依赖它；改随机 ISN 需同步更新测试）。
 
