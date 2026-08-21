@@ -1,7 +1,7 @@
 # Handoff — 弱网 TCP 增强（任务 B）
 
-> 写给下一个接手会话。日期：2026-08-20。
-> 任务 A（UDP 转发）已完成并真机验证通过（见下文「任务 A」节的结论与坑）。剩余目标：任务 B 弱网 TCP 体感优化。
+> 写给下一个接手会话。日期：2026-08-21。
+> 任务 A（UDP 转发）与任务 B（弱网 TCP 体感优化）均已完成并测试全绿；任务 B 见下文「任务 B」节。
 
 ## 仓库与流程（必读）
 
@@ -33,21 +33,18 @@
 
 **配置注意**：原「未命中名单时直连」开关已移除（2026-08-21）——它的语义是「未命中域名走本地解析 + 直连」，被墙站点必然拿到污染 IP（实测 google.com.hk → 199.16.158.8），开着必坏。现在未命中名单的流量一律远程解析 + 代理，国内直连由域名白名单与「国内 IP 直连」（CN 段兜底）承担。
 
-## 任务 B：弱网 TCP（进行中）
+## 任务 B：弱网 TCP（已完成，2026-08-21）
 
-**现状**：用户态最小 TCP 终结——无窗口/拥塞控制、ISN 固定；客户端 → 服务端方向靠客户端 TCP 自身重传兜底（router 对重传包只重 ACK，语义正确）。
+**现状**：用户态最小 TCP 终结——ISN 固定为 1；客户端 → 服务端方向靠客户端 TCP 自身重传兜底（router 对重传包只重 ACK，语义正确）。
 
 **已完成（2026-08-21）**：
 
 1. **服务端 → 客户端方向的出站重传**。`TCPSendBuffer`（按段记录已发未 ACK 的 payload，整段累积确认，序号回绕安全）+ `TCPRetransmitter`（250ms 周期扫描，指数退避封顶 8 倍 RTO、单段最多重发 10 次），重发包保持原序列号，诊断日志前缀 `TCP rexmit`。客户端 ACK 在 `TCPRouter.route` 里挂钩清除缓冲。
 2. **RTT 估计（Jacobson/Karn）**。`RTTEstimator`（srtt/rttvar → RTO = srtt + 4·var，钳制 [0.2s, 8s]，初始 1s）；只采样未重传过的段（Karn 规则），rexmit 日志带当前 `rto=`。
 3. **接收窗口通告**。relay 暴露在途字节数（`queuedOutboundBytes`），`TCPFlowWindow` 按 256KB 容量余量收缩通告窗口（未协商 wscale，上限恒 0xFFFF）；零窗口时客户端的 1 字节探测会走 router 的重复 ACK 分支拿到新窗口。`ShadowsocksTCPRelay` 发送链仍是 fire-and-forget（ awaited 会卡死串行读包循环，UDP 那个坑的 TCP 版），窗口是唯一回压手段。
+4. **拥塞控制（慢启动 + 拥塞避免）**。`TCPCongestionController`：初始窗口 10×MSS（RFC 6928），每 ACK +1 MSS（慢启动）/ +MSS²/cwnd（拥塞避免），段进入超时重传即记丢包（阈值折半、窗口退回 1 MSS）。inbound 数据先进会话的 `pendingInbound`，`TCPRouter.flushPendingInbound` 按窗口余量切段写 TUN，窗口打满时由后续 ACK 驱动续发。
 
-**关键文件**（`PacketTunnel/TCP/`）：`TCPFlowState.swift`（状态机：consume 事件 → 响应）、`TCPRouter.swift`（会话分发）、`TCPRetransmitter.swift` / `TCPSendBuffer.swift`（重传）、`DirectTCPRelay.swift` / `ShadowsocksTCPRelay.swift`、`TCPFlowSessionStore.swift`（会话 + 发送缓冲存储）。
-
-**按收益排序（剩余）**：
-
-1. 拥塞控制（cwnd/slow start）——重传与窗口通告已就位，这是任务 B 最后一项。
+**关键文件**（`PacketTunnel/TCP/`）：`TCPFlowState.swift`（状态机：consume 事件 → 响应）、`TCPRouter.swift`（会话分发 + inbound 窗口发送）、`TCPRetransmitter.swift` / `TCPSendBuffer.swift`（重传）、`TCPCongestionController.swift`（拥塞窗口）、`DirectTCPRelay.swift` / `ShadowsocksTCPRelay.swift`、`TCPFlowSessionStore.swift`（会话 + 发送缓冲 + 拥塞状态存储）。
 
 序列号/ISN 逻辑都在 `TCPFlowState`，改动要保持现有测试全绿（ISN 目前固定为 1，多个测试断言依赖它；改随机 ISN 需同步更新测试）。
 

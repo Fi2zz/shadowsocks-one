@@ -118,6 +118,10 @@ final class TCPRouter: TCPRouting {
                 upTo: tcp.acknowledgmentNumber,
                 for: key
             )
+            if !acknowledged.isEmpty {
+                sessionStore.noteAcknowledgment(for: key)
+                try await flushPendingInbound(for: key)
+            }
             retransmitter.recordAcknowledgedSegments(acknowledged, now: now())
         }
 
@@ -231,11 +235,27 @@ final class TCPRouter: TCPRouting {
     }
 
     private func handleInboundBytes(_ data: Data, for key: TCPFlowKey) async throws {
-        guard var state = sessionStore.state(for: key) else {
+        sessionStore.appendPendingInbound(data, for: key)
+        try await flushPendingInbound(for: key)
+    }
+
+    /// 在拥塞窗口允许范围内把待发送的 inbound 数据切段写回 TUN；
+    /// 窗口打满时剩余数据留在会话里，由后续 ACK 或重传扫描驱动续发
+    private func flushPendingInbound(for key: TCPFlowKey) async throws {
+        guard var state = sessionStore.state(for: key), state.phase == .established else {
             return
         }
 
-        for chunk in data.chunked(maxBytes: Self.maximumInboundSegmentSize) {
+        while true {
+            let allowance = min(
+                sessionStore.congestionAllowance(for: key),
+                Self.maximumInboundSegmentSize
+            )
+            guard allowance > 0,
+                  let chunk = sessionStore.popPendingInbound(maxBytes: allowance, for: key) else {
+                return
+            }
+
             let response = try state.consumeInboundPayload(chunk)
             try writeResponse(response, for: state, key: key)
             sessionStore.recordSentSegment(
@@ -306,25 +326,5 @@ final class TCPRouter: TCPRouting {
         let packetWriter = self.packetWriter
         packetWriterLock.unlock()
         return packetWriter
-    }
-}
-
-private extension Data {
-    func chunked(maxBytes: Int) -> [Data] {
-        guard count > maxBytes else {
-            return [self]
-        }
-
-        var chunks: [Data] = []
-        chunks.reserveCapacity((count + maxBytes - 1) / maxBytes)
-
-        var startIndex = 0
-        while startIndex < count {
-            let endIndex = Swift.min(startIndex + maxBytes, count)
-            chunks.append(subdata(in: startIndex..<endIndex))
-            startIndex = endIndex
-        }
-
-        return chunks
     }
 }
