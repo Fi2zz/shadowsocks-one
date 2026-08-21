@@ -45,9 +45,11 @@ final class TCPRouter: TCPRouting {
             )
         }
         self.proxyRelayFactory = proxyRelayFactory ?? { key in
+            // 走代理时优先把原始域名交给服务端解析（ATYP=0x03），
+            // 避免本地/远程解析结果不一致或污染残余 IP 进到代理链路
             try ShadowsocksTCPRelay(
                 launchConfiguration: launchConfiguration,
-                destinationHost: key.destinationAddress,
+                destinationHost: hostResolver?(key.destinationAddress) ?? key.destinationAddress,
                 destinationPort: key.destinationPort,
                 diagnostics: diagnostics
             )
