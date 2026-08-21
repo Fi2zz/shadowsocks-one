@@ -68,6 +68,10 @@ final class DNSCoordinator: DNSCoordinating {
             return
         }
 
+        if try suppressAAAAQueryIfNeeded(packet: packet, udp: udp) {
+            return
+        }
+
         let choice = selectUpstream(for: udp.payload)
         do {
             let responsePayload = try await choice.client.query(
@@ -113,12 +117,31 @@ final class DNSCoordinator: DNSCoordinating {
             : UpstreamChoice(client: upstreamClient, host: host, label: "proxy")
     }
 
-    private static func queryHost(in payload: Data) -> String? {
-        guard let message = try? DNSMessage(data: payload),
-              let question = message.questions.first else {
+    private static let aaaaQueryType: UInt16 = 28
+
+    /// 隧道只接管 IPv4：AAAA 查询直接回空应答，让客户端回落 A 记录，
+    /// 否则拿到 IPv6 的 App 会绕过隧道直连，被墙站点表现为转圈
+    private func suppressAAAAQueryIfNeeded(packet: IPPacket, udp: UDPPacket) throws -> Bool {
+        guard let question = Self.queryQuestion(in: udp.payload),
+              question.type == Self.aaaaQueryType else {
+            return false
+        }
+
+        let response = try DNSMessage.emptyResponse(forQuery: udp.payload)
+        diagnostics?("DNS \(Self.normalizeHost(question.name)) AAAA suppressed (IPv4-only tunnel)")
+        try writeResponse(response, for: packet, udp: udp)
+        return true
+    }
+
+    private static func queryQuestion(in payload: Data) -> DNSMessage.Question? {
+        guard let message = try? DNSMessage(data: payload) else {
             return nil
         }
-        return normalizeHost(question.name)
+        return message.questions.first
+    }
+
+    private static func queryHost(in payload: Data) -> String? {
+        queryQuestion(in: payload).map { normalizeHost($0.name) }
     }
 
     @discardableResult

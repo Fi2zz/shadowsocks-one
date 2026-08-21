@@ -18,7 +18,7 @@
 - `TunnelEngine.swift:92` 按协议分发：**UDP/53 → `DNSCoordinator`，TCP → `TCPRouter`，其余全部丢弃**。
 - 分流闭环已生效（真机已验证）：
   - `RouteMatcher`（SharedCore/Routing）：`route(forHost:ipString:)` 给 TCP 用，`dnsDecision(forHost:)` 给 DNS 用；代理名单 > 内网段（内置常量）> 域名白名单 > CN 段 > 默认代理。
-  - DNS：`DNSCoordinator` 按 `dnsDecision` 分流——直连域名走 `LocalDNSUpstreamClient`（本地 UDP 223.5.5.5），其余走 `ProxyDNSUpstreamClient`（8.8.8.8 over SS TCP）。A 记录入 `DNSCache`，TCP 建连时 `TCPRouter` 用 `DNSCache.lookupDomain` 反查域名做名单判定。
+  - DNS：`DNSCoordinator` 按 `dnsDecision` 分流——直连域名走 `LocalDNSUpstreamClient`（本地 UDP 223.5.5.5），其余走 `ProxyDNSUpstreamClient`（8.8.8.8 over SS TCP）。AAAA 查询一律回空应答（隧道只接管 IPv4，防止 App 拿 v6 绕走本地）。A 记录入 `DNSCache`，TCP 建连时 `TCPRouter` 用 `DNSCache.lookupDomain` 反查域名做名单判定。
   - CN IP 库：内置 `PacketTunnel/china-ip-list.txt`（17mon，约 7.4k 条），App 内可下载更新，下载版优先。
   - UI：「导入与分流」单 Tab；名单每行有「测试」按钮（`App/DomainRouteTester.swift`：本地解析 → RouteMatcher 决策 → 直连时实测 TCP 443 耗时）。
 - Bundle ID `com.fits.socks.one`（扩展 `.PacketTunnel`）、app group `group.com.fitz.app`、keychain `com.fits.socks.one.shared`、`DEVELOPMENT_TEAM=8Z7LGX7B48` 均已固化在 `project.yml` / entitlements。

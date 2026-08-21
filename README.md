@@ -83,12 +83,13 @@ relay 两种实现：
 不是本地伪造 A 记录，而是"拦截 + 按分流规则选上游 + 原样回写 + 缓存"：
 
 1. 所有 DNS 查询进 TUN（见隧道设置），`DNSCoordinator` 解析查询报文取出域名
-2. 按 `RouteMatcher.dnsDecision` 分流选上游（只看域名规则，不涉及 IP 判断）：
+2. AAAA（IPv6）查询直接合成 NOERROR 空应答——隧道只配 IPv4 路由，拿到 IPv6 的 App 会绕过隧道直连，必须强制回落 A 记录
+3. 按 `RouteMatcher.dnsDecision` 分流选上游（只看域名规则，不涉及 IP 判断）：
    - 命中直连名单 → `LocalDNSUpstreamClient` 走本地 UDP 解析（默认 `223.5.5.5:53`），直连流量拿到本地最优 CDN IP
    - 其余 → `ProxyDNSUpstreamClient` 建立到 `8.8.8.8:53` 的 **Shadowsocks TCP** 连接，按 DNS-over-TCP 格式（2 字节长度前缀）转发——域名在代理出口侧解析，避免本地 DNS 污染
-3. 响应用 `UDPPacketBuilder` 包装成"来自 DNS 服务器"的 UDP 包写回 TUN，客户端视角就是一次普通 DNS 应答
-4. 响应中的 A 记录按域名写入 `DNSCache`（带 TTL），供后续分流反查
-5. 白名单域名在隧道启动时用系统 `getaddrinfo` 预解析（本地直连 IP）预热缓存
+4. 响应用 `UDPPacketBuilder` 包装成"来自 DNS 服务器"的 UDP 包写回 TUN，客户端视角就是一次普通 DNS 应答
+5. 响应中的 A 记录按域名写入 `DNSCache`（带 TTL），供后续分流反查
+6. 白名单域名在隧道启动时用系统 `getaddrinfo` 预解析（本地直连 IP）预热缓存
 
 ### 5. 分流
 

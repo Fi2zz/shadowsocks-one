@@ -89,6 +89,34 @@ public struct DNSMessage: Sendable {
         self.answers = answers
     }
 
+    /// 为查询报文合成 NOERROR 空应答（用于屏蔽 AAAA，强制客户端回落 IPv4）
+    public static func emptyResponse(forQuery query: Data) throws -> Data {
+        guard query.count >= 12 else {
+            throw DNSMessageError.invalidMessage
+        }
+
+        let questionCount = Int(readUInt16(in: query, at: 4))
+        var offset = 12
+        for _ in 0..<questionCount {
+            _ = try readName(in: query, offset: &offset)
+            guard offset + 4 <= query.count else {
+                throw DNSMessageError.invalidMessage
+            }
+            offset += 4
+        }
+
+        var response = Data(query.prefix(offset))
+        response[2] |= 0x80
+        response[3] = 0x80
+        response[6] = 0
+        response[7] = 0
+        response[8] = 0
+        response[9] = 0
+        response[10] = 0
+        response[11] = 0
+        return response
+    }
+
     private static func readUInt16(in data: Data, at offset: Int) -> UInt16 {
         (UInt16(data[offset]) << 8) | UInt16(data[offset + 1])
     }
