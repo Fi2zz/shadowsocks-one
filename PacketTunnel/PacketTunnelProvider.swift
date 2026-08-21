@@ -12,6 +12,16 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         options: [String : NSObject]?,
         completionHandler: @escaping (Error?) -> Void
     ) {
+        // 诊断设施最先就绪：配置加载失败也要在共享容器里留痕，
+        // 否则扩展起不来时 App 侧看不到任何日志
+        let diagnosticsStore = try? TunnelDiagnosticsStore(
+            appGroupID: SharedContainerSettings.appGroupID
+        )
+        let diagnostics: TunnelDiagnosticsLogging? = diagnosticsStore.map { store in
+            { message in store.append(message) }
+        }
+        self.diagnostics = diagnostics
+
         do {
             runtimeStatusStore = try TunnelRuntimeStatusStore(
                 appGroupID: SharedContainerSettings.appGroupID
@@ -23,13 +33,6 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 keychainService: SharedContainerSettings.keychainService
             ).loadLaunchConfiguration()
             let routingConfiguration = try loadRoutingConfiguration()
-            let diagnosticsStore = try? TunnelDiagnosticsStore(
-                appGroupID: SharedContainerSettings.appGroupID
-            )
-            let diagnostics: TunnelDiagnosticsLogging? = diagnosticsStore.map { store in
-                { message in store.append(message) }
-            }
-            self.diagnostics = diagnostics
             diagnostics?(
                 "tunnel start bypassCN=\(routingConfiguration.bypassCNIP)"
             )
@@ -78,6 +81,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
                 await engine.warmUpDNSCache()
             }
         } catch {
+            diagnostics?("tunnel start failed: \(error.localizedDescription)")
             persistRuntimeFailureDetail(error)
             NSLog("PacketTunnel startTunnel failed while loading configuration: %@", error.localizedDescription)
             completionHandler(error)
@@ -100,6 +104,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
 
         setTunnelNetworkSettings(settings) { error in
             if let error {
+                self.diagnostics?("tunnel settings failed: \(error.localizedDescription)")
                 self.persistRuntimeFailureDetail(error)
                 NSLog("PacketTunnel setTunnelNetworkSettings failed: %@", error.localizedDescription)
                 completionHandler(error)
