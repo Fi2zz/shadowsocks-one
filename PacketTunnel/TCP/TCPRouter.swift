@@ -18,6 +18,8 @@ final class TCPRouter: TCPRouting {
     private let proxyRelayFactory: RelayFactory
     private let hostResolver: HostResolver?
     private let diagnostics: TunnelDiagnosticsLogging?
+    private let now: @Sendable () -> Date
+    private let retransmitter: TCPRetransmitter
 
     typealias RelayFactory = @Sendable (TCPFlowKey) throws -> any TCPFlowRelaying
     typealias HostResolver = @Sendable (String) -> String?
@@ -30,13 +32,24 @@ final class TCPRouter: TCPRouting {
         directRelayFactory: RelayFactory? = nil,
         proxyRelayFactory: RelayFactory? = nil,
         hostResolver: HostResolver? = nil,
-        diagnostics: TunnelDiagnosticsLogging? = nil
+        diagnostics: TunnelDiagnosticsLogging? = nil,
+        now: @Sendable @escaping () -> Date = Date.init,
+        retransmitTimeout: TimeInterval = 1.0,
+        sweepIntervalNanoseconds: UInt64 = 250_000_000
     ) {
         self.matcher = matcher
         self.sessionStore = sessionStore
         self.packetWriter = packetWriter
         self.hostResolver = hostResolver
         self.diagnostics = diagnostics
+        self.now = now
+        self.retransmitter = TCPRetransmitter(
+            sessionStore: sessionStore,
+            diagnostics: diagnostics,
+            now: now,
+            retransmitTimeout: retransmitTimeout,
+            sweepIntervalNanoseconds: sweepIntervalNanoseconds
+        )
         self.directRelayFactory = directRelayFactory ?? { key in
             try DirectTCPRelay(
                 host: key.destinationAddress,
@@ -54,6 +67,7 @@ final class TCPRouter: TCPRouting {
                 diagnostics: diagnostics
             )
         }
+        retransmitter.setPacketWriter(packetWriter)
     }
 
     func route(_ packet: IPPacket) async throws {
@@ -97,6 +111,10 @@ final class TCPRouter: TCPRouting {
                 await self?.handleRelayClosed(for: key)
             }
             return (relay, state)
+        }
+
+        if tcp.isACK {
+            sessionStore.acknowledgeSentBytes(upTo: tcp.acknowledgmentNumber, for: key)
         }
 
         let relay = session.relay
@@ -166,6 +184,7 @@ final class TCPRouter: TCPRouting {
     }
 
     func stopAll() async {
+        retransmitter.stop()
         let relays = sessionStore.removeAllRelays()
         for relay in relays {
             await relay.stop()
@@ -176,6 +195,7 @@ final class TCPRouter: TCPRouting {
         packetWriterLock.lock()
         self.packetWriter = packetWriter
         packetWriterLock.unlock()
+        retransmitter.setPacketWriter(packetWriter)
     }
 
     private func handleOutboundControlPacket(
@@ -212,6 +232,12 @@ final class TCPRouter: TCPRouting {
         for chunk in data.chunked(maxBytes: Self.maximumInboundSegmentSize) {
             let response = try state.consumeInboundPayload(chunk)
             try writeResponse(response, for: state)
+            sessionStore.recordSentSegment(
+                sequenceNumber: response.sequenceNumber,
+                payload: chunk,
+                for: key,
+                now: now()
+            )
             sessionStore.updateState(state, for: key)
         }
     }

@@ -33,19 +33,21 @@
 
 **配置注意**：原「未命中名单时直连」开关已移除（2026-08-21）——它的语义是「未命中域名走本地解析 + 直连」，被墙站点必然拿到污染 IP（实测 google.com.hk → 199.16.158.8），开着必坏。现在未命中名单的流量一律远程解析 + 代理，国内直连由域名白名单与「国内 IP 直连」（CN 段兜底）承担。
 
-## 任务 B：弱网 TCP
+## 任务 B：弱网 TCP（进行中）
 
-**现状**：用户态最小 TCP 终结——无重传、无窗口/拥塞控制、ISN 固定；丢包靠客户端 TCP 自身重传兜底（router 对重传包只重 ACK，语义正确但出口方向丢包 = 该连接卡死）。
+**现状**：用户态最小 TCP 终结——无窗口/拥塞控制、ISN 固定；客户端 → 服务端方向靠客户端 TCP 自身重传兜底（router 对重传包只重 ACK，语义正确）。
 
-**关键文件**（`PacketTunnel/TCP/`，共约 750 行）：`TCPFlowState.swift`（状态机：consume 事件 → 响应）、`TCPRouter.swift`（272 行，会话分发）、`DirectTCPRelay.swift` / `ShadowsocksTCPRelay.swift`、`TCPFlowSessionStore.swift`。
+**已完成（2026-08-21）**：**服务端 → 客户端方向的出站重传**。`TCPSendBuffer`（按段记录已发未 ACK 的 payload，整段累积确认，序号回绕安全）+ `TCPRetransmitter`（250ms 周期扫描，固定 RTO 1s 起步、指数退避封顶 8s、单段最多重发 10 次），重发包保持原序列号，诊断日志前缀 `TCP rexmit`。客户端 ACK 在 `TCPRouter.route` 里挂钩清除缓冲。
 
-**按收益排序**：
+**关键文件**（`PacketTunnel/TCP/`）：`TCPFlowState.swift`（状态机：consume 事件 → 响应）、`TCPRouter.swift`（会话分发）、`TCPRetransmitter.swift` / `TCPSendBuffer.swift`（重传）、`DirectTCPRelay.swift` / `ShadowsocksTCPRelay.swift`、`TCPFlowSessionStore.swift`（会话 + 发送缓冲存储）。
 
-1. **出站重传**：relay 发出的 payload 段未被 ACK 时需要重传（当前发完即忘）。需要发送缓冲 + RTO 定时器（可先固定 RTO，再做 RTT 估计）。
-2. **接收窗口通告**：按缓冲余量收缩通告窗口，防止高速发送方打爆内存。
+**按收益排序（剩余）**：
+
+1. **RTT 估计**：用 ACK 到达时间替换固定 1s RTO（Jacobson/Karn）。
+2. **接收窗口通告**：目前 SYN-ACK/包窗口恒为 0xFFFF（`TCPPacketBuilder` 写死），按缓冲余量收缩通告窗口，防止高速发送方打爆内存。
 3. 拥塞控制（cwnd/slow start）——最后做，前两项收益更大。
 
-序列号/ISN 逻辑都在 `TCPFlowState`，改动要保持现有测试全绿。
+序列号/ISN 逻辑都在 `TCPFlowState`，改动要保持现有测试全绿（ISN 目前固定为 1，多个测试断言依赖它；改随机 ISN 需同步更新测试）。
 
 ## 验证
 
