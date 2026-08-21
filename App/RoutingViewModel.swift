@@ -12,7 +12,6 @@ final class RoutingViewModel: ObservableObject {
 
     @Published private(set) var directDomains: [String] = []
     @Published private(set) var proxyDomains: [String] = []
-    @Published private(set) var directByDefault = false
     @Published private(set) var bypassCNIP = false
     @Published var directEntry = ""
     @Published var proxyEntry = ""
@@ -56,8 +55,7 @@ final class RoutingViewModel: ObservableObject {
         let configuration = RoutingConfiguration(
             bypassCNIP: bypassCNIP,
             domainWhitelist: directDomains,
-            proxyDomains: proxyDomains,
-            directByDefault: directByDefault
+            proxyDomains: proxyDomains
         )
         testResults[domain] = await routeTestHandler(domain, configuration, cnIPRanges)
     }
@@ -92,11 +90,6 @@ final class RoutingViewModel: ObservableObject {
         persist()
     }
 
-    func setDirectByDefault(_ enabled: Bool) {
-        directByDefault = enabled
-        persist()
-    }
-
     func setBypassCNIP(_ enabled: Bool) {
         bypassCNIP = enabled
         persist()
@@ -111,7 +104,6 @@ final class RoutingViewModel: ObservableObject {
         let configuration = (try? store.load()) ?? .default
         directDomains = configuration.domainWhitelist
         proxyDomains = configuration.proxyDomains
-        directByDefault = configuration.directByDefault
         bypassCNIP = configuration.bypassCNIP
     }
 
@@ -119,8 +111,7 @@ final class RoutingViewModel: ObservableObject {
         let configuration = RoutingConfiguration(
             bypassCNIP: bypassCNIP,
             domainWhitelist: directDomains,
-            proxyDomains: proxyDomains,
-            directByDefault: directByDefault
+            proxyDomains: proxyDomains
         )
 
         do {

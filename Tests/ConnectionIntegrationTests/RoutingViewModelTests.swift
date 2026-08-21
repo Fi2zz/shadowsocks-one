@@ -57,15 +57,6 @@ final class RoutingViewModelTests: XCTestCase {
         XCTAssertEqual(persisted.domainWhitelist, [])
     }
 
-    func testSetDirectByDefaultPersistsMode() throws {
-        let (viewModel, store) = try makeViewModel()
-
-        viewModel.setDirectByDefault(true)
-
-        XCTAssertTrue(viewModel.directByDefault)
-        XCTAssertTrue(try store.load().directByDefault)
-    }
-
     func testSetBypassCNIPPersistsMode() throws {
         let (viewModel, store) = try makeViewModel()
 

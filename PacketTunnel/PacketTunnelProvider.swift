@@ -31,7 +31,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             }
             self.diagnostics = diagnostics
             diagnostics?(
-                "tunnel start directByDefault=\(routingConfiguration.directByDefault) bypassCN=\(routingConfiguration.bypassCNIP)"
+                "tunnel start bypassCN=\(routingConfiguration.bypassCNIP)"
             )
             let dnsCache = DNSCache(now: Date.init)
             let routeMatcher = RouteMatcher(

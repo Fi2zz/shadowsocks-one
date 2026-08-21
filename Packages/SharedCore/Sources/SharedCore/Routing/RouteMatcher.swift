@@ -45,11 +45,12 @@ public final class RouteMatcher {
             return .direct
         }
 
-        return configuration.directByDefault ? .direct : .proxy
+        // 未命中名单的流量一律代理：直连会吃到 DNS 污染与 IP 封锁
+        return .proxy
     }
 
-    /// DNS 解析路径决策：只看域名规则与默认路由，不看 IP 规则
-    ///（解析发生时尚无目的 IP；CN 段判断保留给 TCP 建连时做）。
+    /// DNS 解析路径决策：只看域名规则，不看 IP 规则与默认路由
+    ///（解析发生时尚无目的 IP；未命中名单的域名必须远程解析防污染）。
     public func dnsDecision(forHost host: String) -> RouteDecision {
         if proxyRules.contains(where: { $0.matches(host) }) {
             return .proxy
@@ -57,7 +58,7 @@ public final class RouteMatcher {
         if domainRules.contains(where: { $0.matches(host) }) {
             return .direct
         }
-        return configuration.directByDefault ? .direct : .proxy
+        return .proxy
     }
 
     private func matchesDirectRule(host: String?, ipString: String) -> Bool {

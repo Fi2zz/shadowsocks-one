@@ -84,7 +84,7 @@ relay 两种实现：
 
 1. 所有 DNS 查询进 TUN（见隧道设置），`DNSCoordinator` 解析查询报文取出域名
 2. 按 `RouteMatcher.dnsDecision` 分流选上游（只看域名规则，不涉及 IP 判断）：
-   - 命中直连名单（或「未命中名单时直连」开启）→ `LocalDNSUpstreamClient` 走本地 UDP 解析（默认 `223.5.5.5:53`），直连流量拿到本地最优 CDN IP
+   - 命中直连名单 → `LocalDNSUpstreamClient` 走本地 UDP 解析（默认 `223.5.5.5:53`），直连流量拿到本地最优 CDN IP
    - 其余 → `ProxyDNSUpstreamClient` 建立到 `8.8.8.8:53` 的 **Shadowsocks TCP** 连接，按 DNS-over-TCP 格式（2 字节长度前缀）转发——域名在代理出口侧解析，避免本地 DNS 污染
 3. 响应用 `UDPPacketBuilder` 包装成"来自 DNS 服务器"的 UDP 包写回 TUN，客户端视角就是一次普通 DNS 应答
 4. 响应中的 A 记录按域名写入 `DNSCache`（带 TTL），供后续分流反查
@@ -100,7 +100,7 @@ relay 两种实现：
 | 目的 IP 在本地/内网网段（10/8、192.168/16、127/8 等，内置常量） | 直连 |
 | 域名命中白名单 | 直连 |
 | 「国内 IP 直连」开启且目的 IP 在 CN 段内 | 直连 |
-| 未命中 | 由「未命中名单时直连」开关决定（默认关闭 = 全局代理） |
+| 未命中 | 代理（DNS 走远程解析防污染） |
 
 > 现状：域名白名单/代理名单均已生效——TCP 建连前按目的 IP 在 `DNSCache` 反查域名（DNS 应答缓存 + 隧道启动时白名单预热）。名单与开关在 App 内「导入与分流」页维护，下次连接生效；每行右侧「测试」按钮按当前配置模拟分流（本地解析 → `RouteMatcher` 决策 → 判定直连时实测 TCP 443 连通耗时），用于验证域名是否直连。CN IP 库内置 17mon/china_ip_list（约 7.4k 条 IPv4 CIDR），App 内「国内 IP 库」区块可从下载地址更新（默认官方 GitHub 地址，可改），下载版优先于内置版；由「国内 IP 直连」开关控制。
 

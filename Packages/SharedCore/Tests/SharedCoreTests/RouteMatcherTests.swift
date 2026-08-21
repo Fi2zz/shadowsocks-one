@@ -77,13 +77,12 @@ final class RouteMatcherTests: XCTestCase {
         )
     }
 
-    func testMatchesProxyDomainAsProxyWhenDirectByDefault() throws {
+    func testMatchesProxyDomainAsProxy() throws {
         let matcher = RouteMatcher(
             configuration: RoutingConfiguration(
                 bypassCNIP: false,
                 domainWhitelist: [],
-                proxyDomains: ["*.google.com"],
-                directByDefault: true
+                proxyDomains: ["*.google.com"]
             ),
             cnIPRanges: try CNIPRangeList(ranges: [])
         )
@@ -94,20 +93,19 @@ final class RouteMatcherTests: XCTestCase {
         )
     }
 
-    func testFallsBackToDirectWhenDirectByDefault() throws {
+    func testFallsBackToProxyForUnlistedDomain() throws {
         let matcher = RouteMatcher(
             configuration: RoutingConfiguration(
                 bypassCNIP: false,
                 domainWhitelist: [],
-                proxyDomains: ["*.google.com"],
-                directByDefault: true
+                proxyDomains: ["*.google.com"]
             ),
             cnIPRanges: try CNIPRangeList(ranges: [])
         )
 
         XCTAssertEqual(
             matcher.route(forHost: "www.qq.com", ipString: "203.0.113.10"),
-            .direct
+            .proxy
         )
     }
 
@@ -155,35 +153,19 @@ final class RouteMatcherTests: XCTestCase {
         )
     }
 
-    func testDNSDecisionUsesDomainRulesAndDefaultRouteOnly() throws {
+    func testDNSDecisionUsesDomainRulesOnly() throws {
         let matcher = RouteMatcher(
             configuration: RoutingConfiguration(
                 bypassCNIP: true,
                 domainWhitelist: ["qq.com"],
-                proxyDomains: ["*.google.com"],
-                directByDefault: false
+                proxyDomains: ["*.google.com"]
             ),
             cnIPRanges: try CNIPRangeList(ranges: ["1.0.1.0/24"])
         )
 
         XCTAssertEqual(matcher.dnsDecision(forHost: "www.google.com"), .proxy)
         XCTAssertEqual(matcher.dnsDecision(forHost: "qq.com"), .direct)
-        // bypassCNIP 不影响 DNS 决策（解析时还没有 IP）
+        // 未命中名单的域名必须远程解析防污染；bypassCNIP 不影响 DNS 决策（解析时还没有 IP）
         XCTAssertEqual(matcher.dnsDecision(forHost: "www.baidu.com"), .proxy)
-    }
-
-    func testDNSDecisionFollowsDirectByDefault() throws {
-        let matcher = RouteMatcher(
-            configuration: RoutingConfiguration(
-                bypassCNIP: false,
-                domainWhitelist: [],
-                proxyDomains: ["*.google.com"],
-                directByDefault: true
-            ),
-            cnIPRanges: try CNIPRangeList(ranges: [])
-        )
-
-        XCTAssertEqual(matcher.dnsDecision(forHost: "www.baidu.com"), .direct)
-        XCTAssertEqual(matcher.dnsDecision(forHost: "www.google.com"), .proxy)
     }
 }

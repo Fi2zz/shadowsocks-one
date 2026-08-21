@@ -49,6 +49,5 @@ final class RoutingConfigurationStoreTests: XCTestCase {
         XCTAssertEqual(loaded.bypassCNIP, true)
         XCTAssertEqual(loaded.domainWhitelist, ["*.qq.com"])
         XCTAssertEqual(loaded.proxyDomains, [])
-        XCTAssertEqual(loaded.directByDefault, false)
     }
 }
