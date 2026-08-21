@@ -80,6 +80,29 @@ final class IPListViewModelTests: XCTestCase {
         XCTAssertEqual(recorder.etags, [nil, nil])
     }
 
+    func testAutoUpdateRunsWhenNeverChecked() async throws {
+        let recorder = FetchRecorder()
+        let (viewModel, _, _) = try makeViewModel(fetch: recorder.fetch)
+        recorder.result = .modified(Data("1.0.1.0/24\n".utf8), etag: "v1")
+
+        await viewModel.autoUpdateIfNeeded()
+
+        XCTAssertEqual(recorder.etags.count, 1)
+        XCTAssertEqual(viewModel.rangeCount, 1)
+    }
+
+    func testAutoUpdateSkipsWhenCheckedRecently() async throws {
+        let recorder = FetchRecorder()
+        let (viewModel, _, _) = try makeViewModel(fetch: recorder.fetch)
+        recorder.result = .notModified
+
+        let now = Date()
+        await viewModel.autoUpdateIfNeeded(now: now)
+        await viewModel.autoUpdateIfNeeded(now: now.addingTimeInterval(3_600))
+
+        XCTAssertEqual(recorder.etags.count, 1)
+    }
+
     func testLoadReadsPreviouslySavedList() throws {
         let (viewModel, store, _) = try makeViewModel(
             fetch: { _, _ in .modified(Data("1.0.1.0/24\n".utf8), etag: nil) }

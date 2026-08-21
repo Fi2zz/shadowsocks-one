@@ -25,6 +25,9 @@ struct RootView: View {
         .onChange(of: scenePhase) { newPhase in
             if newPhase == .active {
                 viewModel.refreshTunnelStatus()
+                Task {
+                    await ipListViewModel.autoUpdateIfNeeded()
+                }
             }
         }
     }

@@ -15,6 +15,8 @@ final class IPListViewModel: ObservableObject {
     private static let sourceURLDefaultsKey = "cnIPListSourceURL"
     private static let updatedAtDefaultsKey = "cnIPListUpdatedAt"
     private static let etagDefaultsKey = "cnIPListETag"
+    private static let lastCheckAtDefaultsKey = "cnIPListLastCheckAt"
+    private static let autoCheckInterval: TimeInterval = 24 * 3_600
     private static let upToDateMessage = "国内 IP 库已是最新，无需更新。"
 
     @Published var sourceURL: String
@@ -77,6 +79,20 @@ final class IPListViewModel: ObservableObject {
         } catch {
             message = "国内 IP 库更新失败：\(error.localizedDescription)"
         }
+    }
+
+    /// 自动更新入口：距上次检查未超过间隔时直接跳过（304 命中时开销极小）
+    func autoUpdateIfNeeded(now: Date = Date()) async {
+        let lastCheck = defaults.object(forKey: Self.lastCheckAtDefaultsKey) as? Date
+        let recentlyChecked = lastCheck.map {
+            now.timeIntervalSince($0) < Self.autoCheckInterval
+        } ?? false
+        guard !recentlyChecked else {
+            return
+        }
+
+        defaults.set(now, forKey: Self.lastCheckAtDefaultsKey)
+        await update()
     }
 
     private func apply(_ result: CNIPListFetchResult, sourceURL: String) throws {
