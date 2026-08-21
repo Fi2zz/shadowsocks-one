@@ -8,8 +8,14 @@ final class ShadowsocksTCPRelay: TCPFlowRelaying {
     private var receiveTask: Task<Void, Never>?
     private var sendChain: Task<Void, Error>?
     private var firstReceiveLogged = false
+    private let queueLock = NSLock()
+    private var queuedBytes = 0
     var onInboundBytes: (@Sendable (Data) async -> Void)?
     var onClosed: (@Sendable () async -> Void)?
+
+    var queuedOutboundBytes: Int {
+        queueLock.withLock { queuedBytes }
+    }
 
     init(
         launchConfiguration: TunnelLaunchConfiguration,
@@ -48,11 +54,17 @@ final class ShadowsocksTCPRelay: TCPFlowRelaying {
 
     func forwardOutboundPayload(_ payload: Data) async throws {
         let prior = sendChain
+        adjustQueuedBytes(by: payload.count)
         let task = Task { [weak self] in
+            defer { self?.adjustQueuedBytes(by: -payload.count) }
             try await prior?.value
             try await self?.transport.send(payload)
         }
         sendChain = task
+    }
+
+    private func adjustQueuedBytes(by delta: Int) {
+        queueLock.withLock { queuedBytes += delta }
     }
 
     func stop() async {

@@ -104,7 +104,8 @@ final class TCPRetransmitter: @unchecked Sendable {
     private func buildRetransmissionPacket(
         for entry: (key: TCPFlowKey, state: TCPFlowState, segment: TCPSendBuffer.Segment)
     ) -> Data? {
-        try? TCPPacketBuilder.build(
+        let queuedBytes = sessionStore.relay(for: entry.key)?.queuedOutboundBytes ?? 0
+        return try? TCPPacketBuilder.build(
             sourceIP: entry.state.remoteIP,
             sourcePort: entry.state.remotePort,
             destinationIP: entry.state.clientIP,
@@ -112,7 +113,8 @@ final class TCPRetransmitter: @unchecked Sendable {
             sequenceNumber: entry.segment.sequenceNumber,
             acknowledgmentNumber: entry.state.nextExpectedClientSequence,
             flags: [.psh, .ack],
-            payload: entry.segment.payload
+            payload: entry.segment.payload,
+            window: TCPFlowWindow.advertised(queuedOutboundBytes: queuedBytes)
         )
     }
 }

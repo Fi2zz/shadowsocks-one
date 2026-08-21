@@ -151,7 +151,8 @@ final class TCPRouter: TCPRouting {
                             acknowledgmentNumber: state.nextExpectedClientSequence,
                             payload: Data()
                         ),
-                        for: state
+                        for: state,
+                        key: key
                     )
                     return
                 }
@@ -164,13 +165,14 @@ final class TCPRouter: TCPRouting {
                             acknowledgmentNumber: state.nextExpectedClientSequence,
                             payload: Data()
                         ),
-                        for: state
+                        for: state,
+                        key: key
                     )
                     return
                 }
 
                 let response = try state.consumeOutboundPayload(tcp.payload.count)
-                try writeResponse(response, for: state)
+                try writeResponse(response, for: state, key: key)
                 sessionStore.updateState(state, for: key)
                 try await relay.forwardOutboundPayload(tcp.payload)
                 sessionStore.updateState(state, for: key)
@@ -224,7 +226,7 @@ final class TCPRouter: TCPRouting {
             return
         }
 
-        try writeResponse(response, for: state)
+        try writeResponse(response, for: state, key: key)
         sessionStore.updateState(state, for: key)
     }
 
@@ -235,7 +237,7 @@ final class TCPRouter: TCPRouting {
 
         for chunk in data.chunked(maxBytes: Self.maximumInboundSegmentSize) {
             let response = try state.consumeInboundPayload(chunk)
-            try writeResponse(response, for: state)
+            try writeResponse(response, for: state, key: key)
             sessionStore.recordSentSegment(
                 sequenceNumber: response.sequenceNumber,
                 payload: chunk,
@@ -258,11 +260,11 @@ final class TCPRouter: TCPRouting {
 
         do {
             let response = try state.consumeOutboundFIN()
-            try writeResponse(response, for: state)
+            try writeResponse(response, for: state, key: key)
         } catch {
             do {
                 let response = try state.consumeOutboundRST()
-                try writeResponse(response, for: state)
+                try writeResponse(response, for: state, key: key)
             } catch {
             }
         }
@@ -270,7 +272,11 @@ final class TCPRouter: TCPRouting {
         _ = sessionStore.removeRelay(for: key)
     }
 
-    private func writeResponse(_ response: TCPFlowResponse, for state: TCPFlowState) throws {
+    private func writeResponse(
+        _ response: TCPFlowResponse,
+        for state: TCPFlowState,
+        key: TCPFlowKey
+    ) throws {
         guard let packetWriter = currentPacketWriter() else {
             return
         }
@@ -283,10 +289,16 @@ final class TCPRouter: TCPRouting {
             sequenceNumber: response.sequenceNumber,
             acknowledgmentNumber: response.acknowledgmentNumber,
             flags: response.flags,
-            payload: response.payload
+            payload: response.payload,
+            window: advertisedWindow(for: key)
         )
 
         packetWriter.write([packet], protocols: [NSNumber(value: AF_INET)])
+    }
+
+    private func advertisedWindow(for key: TCPFlowKey) -> UInt16 {
+        let queuedBytes = sessionStore.relay(for: key)?.queuedOutboundBytes ?? 0
+        return TCPFlowWindow.advertised(queuedOutboundBytes: queuedBytes)
     }
 
     private func currentPacketWriter() -> (any TunnelPacketWriting)? {

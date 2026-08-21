@@ -17,11 +17,11 @@ public enum TCPPacketBuilder {
         sequenceNumber: UInt32,
         acknowledgmentNumber: UInt32,
         flags: Set<TCPPacketFlag>,
-        payload: Data
+        payload: Data,
+        window: UInt16 = 0xFFFF
     ) throws -> Data {
         let sourceAddress = try IPv4AddressCodec.parse(sourceIP)
         let destinationAddress = try IPv4AddressCodec.parse(destinationIP)
-
         let ipHeaderLength = 20
         let tcpHeaderLength = 20
         let totalLength = ipHeaderLength + tcpHeaderLength + payload.count
@@ -44,7 +44,7 @@ public enum TCPPacketBuilder {
         packet.writeUInt32(acknowledgmentNumber, at: 28)
         packet[32] = 0x50
         packet[33] = UInt8(flags.reduce(0) { $0 | $1.rawValue })
-        packet.writeUInt16(0xFFFF, at: 34)
+        packet.writeUInt16(window, at: 34)
         packet.writeUInt16(0, at: 36)
         packet.writeUInt16(0, at: 38)
         packet.replaceSubrange(40..<totalLength, with: payload)

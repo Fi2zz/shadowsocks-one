@@ -106,6 +106,7 @@ private final class RetransmitWriterSpy: TunnelPacketWriting {
 }
 
 private final class RetransmitRelaySpy: TCPFlowRelaying {
+    let queuedOutboundBytes = 0
     var onInboundBytes: (@Sendable (Data) async -> Void)?
     var onClosed: (@Sendable () async -> Void)?
 

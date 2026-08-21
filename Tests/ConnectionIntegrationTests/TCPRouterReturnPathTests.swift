@@ -270,6 +270,7 @@ private final class RelaySpy: TCPFlowRelaying {
     private(set) var startCalls = 0
     private(set) var stopCalls = 0
     private(set) var forwardedPayloads: [Data] = []
+    let queuedOutboundBytes = 0
     var onInboundBytes: (@Sendable (Data) async -> Void)?
     var onClosed: (@Sendable () async -> Void)?
 

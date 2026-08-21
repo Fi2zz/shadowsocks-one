@@ -24,6 +24,7 @@
 		1A5C8640F9413CE2CE719180 /* ProfilePickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2263334341B9B69EB3627B5 /* ProfilePickerSheet.swift */; };
 		1E2081EB90B09802B989C333 /* UDPRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD5F8CAA125343776A37E72 /* UDPRouter.swift */; };
 		1E694B1CF0D3B6F814493502 /* TCPFlowSessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51CAB32C11432DC19749D792 /* TCPFlowSessionStore.swift */; };
+		2023D2B1C2838C940FA27D7E /* TCPRouterWindowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4FF09C9AD0616F64D46E5FC /* TCPRouterWindowTests.swift */; };
 		2167582C07D51364331CEB82 /* ShadowsocksUDPCodecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 947D6FE495012FD85EDDA8E9 /* ShadowsocksUDPCodecTests.swift */; };
 		218731644E6E067F6C1E4CBA /* TCPFlowState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA96F418A420452F3E4A37C2 /* TCPFlowState.swift */; };
 		219BD1A00EBFA19864E96634 /* TCPRouterReturnPathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5028A1A1A9885EE724704BEE /* TCPRouterReturnPathTests.swift */; };
@@ -233,6 +234,7 @@
 		C02D8C9402DE8D23FEC938C8 /* PacketTunnelEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelEngineTests.swift; sourceTree = "<group>"; };
 		C2A2BE085A126C3B5DCCF382 /* ProfilesTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesTabView.swift; sourceTree = "<group>"; };
 		C3C1DBB5591720309FAA57BE /* ProxyDNSUpstreamClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyDNSUpstreamClient.swift; sourceTree = "<group>"; };
+		C4FF09C9AD0616F64D46E5FC /* TCPRouterWindowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPRouterWindowTests.swift; sourceTree = "<group>"; };
 		CC5E929EBCD95AED7FA9DD15 /* TCPPacketBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPPacketBuilderTests.swift; sourceTree = "<group>"; };
 		D0B249DA0A152DE0A8220C05 /* ConnectionStateDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStateDisplay.swift; sourceTree = "<group>"; };
 		D7CC927DDCD78C937F61E09F /* ShadowsocksOneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksOneApp.swift; sourceTree = "<group>"; };
@@ -316,6 +318,7 @@
 				628913B3A6CB2DBF2584C1DF /* TCPRouterRetransmissionTests.swift */,
 				5028A1A1A9885EE724704BEE /* TCPRouterReturnPathTests.swift */,
 				5ED1CEEDDCE7CB8545830B13 /* TCPRouterTests.swift */,
+				C4FF09C9AD0616F64D46E5FC /* TCPRouterWindowTests.swift */,
 				08411470F39CAFF215347C7E /* TCPSendBufferTests.swift */,
 				51D9F3E1FB90814726B20251 /* TunnelEngineUDPTests.swift */,
 				5D76B23513EBDADBB39F17DE /* UDPRelaySpy.swift */,
@@ -650,6 +653,7 @@
 				44A1D855AEBF6EC4F5081D68 /* TCPRouterRetransmissionTests.swift in Sources */,
 				219BD1A00EBFA19864E96634 /* TCPRouterReturnPathTests.swift in Sources */,
 				E49C264771AC31DAC5BCAE7D /* TCPRouterTests.swift in Sources */,
+				2023D2B1C2838C940FA27D7E /* TCPRouterWindowTests.swift in Sources */,
 				643C683C8912A35F22810446 /* TCPSendBuffer.swift in Sources */,
 				11A72A7F3298FDEADBB59141 /* TCPSendBufferTests.swift in Sources */,
 				A1BCB92B6B7E6D92353D7023 /* TunnelDiagnostics.swift in Sources */,

@@ -15,8 +15,13 @@ final class DirectTCPRelay: TCPFlowRelaying {
     private var didStart = false
     private var firstReceiveLogged = false
     private var receiveTask: Task<Void, Never>?
+    private var inFlightOutboundBytes = 0
     var onInboundBytes: (@Sendable (Data) async -> Void)?
     var onClosed: (@Sendable () async -> Void)?
+
+    var queuedOutboundBytes: Int {
+        stateLock.withLock { inFlightOutboundBytes }
+    }
 
     init(
         host: String,
@@ -60,6 +65,8 @@ final class DirectTCPRelay: TCPFlowRelaying {
         }
 
         try await start()
+        stateLock.withLock { inFlightOutboundBytes += payload.count }
+        defer { stateLock.withLock { inFlightOutboundBytes -= payload.count } }
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             connection.send(content: payload, completion: .contentProcessed { error in
                 if let error {
