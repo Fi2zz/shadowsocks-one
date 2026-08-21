@@ -1,6 +1,6 @@
 # Shadowsocks One
 
-一个纯 Swift 实现的 iOS Shadowsocks 客户端。通过 `NEPacketTunnelProvider` 接管系统全局流量，在 Packet Tunnel 扩展内用**用户态 TCP 协议栈**终结连接，再按分流规则决定走 Shadowsocks 代理还是本地直连。
+一个纯 Swift 实现的 iOS Shadowsocks 客户端。通过 `NEPacketTunnelProvider` 接管系统全局流量，在 Packet Tunnel 扩展内用**用户态 TCP 协议栈**终结连接，再按分流规则决定走 Shadowsocks 代理还是本地直连。App 主界面是内置的 Safari 风格多标签浏览器，节点管理与 VPN 开关收进「更多」菜单。
 
 - 平台：iOS 17+
 - 依赖：仅系统框架（NetworkExtension、Network、CryptoKit、SwiftUI），无第三方库
@@ -23,7 +23,7 @@ project.yml           XcodeGen 工程描述
 
 ```
 ┌─────────────────────────┐
-│  App（UI + 配置管理）     │  SwiftUI，导入节点、开关 VPN、展示状态
+│  App（UI + 配置管理）     │  SwiftUI，内置多标签浏览器为主界面，节点/VPN 控制在「更多」菜单
 └───────────┬─────────────┘
             │ App Group 文件 + 共享 Keychain（配置单向写入）
 ┌───────────▼─────────────┐
@@ -76,7 +76,7 @@ relay 两种实现：
 - `DirectTCPRelay`：`NWConnection` 直连目标 host:port
 - `ShadowsocksTCPRelay`：经 `ShadowsocksTCPTransport` 走 SS 服务器中转，发送用串行 Task 链保证写序
 
-> 定位说明：这是**最小可用**的用户态 TCP 终结——无重传、无窗口/拥塞控制、ISN 固定。丢包依赖客户端 TCP 自身的重传兜底（router 对重传包只重 ACK，语义正确）。它不是完整协议栈。
+> 定位说明：这是**简化版**的用户态 TCP 终结——ISN 固定、无选项协商（wscale/SACK）。客户端 → 服务端方向靠客户端 TCP 自身重传兜底（router 对重传包只重 ACK，语义正确）；服务端 → 客户端方向已实现出站重传（Jacobson/Karn RTO）、接收窗口通告与慢启动/拥塞避免（见 `PacketTunnel/TCP/TCPRetransmitter.swift`、`TCPCongestionController.swift`）。
 
 ### 4. DNS 闭环
 
@@ -127,6 +127,15 @@ SharedCore/Connection/ + SharedCore/Tunnel/ShadowsocksTCPTransport.swift：
 
 扩展启动失败时把原因写入 `TunnelRuntimeStatusStore`，App 侧一次性取回展示——补偿 NE 错误回调拿不到扩展内部细节的问题。
 
+### 8. 内置浏览器（App 主界面）
+
+App 主界面是 Safari 风格的多标签浏览器（`App/Browser*.swift`），原有「节点」「导入与分流」两个页面原样收进底部工具栏的「更多」（`...`）菜单（`BrowserMoreMenu`），以 sheet 打开。
+
+- **多标签**：每个标签常驻一个 `WKWebView`（`WebViewStore`），全部放在 `ZStack` 中仅选中者可见，切换不重载，导航栈/滚动位置保留；`BrowserTabManager` 管理标签数组、选中态与历史记录
+- **底部工具栏**：地址栏（自动补 `https://`、聚焦全选、清空、取消）+ 前进/后退（可前进时合并为一个胶囊）+ 历史入口；iOS 26 用 `glassEffect` Liquid Glass 样式（`App/LiquidGlass.swift` 做能力回退）
+- **标签总览**：网格卡片新建/关闭/切换；历史记录存本地 JSON（封顶 200 条、同 URL 去重置顶、可清空），URL 规范化与历史 store 在 SharedCore 并有单测
+- **排障设施**：顶部加载进度条（KVO `estimatedProgress`）+ 导航失败错误横幅（含 error domain/code），配合「导入与分流」页的隧道诊断日志定位加载问题
+
 ## 工程与测试
 
 - `project.yml` 由 XcodeGen 生成工程，4 个 target：App、Packet Tunnel 扩展、`ConnectionIntegrationTests`、`SharedCoreXcodeTests`
@@ -145,8 +154,9 @@ xcodebuild -project ShadowsocksOne.xcodeproj -scheme "Shadowsocks One" \
 
 ## 已知限制
 
-- 用户态 TCP 为最小实现：无重传/窗口/选项协商
+- 用户态 TCP 仍为简化实现：ISN 固定、无选项协商（wscale/SACK）；重传/窗口/拥塞控制仅覆盖服务端 → 客户端方向
 - 域名分流依赖 DNS 缓存反查：未经过 DNS 解析的纯 IP 流量不会命中域名名单（内网/CN 网段按 IP 直接判断，不受影响）
-- 仅支持 TCP 中继；UDP（除 DNS 拦截外）不转发
+- UDP 支持转发（四元组 NAT 会话、过 `RouteMatcher` 分流），端口 53 的 DNS 拦截优先于 UDP 转发
+- 浏览器所有标签的 WKWebView 常驻内存，未做非活跃回收；历史记录仅存本地
 - 不支持 SS 插件（obfs 等），含插件的节点会被拒绝
 - `SharedCore/Connection/ConnectionManager` 是早期"App 内直连探测"方案的遗留设施，主链路已切换到系统 VPN，仅测试引用

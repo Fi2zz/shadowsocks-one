@@ -12,6 +12,14 @@
 - 提交规范（用户全局 AGENTS.md）：中文交流；函数 ≤20 行、文件 ≤200 行、单函数分支 ≤3；布尔命名禁 is/has 前缀；完成改动后用 `git-commit` skill 按逻辑分类提交并直接 push（已授权）。
 - 项目决定**不上架 App Store**，无需考虑审核相关约束。
 
+## 后续更新（2026-08-21）：内置浏览器成为主界面
+
+- `RootView` 不再是 TabView：Safari 风格多标签浏览器（`App/Browser*.swift` + `WebViewStore` / `WebViewRepresentable`）直接作为根视图；`ProfilesTabView` / `ImportTabView` 零改动收进底部工具栏 `...` 菜单（`BrowserMoreMenu`，各自 sheet 打开）。
+- 多标签 = 每标签常驻一个 WKWebView + `ZStack` 切可见性（不重载）；`BrowserTabManager` 管标签数组/选中态/历史。URL 规范化（`BrowserURLBuilder`）与历史 store（`BrowserHistoryStore`，本地 JSON、200 条封顶）在 SharedCore，11 个单测全绿。
+- 底栏 iOS 26 Liquid Glass（`App/LiquidGlass.swift` 做 `glassEffect` 能力回退）；地址栏聚焦态仿 Safari（隐藏导航钮、全选、`✕` 取消还原输入）；顶部有加载进度条 + 导航失败错误横幅（error domain + code）。
+- 曾出现「连接节点后 WebView 白屏、URLSession 正常」：未改隧道代码，重装/重启隧道后恢复，判断为隧道陈旧状态而非代码回归；复发时先记录横幅错误码 + 隧道诊断日志再排查。
+- 待办：非活跃标签的 WKWebView 全部常驻内存，标签很多时可加回收策略；地址栏输入不支持搜索词（无搜索引擎跳转）。
+
 ## 当前架构状态（已完成，勿重做）
 
 - 三层：App（SwiftUI + `SystemTunnelManager`）→ Packet Tunnel 扩展（`TunnelEngine` 读 TUN 分发）→ `Packages/SharedCore`（加密/路由/存储，纯逻辑可单测）。
@@ -20,7 +28,7 @@
   - `RouteMatcher`（SharedCore/Routing）：`route(forHost:ipString:)` 给 TCP 用，`dnsDecision(forHost:)` 给 DNS 用；代理名单 > 内网段（内置常量）> 域名白名单 > CN 段 > 默认代理。
   - DNS：`DNSCoordinator` 按 `dnsDecision` 分流——直连域名走 `LocalDNSUpstreamClient`（本地 UDP 223.5.5.5），其余走 `ProxyDNSUpstreamClient`（8.8.8.8 over SS TCP）。AAAA 查询一律回空应答（隧道只接管 IPv4，防止 App 拿 v6 绕走本地）。A 记录入 `DNSCache`，TCP 建连时 `TCPRouter` 用 `DNSCache.lookupDomain` 反查域名做名单判定。
   - CN IP 库：内置 `PacketTunnel/china-ip-list.txt`（17mon，约 7.4k 条），App 内可下载更新，下载版优先。
-  - UI：「导入与分流」单 Tab；名单每行有「测试」按钮（`App/DomainRouteTester.swift`：本地解析 → RouteMatcher 决策 → 直连时实测 TCP 443 耗时）。
+  - UI：「导入与分流」页（现位于浏览器 `...` 菜单内）；名单每行有「测试」按钮（`App/DomainRouteTester.swift`：本地解析 → RouteMatcher 决策 → 直连时实测 TCP 443 耗时）。
 - Bundle ID `com.fits.socks.one`（扩展 `.PacketTunnel`）、app group `group.com.fitz.app`、keychain `com.fits.socks.one.shared`、`DEVELOPMENT_TEAM=8Z7LGX7B48` 均已固化在 `project.yml` / entitlements。
 
 ## 任务 A：UDP 转发（已完成，2026-08-20）
