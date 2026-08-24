@@ -5,8 +5,9 @@ import SharedCore
 final class PacketTunnelProvider: NEPacketTunnelProvider {
     private static let upstreamDNSServers = ["223.5.5.5", "119.29.29.29"]
     private var engine: TunnelEngine?
+    var wireGuardPump: WireGuardTunnelPump?
     private var runtimeStatusStore: TunnelRuntimeStatusStore?
-    private var diagnostics: TunnelDiagnosticsLogging?
+    var diagnostics: TunnelDiagnosticsLogging?
 
     override func startTunnel(
         options: [String : NSObject]?,
@@ -21,6 +22,11 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
             { message in store.append(message) }
         }
         self.diagnostics = diagnostics
+
+        if activeModeIsWireGuard() {
+            startWireGuardMode(diagnostics: diagnostics, completionHandler: completionHandler)
+            return
+        }
 
         do {
             runtimeStatusStore = try TunnelRuntimeStatusStore(
@@ -124,21 +130,32 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         diagnostics?("tunnel stop reason=\(reason.rawValue)")
         let engine = self.engine
         self.engine = nil
+        let pump = wireGuardPump
+        wireGuardPump = nil
 
         Task {
             await engine?.stop()
+            pump?.stop()
             completionHandler()
         }
     }
 
     override func sleep(completionHandler: @escaping () -> Void) {
+        let engine = self.engine
+        let pump = wireGuardPump
         Task {
             await engine?.stop()
+            pump?.stop()
             completionHandler()
         }
     }
 
     override func wake() {
+        stopWireGuardPump()
+        if activeModeIsWireGuard() {
+            startWireGuardMode(diagnostics: diagnostics) { _ in }
+            return
+        }
         startEngine()
     }
 
@@ -149,7 +166,17 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
 
-    private func persistRuntimeFailureDetail(_ error: Error) {
+    /// 活动模式标记：缺省视为 Shadowsocks（兼容旧配置）。
+    private func activeModeIsWireGuard() -> Bool {
+        guard let store = try? HudunTunnelConfigurationStore(
+            appGroupID: SharedContainerSettings.appGroupID,
+            keychainService: SharedContainerSettings.keychainService) else {
+            return false
+        }
+        return store.loadMode() == .wireguard
+    }
+
+    func persistRuntimeFailureDetail(_ error: Error) {
         runtimeStatusStore?.saveLastFailureDetail(error.localizedDescription)
     }
 

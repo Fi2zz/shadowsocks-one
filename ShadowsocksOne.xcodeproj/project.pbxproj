@@ -57,14 +57,17 @@
 		402DA08BAB1804CC44D81475 /* china-ip-list.txt in Resources */ = {isa = PBXBuildFile; fileRef = 3B01D8A4711C79BC04609012 /* china-ip-list.txt */; };
 		410A3B67300ADC14B19F6DA6 /* IPListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18107D19B051C69B17265EE /* IPListViewModel.swift */; };
 		42785E75A80F957C21056B2B /* DNSMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187496B5BAC158A4D023DF87 /* DNSMessageTests.swift */; };
+		42A8D9C0EBE843B70C404B75 /* HudunLineCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = D31219324CF5B8B074C758DB /* HudunLineCache.swift */; };
 		42AF195854C1FCECA1F69202 /* UDPRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD5F8CAA125343776A37E72 /* UDPRouter.swift */; };
 		44A1D855AEBF6EC4F5081D68 /* TCPRouterRetransmissionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 628913B3A6CB2DBF2584C1DF /* TCPRouterRetransmissionTests.swift */; };
 		45F9D2277491756E28765BB1 /* ConnectionManagerStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB6B334E34D445586874356 /* ConnectionManagerStateTests.swift */; };
 		462E3668FCDBE6C04CDF317D /* TCPFlowRelaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099B09012909CB5D35B16E64 /* TCPFlowRelaying.swift */; };
 		49DED5E439565E58B1A4939B /* HudunCredentialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B51C2932A8909FB68FC34EF /* HudunCredentialStore.swift */; };
 		4A7C37ABF25810FF6D1840E5 /* VPNControlSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A068DF2CDCE67C08F161D0BD /* VPNControlSection.swift */; };
+		4CCF20767342603B8FFE3E0F /* WireGuardUDPChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5F6273DAE7A663E1225B69 /* WireGuardUDPChannel.swift */; };
 		4F0CCEDAE5C2EC2EEC08489D /* TCPRouterCongestionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB1B5699382C44E10CF9902 /* TCPRouterCongestionTests.swift */; };
 		5097402A0F6366299AD19E5F /* RTTEstimatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795C455F2D3CD57DACE3C6C6 /* RTTEstimatorTests.swift */; };
+		5264B63A7817F5EF75F73910 /* WireGuardTunnelPump.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCCFFE8C2827FA55395E436 /* WireGuardTunnelPump.swift */; };
 		53F796EE99A70642FCAA017B /* DiagnosticsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18F5C0FC9A219F4E810A47F /* DiagnosticsSection.swift */; };
 		5649CF53708B6093B40085C6 /* WebViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00806D227E720FB435390C6F /* WebViewRepresentable.swift */; };
 		571C561022DF1300C936978F /* ShadowsocksOneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CC927DDCD78C937F61E09F /* ShadowsocksOneApp.swift */; };
@@ -74,10 +77,12 @@
 		61CD69D2C091E6A1516C2744 /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5F375B6A9750588195206151 /* SharedCore */; };
 		62B0F8B9D4BFE6D8927B97AB /* LocalDNSUpstreamClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8876B4F346D5ACE972E03D /* LocalDNSUpstreamClient.swift */; };
 		6407DAB983962B09141B313D /* BrowserRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DB2BD21BCA961739C60A2B7 /* BrowserRootView.swift */; };
+		6437325E4878A0105A3949DC /* WireGuardProviderSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27B140710520341B5D53B90E /* WireGuardProviderSupport.swift */; };
 		643C683C8912A35F22810446 /* TCPSendBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC75F85AC37340C90981A7B8 /* TCPSendBuffer.swift */; };
 		651004ED5C7F04DD463DACAE /* IPPacketTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 326AADE761E2BD4797982673 /* IPPacketTests.swift */; };
 		6523C20EAB578B5D6ED4DA8B /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C6827946DEEF6A298D71EC /* RootViewModel.swift */; };
 		655088A69C22E4661A8EC034 /* TunnelEngineUDPTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51D9F3E1FB90814726B20251 /* TunnelEngineUDPTests.swift */; };
+		68AF7AFFBA8F3AED0CB10774 /* WireGuardUDPChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5F6273DAE7A663E1225B69 /* WireGuardUDPChannel.swift */; };
 		6A83C9EBF8AC88C2CA6CD7E9 /* TunnelEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BB2C562F41F609541AC79C9 /* TunnelEngine.swift */; };
 		6BE51257DCFA9A315ECD2220 /* TCPRetransmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D360835D01BAF6BC1BD9D0C /* TCPRetransmitter.swift */; };
 		6D9E18EC36D15F9A87E49432 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A65C6B6B47CC3DBE8EA30B5 /* RootView.swift */; };
@@ -99,8 +104,10 @@
 		953F4744E38384FAC75AC53D /* TCPFlowKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201D3DA8D62A0AD6AEFE22A9 /* TCPFlowKey.swift */; };
 		967DFA02942ACD097904BB75 /* BrowserTabManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C93F3D36BA5591553E3781BC /* BrowserTabManager.swift */; };
 		982DE908ED254C5678944C86 /* DNSCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF609E103E040D115FC0ABC /* DNSCacheTests.swift */; };
+		9B4A0FD1133C9BC5723EE9EE /* WireGuardProviderSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27B140710520341B5D53B90E /* WireGuardProviderSupport.swift */; };
 		9B5534FD0CCAE402BA5B5306 /* WebViewStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 606F38FEA5EC815E3D2400C9 /* WebViewStore.swift */; };
 		9EB6BF26BF1F9C8E22EEC388 /* RoutingConfigurationStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2327CAA3614C5C46B62C2D25 /* RoutingConfigurationStoreTests.swift */; };
+		A025911935FBB9EB6884E967 /* WireGuardTunnelPump.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCCFFE8C2827FA55395E436 /* WireGuardTunnelPump.swift */; };
 		A04118CCEE83B811968D1BD0 /* DirectUDPRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C4136A81BECA706F6AB9FF /* DirectUDPRelay.swift */; };
 		A09FE08570F67E9975F418F9 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222C5A9A4F9B5AD863204225 /* PacketTunnelProvider.swift */; };
 		A1875CB7C831EC9FFD0A1764 /* LiquidGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90209C6F1CFB098C798A8C2E /* LiquidGlass.swift */; };
@@ -108,6 +115,7 @@
 		A3B9B84F86858544A0AD4D50 /* TunnelPacketWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 488EF0DC7A388D3F575FA343 /* TunnelPacketWriter.swift */; };
 		A40F0872A05721405CC064A6 /* BrowserHistoryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 838570461401A7D7D1841549 /* BrowserHistoryStoreTests.swift */; };
 		A41BFBB018CB4B15289DD6A5 /* DNSCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F9E86CEF1F56C672F17DAA /* DNSCoordinator.swift */; };
+		A585E2608EA2DA6195503B8B /* WireGuardCryptoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A76156E8F8C3E612A920214 /* WireGuardCryptoTests.swift */; };
 		A7939B97D5FFA69EB71D8EB4 /* BrowserTabOverview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D9217D5822D0F1A6487A2D8 /* BrowserTabOverview.swift */; };
 		A8A582D3AA218B006AC64219 /* PasteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40C94A64E21436DC0CB8E9B0 /* PasteButton.swift */; };
 		A9A48AFB0A6DC65C8EDD719C /* ShadowsocksUDPRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A39A983FC4B226C85A0225B /* ShadowsocksUDPRelay.swift */; };
@@ -119,6 +127,7 @@
 		B4A792C15D419677F900B174 /* ShadowsocksOnePacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B90EBC2914BFED861B1F08B4 /* ShadowsocksOnePacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B8F419010F5FD680BF0E8B8E /* TCPFlowStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18985CA62D01B7E4D9046CBA /* TCPFlowStateTests.swift */; };
 		BBFB31C165E3F7654BB87715 /* HudunAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B7FA4374B65FD52BFBBF25 /* HudunAPI.swift */; };
+		BD40EEE5B2F10A8C72C537E5 /* HudunTunnelConfigurationStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1917590C662601D1A54D3D /* HudunTunnelConfigurationStoreTests.swift */; };
 		BE2AEE900DFDB47DA97E2B4A /* RouteMatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54105EC3541A882C9514C243 /* RouteMatcherTests.swift */; };
 		C2B7F66CEC087501618BDB59 /* UDPRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF3DA11F42E8246C495318C /* UDPRouterTests.swift */; };
 		C376C4187F556A6D09F76C39 /* TCPPacketBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5E929EBCD95AED7FA9DD15 /* TCPPacketBuilderTests.swift */; };
@@ -144,6 +153,7 @@
 		ED08A51E5637F1AE8A614A43 /* ShadowsocksCodecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26326E09C300A99FABA7E8A /* ShadowsocksCodecTests.swift */; };
 		EFD005CC5679B80167C4604D /* LocalDNSUpstreamClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A8876B4F346D5ACE972E03D /* LocalDNSUpstreamClient.swift */; };
 		F6DD636A0C44ABE867E5A4C6 /* UDPSessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39BA75A098135606CFA590D9 /* UDPSessionStore.swift */; };
+		F7C456B42E729BC9BA8AFC6E /* HudunTunnelCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D38EDA170D33608ED66C494 /* HudunTunnelCoordinator.swift */; };
 		FC1D1CA1F10BFD327EE11C26 /* HudunProfileSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9B8DE0A3BA2BD0EC7368B42 /* HudunProfileSection.swift */; };
 		FCE816D1C820004A246E0ED3 /* SSURLParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CBCE0B79532877194A5BC9D /* SSURLParserTests.swift */; };
 /* End PBXBuildFile section */
@@ -200,9 +210,11 @@
 		18D5CF1B85C4C8322B15FB50 /* ConnectionTesterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionTesterTests.swift; sourceTree = "<group>"; };
 		1A9E3D105FE28A8668E1D3D9 /* HudunSessionViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudunSessionViewModelTests.swift; sourceTree = "<group>"; };
 		1CBCE0B79532877194A5BC9D /* SSURLParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSURLParserTests.swift; sourceTree = "<group>"; };
+		1D5F6273DAE7A663E1225B69 /* WireGuardUDPChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardUDPChannel.swift; sourceTree = "<group>"; };
 		201D3DA8D62A0AD6AEFE22A9 /* TCPFlowKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPFlowKey.swift; sourceTree = "<group>"; };
 		222C5A9A4F9B5AD863204225 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
 		2327CAA3614C5C46B62C2D25 /* RoutingConfigurationStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingConfigurationStoreTests.swift; sourceTree = "<group>"; };
+		27B140710520341B5D53B90E /* WireGuardProviderSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardProviderSupport.swift; sourceTree = "<group>"; };
 		27DE417C6702445237571D7B /* BrowserURLBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserURLBuilderTests.swift; sourceTree = "<group>"; };
 		29B940852D8D1E0F63185000 /* HudunLineListSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudunLineListSection.swift; sourceTree = "<group>"; };
 		2BB2C562F41F609541AC79C9 /* TunnelEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelEngine.swift; sourceTree = "<group>"; };
@@ -212,6 +224,7 @@
 		326AADE761E2BD4797982673 /* IPPacketTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPPacketTests.swift; sourceTree = "<group>"; };
 		35FE0FECE245D750C4935125 /* ProfileStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStoreTests.swift; sourceTree = "<group>"; };
 		39BA75A098135606CFA590D9 /* UDPSessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPSessionStore.swift; sourceTree = "<group>"; };
+		3A76156E8F8C3E612A920214 /* WireGuardCryptoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardCryptoTests.swift; sourceTree = "<group>"; };
 		3B01D8A4711C79BC04609012 /* china-ip-list.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "china-ip-list.txt"; sourceTree = "<group>"; };
 		3BC27D9CEF943FD217B263B1 /* IPListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPListViewModelTests.swift; sourceTree = "<group>"; };
 		3DCF877C12D63C0BBC033187 /* HudunAccountSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudunAccountSummary.swift; sourceTree = "<group>"; };
@@ -240,6 +253,7 @@
 		666EBC86BBB228A5E4DDD699 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6A8876B4F346D5ACE972E03D /* LocalDNSUpstreamClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDNSUpstreamClient.swift; sourceTree = "<group>"; };
 		6AF609E103E040D115FC0ABC /* DNSCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSCacheTests.swift; sourceTree = "<group>"; };
+		6BCCFFE8C2827FA55395E436 /* WireGuardTunnelPump.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardTunnelPump.swift; sourceTree = "<group>"; };
 		6C75740A83BD1E97814AB924 /* RoutingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingViewModel.swift; sourceTree = "<group>"; };
 		6D7C14E74439FC36ED45C47B /* DNSCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSCoordinatorTests.swift; sourceTree = "<group>"; };
 		6F01500153B3FB07DEFE89E6 /* HudunCryptoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudunCryptoTests.swift; sourceTree = "<group>"; };
@@ -247,6 +261,8 @@
 		78B5663F303AAE9A54A31793 /* RoutingSections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingSections.swift; sourceTree = "<group>"; };
 		795C455F2D3CD57DACE3C6C6 /* RTTEstimatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RTTEstimatorTests.swift; sourceTree = "<group>"; };
 		798D9A584711CAF08FA0DC59 /* TunnelRuntimeStatusStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelRuntimeStatusStoreTests.swift; sourceTree = "<group>"; };
+		7D1917590C662601D1A54D3D /* HudunTunnelConfigurationStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudunTunnelConfigurationStoreTests.swift; sourceTree = "<group>"; };
+		7D38EDA170D33608ED66C494 /* HudunTunnelCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudunTunnelCoordinator.swift; sourceTree = "<group>"; };
 		7DB2BD21BCA961739C60A2B7 /* BrowserRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserRootView.swift; sourceTree = "<group>"; };
 		7E574FDB88BE19740909B37A /* UDPFlowKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPFlowKey.swift; sourceTree = "<group>"; };
 		7E9A4A0F1B9CBFD012574448 /* RoutingViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingViewModelTests.swift; sourceTree = "<group>"; };
@@ -280,6 +296,7 @@
 		CAF744EC686E46CEEB0938AA /* HudunLoginSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudunLoginSection.swift; sourceTree = "<group>"; };
 		CC5E929EBCD95AED7FA9DD15 /* TCPPacketBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPPacketBuilderTests.swift; sourceTree = "<group>"; };
 		D0B249DA0A152DE0A8220C05 /* ConnectionStateDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStateDisplay.swift; sourceTree = "<group>"; };
+		D31219324CF5B8B074C758DB /* HudunLineCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudunLineCache.swift; sourceTree = "<group>"; };
 		D7CC927DDCD78C937F61E09F /* ShadowsocksOneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksOneApp.swift; sourceTree = "<group>"; };
 		D7D90D1887AF9F1ADEFB8178 /* TunnelControlling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlling.swift; sourceTree = "<group>"; };
 		D8596E290EFA20C0FE72A94B /* RTTEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RTTEstimator.swift; sourceTree = "<group>"; };
@@ -434,11 +451,13 @@
 				14B7FA4374B65FD52BFBBF25 /* HudunAPI.swift */,
 				0B51C2932A8909FB68FC34EF /* HudunCredentialStore.swift */,
 				D94973F59A0BB51206D7C197 /* HudunDeviceIdentity.swift */,
+				D31219324CF5B8B074C758DB /* HudunLineCache.swift */,
 				29B940852D8D1E0F63185000 /* HudunLineListSection.swift */,
 				CAF744EC686E46CEEB0938AA /* HudunLoginSection.swift */,
 				C9B8DE0A3BA2BD0EC7368B42 /* HudunProfileSection.swift */,
 				50C3224713840052E305061D /* HudunServicing.swift */,
 				99E9DEADB26E6DAA2CA9AA5E /* HudunSessionViewModel.swift */,
+				7D38EDA170D33608ED66C494 /* HudunTunnelCoordinator.swift */,
 				ACC176D31D6952AF1B175577 /* HudunWGConfSheet.swift */,
 				AAAF6A83A5CA6243AAE61C6B /* ImportSection.swift */,
 				F00A9DCA06E2AD0836FE6FD1 /* ImportTabView.swift */,
@@ -471,6 +490,7 @@
 				42642D728D2808C91C26E5B4 /* CNIPListStoreTests.swift */,
 				6AF609E103E040D115FC0ABC /* DNSCacheTests.swift */,
 				187496B5BAC158A4D023DF87 /* DNSMessageTests.swift */,
+				7D1917590C662601D1A54D3D /* HudunTunnelConfigurationStoreTests.swift */,
 				326AADE761E2BD4797982673 /* IPPacketTests.swift */,
 				50007DBE8236B1A83D150678 /* ProfileMappingTests.swift */,
 				35FE0FECE245D750C4935125 /* ProfileStoreTests.swift */,
@@ -485,6 +505,7 @@
 				2CB0FCE5F8DE73DC421558F8 /* TunnelDiagnosticsStoreTests.swift */,
 				798D9A584711CAF08FA0DC59 /* TunnelRuntimeStatusStoreTests.swift */,
 				4F30D2F7A356FA598165EE05 /* UDPPacketBuilderTests.swift */,
+				3A76156E8F8C3E612A920214 /* WireGuardCryptoTests.swift */,
 			);
 			name = SharedCoreTests;
 			path = Packages/SharedCore/Tests/SharedCoreTests;
@@ -499,6 +520,17 @@
 			);
 			name = DNS;
 			path = PacketTunnel/DNS;
+			sourceTree = "<group>";
+		};
+		9D58AF1A88CD8816DFE605A5 /* WireGuard */ = {
+			isa = PBXGroup;
+			children = (
+				27B140710520341B5D53B90E /* WireGuardProviderSupport.swift */,
+				6BCCFFE8C2827FA55395E436 /* WireGuardTunnelPump.swift */,
+				1D5F6273DAE7A663E1225B69 /* WireGuardUDPChannel.swift */,
+			);
+			name = WireGuard;
+			path = PacketTunnel/WireGuard;
 			sourceTree = "<group>";
 		};
 		E373396A0942D058BA98E9FF /* Packages */ = {
@@ -520,6 +552,7 @@
 				843B7CE4B69FE1D4459058D2 /* SharedCoreTests */,
 				464EC3FF49A49271214414CF /* TCP */,
 				50BA8710F6AC7C6ECEAE5689 /* UDP */,
+				9D58AF1A88CD8816DFE605A5 /* WireGuard */,
 				32FD4F4E8F090A3F9D2AA0B1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -536,6 +569,7 @@
 				8AC44DD766F795AEBB4380AC /* DNS */,
 				464EC3FF49A49271214414CF /* TCP */,
 				50BA8710F6AC7C6ECEAE5689 /* UDP */,
+				9D58AF1A88CD8816DFE605A5 /* WireGuard */,
 			);
 			path = PacketTunnel;
 			sourceTree = "<group>";
@@ -741,6 +775,9 @@
 				C2B7F66CEC087501618BDB59 /* UDPRouterTests.swift in Sources */,
 				05CA46D055982EAE02B585CB /* UDPSessionStore.swift in Sources */,
 				79BD099A805DA494A00AF0F5 /* UDPSessionStoreTests.swift in Sources */,
+				6437325E4878A0105A3949DC /* WireGuardProviderSupport.swift in Sources */,
+				A025911935FBB9EB6884E967 /* WireGuardTunnelPump.swift in Sources */,
+				4CCF20767342603B8FFE3E0F /* WireGuardUDPChannel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -764,11 +801,13 @@
 				CC213FE8C6D202A42F42D32F /* HudunAccountView.swift in Sources */,
 				49DED5E439565E58B1A4939B /* HudunCredentialStore.swift in Sources */,
 				1F993E0E4D42227DF0170D55 /* HudunDeviceIdentity.swift in Sources */,
+				42A8D9C0EBE843B70C404B75 /* HudunLineCache.swift in Sources */,
 				E808649AACB34B954737D40D /* HudunLineListSection.swift in Sources */,
 				8303F54604DFBF49B36D5A38 /* HudunLoginSection.swift in Sources */,
 				FC1D1CA1F10BFD327EE11C26 /* HudunProfileSection.swift in Sources */,
 				07B5180256FB578A6BB12A2A /* HudunServicing.swift in Sources */,
 				2100795C1BF41E4E712C2A81 /* HudunSessionViewModel.swift in Sources */,
+				F7C456B42E729BC9BA8AFC6E /* HudunTunnelCoordinator.swift in Sources */,
 				DB72D8921DF0855EFB876B6B /* HudunWGConfSheet.swift in Sources */,
 				410A3B67300ADC14B19F6DA6 /* IPListViewModel.swift in Sources */,
 				3E7084564ED7A2D94C52CA61 /* ImportSection.swift in Sources */,
@@ -819,6 +858,9 @@
 				336E19F2A0BC446DBA2214F9 /* UDPFlowRelaying.swift in Sources */,
 				42AF195854C1FCECA1F69202 /* UDPRouter.swift in Sources */,
 				F6DD636A0C44ABE867E5A4C6 /* UDPSessionStore.swift in Sources */,
+				9B4A0FD1133C9BC5723EE9EE /* WireGuardProviderSupport.swift in Sources */,
+				5264B63A7817F5EF75F73910 /* WireGuardTunnelPump.swift in Sources */,
+				68AF7AFFBA8F3AED0CB10774 /* WireGuardUDPChannel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -831,6 +873,7 @@
 				29119E624C83D97DFEEE19FE /* CNIPListStoreTests.swift in Sources */,
 				982DE908ED254C5678944C86 /* DNSCacheTests.swift in Sources */,
 				42785E75A80F957C21056B2B /* DNSMessageTests.swift in Sources */,
+				BD40EEE5B2F10A8C72C537E5 /* HudunTunnelConfigurationStoreTests.swift in Sources */,
 				651004ED5C7F04DD463DACAE /* IPPacketTests.swift in Sources */,
 				8B1E8A23B2F21BF735893B07 /* ProfileMappingTests.swift in Sources */,
 				86E56796F0B435294BFC5BEF /* ProfileStoreTests.swift in Sources */,
@@ -845,6 +888,7 @@
 				32C2622F99762CD8241FC470 /* TunnelDiagnosticsStoreTests.swift in Sources */,
 				12450AE7CDD1FF8C31F4FEA9 /* TunnelRuntimeStatusStoreTests.swift in Sources */,
 				25754A0E8EFD7D63427FD356 /* UDPPacketBuilderTests.swift in Sources */,
+				A585E2608EA2DA6195503B8B /* WireGuardCryptoTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
