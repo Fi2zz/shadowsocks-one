@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 线路实时快照（route_list）；点击行取 WG 凭证包（route_info）。
+/// 线路实时快照（route_list，缓存回放）；点行即取凭证并连接。
 struct HudunLineListSection: View {
     private struct ConfigBox: Identifiable {
         let id = UUID()
@@ -42,7 +42,7 @@ struct HudunLineListSection: View {
 
     private func rowButton(_ line: HudunLine) -> some View {
         Button {
-            fetchConfig(lineID: line.id)
+            Task { await session.requestConnect(line) }
         } label: {
             rowLabel(line)
         }
@@ -54,24 +54,39 @@ struct HudunLineListSection: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(line.name).foregroundStyle(.primary)
-                Text("\(tierLabel(line.tier)) · \(line.typeName)")
+                Text("\(line.tier.uppercased()) · \(line.typeName)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            if line.isBlocked {
-                Text("维护中").font(.caption).foregroundStyle(.red)
-            } else {
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-            }
+            trailingMark(line)
         }
         .contentShape(Rectangle())
     }
 
-    private func tierLabel(_ tier: String) -> String {
-        tier.uppercased()
+    @ViewBuilder
+    private func trailingMark(_ line: HudunLine) -> some View {
+        if session.connectingLineID == line.id {
+            ProgressView().controlSize(.small)
+        } else if line.isBlocked {
+            Text("维护中").font(.caption).foregroundStyle(.red)
+        } else if session.selectedLine?.id == line.id {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(Color.accentColor)
+        } else {
+            configPeekButton(line)
+        }
+    }
+
+    private func configPeekButton(_ line: HudunLine) -> some View {
+        Button {
+            fetchConfig(lineID: line.id)
+        } label: {
+            Image(systemName: "doc.text.magnifyingglass")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+        }
+        .buttonStyle(.borderless)
     }
 
     private var refreshButton: some View {
@@ -83,8 +98,9 @@ struct HudunLineListSection: View {
 
     private func fetchConfig(lineID: Int) {
         Task {
-            guard let config = await session.renew(lineId: lineID) else { return }
-            presentedConfig = ConfigBox(config: config)
+            if let config = await session.renew(lineId: lineID) {
+                presentedConfig = ConfigBox(config: config)
+            }
         }
     }
 }

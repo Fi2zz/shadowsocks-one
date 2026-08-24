@@ -12,7 +12,12 @@ final class HudunSessionViewModel: ObservableObject {
     @Published private(set) var account: HudunAccountSummary?
     @Published private(set) var lines: [HudunLine] = []
     @Published private(set) var busy = false
+    @Published private(set) var connectingLineID: Int?
+    @Published private(set) var selectedLine: HudunLine?
     @Published var message: String?
+
+    /// 选线连接回调：由 RootView 注入，转交 HudunTunnelCoordinator。
+    var connectRequestHandler: ((HudunWGConfig, Int, String) async -> String?)?
 
     private let service: any HudunServicing
     private let store: any HudunCredentialStoring
@@ -31,12 +36,41 @@ final class HudunSessionViewModel: ObservableObject {
         return HudunSessionViewModel(service: client, store: store)
     }
 
-    /// 启动流程：已存 token 静默验证，失效则清凭证回登录页。
+    /// 启动流程：先回放缓存线路，已存 token 再静默验证。
     func restoreSessionIfNeeded() async {
         guard !restored else { return }
         restored = true
+        loadCachedLines()
         guard let creds = store.load(), !creds.token.isEmpty else { return }
         await reloadAccount()
+    }
+
+    /// 选线即连接：renew 现取凭证 → 交协调器激活系统隧道。
+    func requestConnect(_ line: HudunLine) async {
+        busy = true
+        connectingLineID = line.id
+        defer {
+            busy = false
+            connectingLineID = nil
+        }
+        do {
+            let config = try await service.renew(lineId: line.id)
+            selectedLine = line
+            HudunSelectionMemory.savedLineID = line.id
+            if let handler = connectRequestHandler {
+                message = await handler(config, line.id, line.name)
+            }
+        } catch {
+            apply(error)
+        }
+    }
+
+    private func loadCachedLines() {
+        guard lines.isEmpty else { return }
+        lines = HudunLineCache.load()
+        if let savedID = HudunSelectionMemory.savedLineID {
+            selectedLine = lines.first { $0.id == savedID }
+        }
     }
 
     func login(account: String, password: String) async {
@@ -59,12 +93,18 @@ final class HudunSessionViewModel: ObservableObject {
         authState = .loggedOut
         account = nil
         lines = []
+        selectedLine = nil
+        HudunSelectionMemory.savedLineID = nil
         message = "已退出登录"
     }
 
     func refreshLines() async {
         do {
             lines = try await service.lines()
+            HudunLineCache.save(lines)
+            if let savedID = HudunSelectionMemory.savedLineID {
+                selectedLine = lines.first { $0.id == savedID }
+            }
         } catch {
             apply(error)
         }

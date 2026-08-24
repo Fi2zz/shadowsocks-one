@@ -15,6 +15,7 @@ final class RootViewModel: ObservableObject {
 
     private let parser: any SSURLParsing
     private let tunnelController: any TunnelControlling
+    let hudunTunnels: HudunTunnelCoordinator
     private let store: ProfileStore?
     private let tunnelStore: TunnelConfigurationStore?
     private var stateTask: Task<Void, Never>?
@@ -27,6 +28,7 @@ final class RootViewModel: ObservableObject {
     ) {
         self.parser = parser
         self.tunnelController = tunnelController
+        self.hudunTunnels = HudunTunnelCoordinator(controller: tunnelController)
         self.store = try? storeBuilder()
         self.tunnelStore = try? tunnelStoreBuilder()
         self.connectionState = tunnelController.state

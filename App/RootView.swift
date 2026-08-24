@@ -14,6 +14,11 @@ struct RootView: View {
             ipListViewModel: ipListViewModel,
             hudunSession: hudunSession
         )
+        .task {
+            hudunSession.connectRequestHandler = { [weak viewModel] config, lineID, lineName in
+                await viewModel?.hudunTunnels.activate(config, lineID: lineID, lineName: lineName)
+            }
+        }
         .onChange(of: scenePhase) { newPhase in
             if newPhase == .active {
                 viewModel.refreshTunnelStatus()
