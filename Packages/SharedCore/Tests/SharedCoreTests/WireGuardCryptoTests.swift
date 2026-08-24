@@ -98,8 +98,7 @@ final class WireGuardCryptoTests: XCTestCase {
         var hash = WireGuardCrypto.hash(chain, Data(WireGuardCrypto.identifier.utf8))
         hash = WireGuardCrypto.hash(hash, Data(responderStatic.publicKey.rawRepresentation))
         hash = WireGuardCrypto.hash(hash, ephemeralPubI)
-        chain = WireGuardCrypto.kdf1(chain, try dh(responderStatic, ephemeralPubIKey))
-
+        chain = WireGuardCrypto.kdf1(chain, ephemeralPubI)
         let (chainA, staticOpen) = WireGuardCrypto.kdf2(chain, try dh(responderStatic, ephemeralPubIKey))
         let staticPlain = try WireGuardCrypto.aeadOpen(
             SymmetricKey(data: staticOpen), counter: 0,
@@ -117,16 +116,19 @@ final class WireGuardCryptoTests: XCTestCase {
 
         let responderEphemeral = Curve25519.KeyAgreement.PrivateKey()
         let responderIndex = UInt32.random(in: 1...UInt32.max)
-        hash = WireGuardCrypto.hash(hash, Data(responderEphemeral.publicKey.rawRepresentation))
-        chain = WireGuardCrypto.kdf1(chainB, try dh(responderEphemeral, ephemeralPubIKey))
+        let responderEphemeralPub = Data(responderEphemeral.publicKey.rawRepresentation)
+        hash = WireGuardCrypto.hash(hash, responderEphemeralPub)
+        chain = WireGuardCrypto.kdf1(chainB, responderEphemeralPub)
+        chain = WireGuardCrypto.kdf1(chain, try dh(responderEphemeral, ephemeralPubIKey))
 
         let psk = Data(repeating: 0, count: 32)
-        let (chainC, verifyKey, _) = WireGuardCrypto.kdf3(
-            chain, try dh(responderEphemeral, initiatorStaticKey) + psk)
+        let (chainC, tauKey, verifyKey) = WireGuardCrypto.kdf3(chain, psk)
+        hash = WireGuardCrypto.hash(hash, tauKey)
         let emptyTag = try WireGuardCrypto.aeadSeal(
             SymmetricKey(data: verifyKey), counter: 0, plaintext: Data(), aad: hash)
+        hash = WireGuardCrypto.hash(hash, emptyTag)
 
-        let (_, sendR, recvR) = WireGuardCrypto.kdf3(chainC, Data())
+        let (respReceive, respSend) = WireGuardCrypto.kdf2(chainC, Data())
 
         var packet = Data([2, 0, 0, 0])
         packet += WireGuardHandshake.littleEndian(responderIndex)
@@ -134,7 +136,7 @@ final class WireGuardCryptoTests: XCTestCase {
         packet += Data(responderEphemeral.publicKey.rawRepresentation)
         packet += emptyTag
         packet += Data(repeating: 0, count: 32)
-        return (packet, responderIndex, sendR, recvR)
+        return (packet, responderIndex, respReceive, respSend)
     }
 
     private func dh(_ key: Curve25519.KeyAgreement.PrivateKey,

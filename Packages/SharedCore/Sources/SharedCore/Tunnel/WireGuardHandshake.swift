@@ -32,7 +32,7 @@ public enum WireGuardHandshake {
         let ephemeral = Curve25519.KeyAgreement.PrivateKey()
         let ephemeralPub = Data(ephemeral.publicKey.rawRepresentation)
         hash = Self.hash(hash, ephemeralPub)
-        chain = WireGuardCrypto.kdf1(chain, shared(ephemeral, peerStaticPublic))
+        chain = WireGuardCrypto.kdf1(chain, ephemeralPub)
 
         let initiatorPub = Data(staticPrivate.publicKey.rawRepresentation)
         let (chainA, keyA) = WireGuardCrypto.kdf2(chain, shared(ephemeral, peerStaticPublic))
@@ -72,16 +72,18 @@ public enum WireGuardHandshake {
             throw WireGuardError.badPacket("响应索引不匹配")
         }
         let peerIndex = readUInt32LE(data, 4)
+        let responderEphemeralPub = data.subdata(in: 12..<44)
         let responderEphemeral = try Curve25519.KeyAgreement.PublicKey(
-            rawRepresentation: data.subdata(in: 12..<44))
+            rawRepresentation: responderEphemeralPub)
 
-        let hash = Self.hash(initiation.hash, data.subdata(in: 12..<44))
-        var chain = WireGuardCrypto.kdf1(
-            initiation.chainKey, shared(initiation.ephemeralPrivate, responderEphemeral))
+        var hash = Self.hash(initiation.hash, responderEphemeralPub)
+        var chain = WireGuardCrypto.kdf1(initiation.chainKey, responderEphemeralPub)
+        chain = WireGuardCrypto.kdf1(
+            chain, shared(initiation.ephemeralPrivate, responderEphemeral))
 
         let psk = Data(repeating: 0, count: 32)
-        let (chainB, verifyKey, _) = WireGuardCrypto.kdf3(
-            chain, shared(staticPrivate, responderEphemeral) + psk)
+        let (chainC, tau, verifyKey) = WireGuardCrypto.kdf3(chain, psk)
+        hash = Self.hash(hash, tau)
         do {
             _ = try WireGuardCrypto.aeadOpen(
                 SymmetricKey(data: verifyKey), counter: 0,
@@ -89,9 +91,10 @@ public enum WireGuardHandshake {
         } catch {
             throw WireGuardError.authenticationFailed
         }
-        chain = chainB
+        chain = chainC
+        hash = Self.hash(hash, data.subdata(in: 44..<60))
 
-        let (_, send, receive) = WireGuardCrypto.kdf3(chain, Data())
+        let (send, receive) = WireGuardCrypto.kdf2(chain, Data())
         return TransportKeys(send: SymmetricKey(data: send),
                              receive: SymmetricKey(data: receive),
                              peerIndex: peerIndex, localIndex: initiation.localIndex)

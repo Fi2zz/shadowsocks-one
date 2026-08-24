@@ -32,8 +32,8 @@ enum WireGuardCrypto {
 
     private static let blockSize = 64
 
-    /// KDF_n(ck, ikm)：t = HMAC(ck, ikm)；out1 = HMAC(t, 0x1)；
-    /// outN = HMAC(t, out(N-1) ‖ N)。
+    /// KDF_n（对齐 wireguard-go）：t = HMAC(ck, ikm)；
+    /// o1 = HMAC(t, 0x1)；o2 = HMAC(t, o1‖0x2)；o3 = HMAC(t, o1‖0x3)。
     static func kdf1(_ chainingKey: Data, _ ikm: Data) -> Data {
         let t = hmac(chainingKey, ikm)
         return hmac(t, Data([0x01]))
@@ -50,7 +50,7 @@ enum WireGuardCrypto {
         let t = hmac(chainingKey, ikm)
         let o1 = hmac(t, Data([0x01]))
         let o2 = hmac(t, o1 + Data([0x02]))
-        let o3 = hmac(t, o2 + Data([0x03]))
+        let o3 = hmac(t, o1 + Data([0x03]))
         return (o1, o2, o3)
     }
 
