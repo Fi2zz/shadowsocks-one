@@ -5,6 +5,7 @@ struct BrowserMoreMenu: View {
     @ObservedObject var routingViewModel: RoutingViewModel
     @ObservedObject var ipListViewModel: IPListViewModel
     @ObservedObject var tabManager: BrowserTabManager
+    @ObservedObject var hudunSession: HudunSessionViewModel
     let openHistoryURL: (URL) -> Void
 
     @State private var destination: Destination?
@@ -14,6 +15,7 @@ struct BrowserMoreMenu: View {
         case history
         case nodePicker
         case importing
+        case account
 
         var id: Self { self }
     }
@@ -31,6 +33,11 @@ struct BrowserMoreMenu: View {
                 }
                 VPNControlSection(viewModel: viewModel) {
                     destination = .nodePicker
+                }
+                Section("账号") {
+                    Button { destination = .account } label: {
+                        Label("护盾账号", systemImage: "person.crop.circle")
+                    }
                 }
                 Section("分流") {
                     Button { destination = .importing } label: {
@@ -60,6 +67,8 @@ struct BrowserMoreMenu: View {
                 routingViewModel: routingViewModel,
                 ipListViewModel: ipListViewModel
             )
+        case .account:
+            HudunAccountView(session: hudunSession)
         }
     }
 }

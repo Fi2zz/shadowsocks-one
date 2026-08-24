@@ -4,6 +4,7 @@ struct BrowserRootView: View {
     @ObservedObject var viewModel: RootViewModel
     @ObservedObject var routingViewModel: RoutingViewModel
     @ObservedObject var ipListViewModel: IPListViewModel
+    @ObservedObject var hudunSession: HudunSessionViewModel
 
     @StateObject private var tabManager = BrowserTabManager.makeDefault()
     @State private var morePresented = false
@@ -112,6 +113,7 @@ struct BrowserRootView: View {
             routingViewModel: routingViewModel,
             ipListViewModel: ipListViewModel,
             tabManager: tabManager,
+            hudunSession: hudunSession,
             openHistoryURL: openHistoryURL
         )
         .presentationDetents([.medium, .large])
@@ -127,6 +129,7 @@ struct BrowserRootView: View {
     BrowserRootView(
         viewModel: RootViewModel.makeDefault(),
         routingViewModel: RoutingViewModel.makeDefault(),
-        ipListViewModel: IPListViewModel.makeDefault()
+        ipListViewModel: IPListViewModel.makeDefault(),
+        hudunSession: HudunSessionViewModel.makeDefault()
     )
 }
