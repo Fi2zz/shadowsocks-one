@@ -1,20 +1,16 @@
 import WebKit
 
-/// SwiftUI 的 ignoresSafeArea 会把传给 WKWebView 的安全区清零，
-/// 网页文档会从屏幕 y=0 开始渲染并与状态栏文字重叠。
-/// 这里把窗口安全区高度手动设为滚动内容 inset，让文档起点下沉到状态栏下方。
-/// 注意 WKWebView 会在布局时重置手动 contentInset，所以放在 layoutSubviews 里重设。
+/// 顶部安全区由 BrowserContainerView 在 frame 层处理（Safari 式原生内缩），
+/// 这里只负责底部：工具栏是悬浮玻璃胶囊，滚动内容与指示条预留其高度。
 final class BrowserWebView: WKWebView {
     override func layoutSubviews() {
         super.layoutSubviews()
-        guard let topInset = window?.safeAreaInsets.top else {
+        let toolbarClearance = CGFloat(80)
+        guard scrollView.contentInset.bottom != toolbarClearance else {
             return
         }
-        guard scrollView.contentInset.top != topInset else {
-            return
-        }
-        scrollView.contentInset = UIEdgeInsets(top: topInset, left: 0, bottom: 80, right: 0)
-        scrollView.verticalScrollIndicatorInsets = scrollView.contentInset
+        scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: toolbarClearance, right: 0)
+        scrollView.verticalScrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: toolbarClearance, right: 0)
     }
 }
 

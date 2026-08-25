@@ -8,7 +8,7 @@ struct BrowserWebViewContainer: UIViewRepresentable {
     let tabID: UUID
 
     func makeUIView(context: Context) -> UIView {
-        let container = UIView()
+        let container = BrowserContainerView()
         container.backgroundColor = .systemBackground
         return container
     }
@@ -19,8 +19,28 @@ struct BrowserWebViewContainer: UIViewRepresentable {
             return
         }
         container.subviews.forEach { $0.removeFromSuperview() }
-        webView.frame = container.bounds
-        webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         container.addSubview(webView)
+    }
+}
+
+/// Safari 式原生层安全区：WebView 的 frame 从顶部安全区下方开始，
+/// 状态栏区域归原生 chrome（BrowserRootView 的染色层）所有。
+/// 网页布局视口因此天然不含安全区（env(safe-area-inset-*) 恒为 0，
+/// 与 Safari 浏览器行为一致），也不依赖 contentInset 补丁。
+final class BrowserContainerView: UIView {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard let webView = subviews.first else {
+            return
+        }
+        let topInset = safeAreaInsets.top != 0
+            ? safeAreaInsets.top
+            : (window?.safeAreaInsets.top ?? 0)
+        webView.frame = CGRect(
+            x: 0,
+            y: topInset,
+            width: bounds.width,
+            height: max(bounds.height - topInset, 0)
+        )
     }
 }
