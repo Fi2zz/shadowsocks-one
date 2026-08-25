@@ -161,9 +161,19 @@ struct BrowserRootView: View {
             ipListViewModel: ipListViewModel,
             tabManager: tabManager,
             hudunSession: hudunSession,
-            openHistoryURL: openHistoryURL
+            openHistoryURL: openHistoryURL,
+            newTab: newTabFromMenu
         )
         .presentationDetents([.medium, .large])
+    }
+
+    /// 收起菜单 → 新建标签 → 对齐 Safari：新标签聚焦地址栏直接可输入
+    private func newTabFromMenu() {
+        morePresented = false
+        browser.createTab()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            addressFocused = true
+        }
     }
 
     private func openHistoryURL(_ url: URL) {

@@ -7,6 +7,7 @@ struct BrowserMoreMenu: View {
     @ObservedObject var tabManager: BrowserTabManager
     @ObservedObject var hudunSession: HudunSessionViewModel
     let openHistoryURL: (URL) -> Void
+    let newTab: () -> Void
 
     @State private var destination: Destination?
 
@@ -45,6 +46,9 @@ struct BrowserMoreMenu: View {
 
     private var browserSection: some View {
         Section("浏览器") {
+            Button(action: newTab) {
+                Label("新建标签页", systemImage: "plus")
+            }
             Button {
                 tabManager.addBookmarkForActivePage()
             } label: {
