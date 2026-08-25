@@ -2,6 +2,7 @@ import SwiftUI
 
 struct VPNControlSection: View {
     @ObservedObject var viewModel: RootViewModel
+    @ObservedObject var hudunSession: HudunSessionViewModel
     let showPicker: () -> Void
 
     var body: some View {
@@ -47,7 +48,7 @@ struct VPNControlSection: View {
                 Text("当前节点")
                     .foregroundStyle(.primary)
                 Spacer()
-                Text(viewModel.selectedProfile?.displayName ?? "未选择")
+                Text(currentNodeName)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                 Image(systemName: "chevron.up.chevron.down")
@@ -57,9 +58,20 @@ struct VPNControlSection: View {
         }
     }
 
+    /// 护盾线路选中时优先展示；连接也按该优先级分流。
+    private var currentNodeName: String {
+        hudunSession.selectedLine?.name
+            ?? viewModel.selectedProfile?.displayName
+            ?? "未选择"
+    }
+
     private func toggleConnection() {
         if viewModel.connectionState.allowsDisconnect {
             viewModel.disconnect()
+            return
+        }
+        if hudunSession.selectedLine != nil {
+            Task { await hudunSession.connectSelectedLine() }
             return
         }
         viewModel.connectSelectedProfile()

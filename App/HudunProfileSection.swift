@@ -1,13 +1,12 @@
 import SwiftUI
 
-/// 已登录态：资料、线路列表与退出登录。
+/// 已登录态：资料与退出登录（线路统一在「节点」选择页管理）。
 struct HudunProfileSection: View {
     @ObservedObject var session: HudunSessionViewModel
     @State private var confirmSignOut = false
 
     var body: some View {
         accountRows
-        HudunLineListSection(session: session)
         signOutRows
     }
 

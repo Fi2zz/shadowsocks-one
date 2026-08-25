@@ -31,7 +31,7 @@ struct BrowserMoreMenu: View {
                         Label("历史记录", systemImage: "clock")
                     }
                 }
-                VPNControlSection(viewModel: viewModel) {
+                VPNControlSection(viewModel: viewModel, hudunSession: hudunSession) {
                     destination = .nodePicker
                 }
                 Section("账号") {
@@ -60,7 +60,7 @@ struct BrowserMoreMenu: View {
                 BrowserHistoryView(tabManager: tabManager, openURL: openHistoryURL)
             }
         case .nodePicker:
-            NodePickerSheet(viewModel: viewModel)
+            NodePickerSheet(viewModel: viewModel, hudunSession: hudunSession)
         case .importing:
             ImportTabView(
                 viewModel: viewModel,
