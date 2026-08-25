@@ -162,7 +162,8 @@ struct BrowserRootView: View {
             tabManager: tabManager,
             hudunSession: hudunSession,
             openHistoryURL: openHistoryURL,
-            newTab: newTabFromMenu
+            newTab: newTabFromMenu,
+            openSwitcher: openSwitcherFromMenu
         )
         .presentationDetents([.medium, .large])
     }
@@ -173,6 +174,14 @@ struct BrowserRootView: View {
         browser.createTab()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             addressFocused = true
+        }
+    }
+
+    /// 先收起 sheet 再弹切换器，避免同视图两级 presentation 抢占
+    private func openSwitcherFromMenu() {
+        morePresented = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            browser.showSwitcher = true
         }
     }
 

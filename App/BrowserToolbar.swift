@@ -12,7 +12,6 @@ struct BrowserToolbar: View {
         HStack(spacing: 12) {
             if !addressFocused {
                 navigationButtons
-                tabCountButton
             }
             addressField
             trailingButton
@@ -81,23 +80,6 @@ struct BrowserToolbar: View {
                 .font(.title2)
                 .frame(width: 24, height: 24)
         }
-    }
-
-    // MARK: - 标签数按钮
-
-    /// Safari 风格圆角方框内显示标签数；后台开新标签时弹跳反馈
-    private var tabCountButton: some View {
-        Button { browser.showSwitcher = true } label: {
-            Text("\(tabManager.tabs.count)")
-                .font(.footnote.bold())
-                .monospacedDigit()
-                .frame(width: 20, height: 20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 5)
-                        .stroke(.primary, lineWidth: 1.5)
-                )
-        }
-        .symbolEffect(.bounce, value: tabManager.tabs.count)
     }
 
     // MARK: - 地址栏
