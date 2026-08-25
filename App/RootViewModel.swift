@@ -110,6 +110,7 @@ final class RootViewModel: ObservableObject {
         Task {
             do {
                 try tunnelStore?.save(profile: selectedProfile)
+                hudunTunnels.useShadowsocksMode()
                 await MainActor.run {
                     refreshInformationalMessage()
                 }

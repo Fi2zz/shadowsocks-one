@@ -33,6 +33,16 @@ final class HudunTunnelCoordinator {
         return nil
     }
 
+    /// 回落 Shadowsocks 模式标记：SS 节点连接前调用，防止残留 wireguard 标记。
+    func useShadowsocksMode() {
+        guard let store = try? HudunTunnelConfigurationStore(
+            appGroupID: SharedContainerSettings.appGroupID,
+            keychainService: SharedContainerSettings.keychainService) else {
+            return
+        }
+        try? store.setMode(.shadowsocks)
+    }
+
     static func launchConfiguration(from wgConfig: HudunWGConfig,
                                     lineID: Int,
                                     lineName: String) -> HudunTunnelLaunchConfiguration? {
