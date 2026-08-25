@@ -6,31 +6,57 @@ struct BrowserRootView: View {
     @ObservedObject var ipListViewModel: IPListViewModel
     @ObservedObject var hudunSession: HudunSessionViewModel
 
-    @StateObject private var tabManager = BrowserTabManager.makeDefault()
-    @State private var morePresented = false
+    @StateObject private var browser = BrowserViewModel()
+    @ObservedObject private var tabManager = BrowserTabManager.shared
+    @Environment(\.scenePhase) private var scenePhase
     @FocusState private var addressFocused: Bool
+    @State private var morePresented = false
 
     var body: some View {
         GeometryReader { proxy in
-            ZStack(alignment: .bottom) {
-                tabWebViews
-                bottomContent(safeBottom: proxy.safeAreaInsets.bottom)
-            }
-            .background(Color(uiColor: .systemBackground))
-            // 容器安全区全部穿透（顶部内容画到状态栏后面，对齐 Safari）；
-            // 键盘区域必须保留，否则键盘避让失效、输入框被键盘盖住
-            .ignoresSafeArea(.container)
-            .animation(.easeOut(duration: 0.25), value: tabManager.selectedTab?.progress)
-            .animation(.easeInOut(duration: 0.2), value: tabManager.selectedTab?.toolbarCollapsed)
+            rootStack(safeBottom: proxy.safeAreaInsets.bottom)
+                .background(Color(uiColor: .systemBackground))
+                .animation(.easeOut(duration: 0.25), value: browser.progress)
+                .animation(.easeInOut(duration: 0.2), value: browser.toolbarCollapsed)
         }
         .overlay(alignment: .top) { loadErrorBanner }
+        .fullScreenCover(isPresented: $browser.showSwitcher) {
+            BrowserTabSwitcherView()
+        }
+        .overlay(alignment: .bottom) { backgroundToast }
         .sheet(isPresented: $morePresented) { moreMenu }
+    }
+
+    private func rootStack(safeBottom: CGFloat) -> some View {
+        ZStack(alignment: .bottom) {
+            webViewLayer
+            bottomContent(safeBottom: safeBottom)
+        }
+        // 容器安全区全部穿透（顶部内容画到状态栏后面，对齐 Safari）；
+        // 键盘区域必须保留，否则键盘避让失效、输入框被键盘盖住
+        .ignoresSafeArea(.container)
+        .onChange(of: tabManager.activeTabID) { _ in
+            browser.observeActiveWebView()
+        }
+        .onChange(of: scenePhase) { phase in
+            if phase == .background {
+                tabManager.persistAll()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var webViewLayer: some View {
+        if let tabID = tabManager.activeTabID {
+            // 不加 .id(tabID)：那会销毁重建 representable，容器本身要复用
+            BrowserWebViewContainer(tabID: tabID)
+        }
     }
 
     /// 展开态贴在安全区上沿；收缩胶囊沉到安全区之下（Home 指示条区域）
     @ViewBuilder
     private func bottomContent(safeBottom: CGFloat) -> some View {
-        if tabManager.selectedTab?.toolbarCollapsed == true {
+        if browser.toolbarCollapsed {
             compactPill
                 .padding(.bottom, 10)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -51,9 +77,9 @@ struct BrowserRootView: View {
 
     private var compactPill: some View {
         Button {
-            tabManager.selectedTab?.expandToolbar()
+            browser.expandToolbar()
         } label: {
-            Text(tabManager.selectedTab?.currentURL?.host ?? "")
+            Text(browser.activePageURL?.host ?? "")
                 .font(.body)
                 .foregroundStyle(.primary)
                 .lineLimit(1)
@@ -65,7 +91,7 @@ struct BrowserRootView: View {
 
     @ViewBuilder
     private var loadErrorBanner: some View {
-        if let error = tabManager.selectedTab?.loadError {
+        if let error = browser.loadError {
             Text(error)
                 .font(.footnote)
                 .foregroundStyle(.secondary)
@@ -78,8 +104,8 @@ struct BrowserRootView: View {
 
     @ViewBuilder
     private var loadingProgressBar: some View {
-        if let progress = tabManager.selectedTab?.progress, progress > 0, progress < 1 {
-            ProgressView(value: progress)
+        if browser.progress > 0, browser.progress < 1 {
+            ProgressView(value: browser.progress)
                 .progressViewStyle(.linear)
                 .tint(.accentColor)
                 .frame(maxWidth: .infinity)
@@ -88,19 +114,40 @@ struct BrowserRootView: View {
         }
     }
 
-    private var tabWebViews: some View {
-        ZStack {
-            ForEach(tabManager.tabs) { tab in
-                WebViewRepresentable(store: tab)
-                    .opacity(tab.id == tabManager.selectedTabID ? 1 : 0)
-                    .allowsHitTesting(tab.id == tabManager.selectedTabID)
+    /// 后台打开提示：3 秒自动消失，「查看」切到新标签
+    @ViewBuilder
+    private var backgroundToast: some View {
+        Group {
+            if browser.backgroundToastTabID != nil {
+                toastContent
             }
+        }
+        .animation(.spring(), value: browser.backgroundToastTabID)
+    }
+
+    private var toastContent: some View {
+        HStack {
+            Text("已在后台打开")
+                .font(.subheadline)
+            Spacer()
+            Button("查看", action: browser.viewBackgroundTab)
+                .font(.subheadline.bold())
+        }
+        .padding(.horizontal, 16)
+        .frame(height: 44)
+        .background(.regularMaterial, in: Capsule())
+        .padding(.bottom, browser.toolbarCollapsed ? 70 : 130)
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+        .task {
+            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            withAnimation { browser.backgroundToastTabID = nil }
         }
     }
 
     private var toolbar: some View {
         BrowserToolbar(
             tabManager: tabManager,
+            browser: browser,
             connectionState: viewModel.connectionState,
             addressFocused: $addressFocused,
             showMore: { morePresented = true }

@@ -11,7 +11,7 @@ struct BrowserMoreMenu: View {
     @State private var destination: Destination?
 
     private enum Destination: Identifiable {
-        case tabs
+        case bookmarks
         case history
         case nodePicker
         case importing
@@ -23,14 +23,7 @@ struct BrowserMoreMenu: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("浏览器") {
-                    Button { destination = .tabs } label: {
-                        Label("标签页", systemImage: "square.on.square")
-                    }
-                    Button { destination = .history } label: {
-                        Label("历史记录", systemImage: "clock")
-                    }
-                }
+                browserSection
                 VPNControlSection(viewModel: viewModel, hudunSession: hudunSession) {
                     destination = .nodePicker
                 }
@@ -50,11 +43,35 @@ struct BrowserMoreMenu: View {
         .sheet(item: $destination, content: destinationView)
     }
 
+    private var browserSection: some View {
+        Section("浏览器") {
+            Button {
+                tabManager.addBookmarkForActivePage()
+            } label: {
+                Label("添加书签", systemImage: "star")
+            }
+            .disabled(!tabManager.canBookmarkActivePage)
+            Button { destination = .bookmarks } label: {
+                Label("书签列表", systemImage: "star.leadinghalf.filled")
+            }
+            Button { destination = .history } label: {
+                Label("历史记录", systemImage: "clock")
+            }
+            Button(role: .destructive) {
+                tabManager.clearBrowsingData()
+            } label: {
+                Label("清除浏览数据", systemImage: "trash")
+            }
+        }
+    }
+
     @ViewBuilder
     private func destinationView(_ destination: Destination) -> some View {
         switch destination {
-        case .tabs:
-            BrowserTabOverview(tabManager: tabManager)
+        case .bookmarks:
+            NavigationStack {
+                BrowserBookmarkListView(tabManager: tabManager, openURL: openHistoryURL)
+            }
         case .history:
             NavigationStack {
                 BrowserHistoryView(tabManager: tabManager, openURL: openHistoryURL)

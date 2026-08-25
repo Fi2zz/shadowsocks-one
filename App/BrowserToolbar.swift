@@ -3,16 +3,16 @@ import SharedCore
 
 struct BrowserToolbar: View {
     @ObservedObject var tabManager: BrowserTabManager
+    @ObservedObject var browser: BrowserViewModel
     let connectionState: ConnectionState
     @FocusState.Binding var addressFocused: Bool
     let showMore: () -> Void
-
-    @State private var addressInput = ""
 
     var body: some View {
         HStack(spacing: 12) {
             if !addressFocused {
                 navigationButtons
+                tabActions
             }
             addressField
             trailingButton
@@ -23,8 +23,6 @@ struct BrowserToolbar: View {
         .onChange(of: addressFocused) { focused in
             handleFocusChange(focused)
         }
-        .onChange(of: tabManager.selectedTabID) { _ in syncAddressInputIfUnfocused() }
-        .onChange(of: tabManager.selectedTab?.currentURL) { _ in syncAddressInputIfUnfocused() }
     }
 
     @ViewBuilder
@@ -42,7 +40,7 @@ struct BrowserToolbar: View {
             selectAllText()
             return
         }
-        syncAddressInput()
+        browser.addressText = browser.activePageURL?.host ?? ""
     }
 
     private func selectAllText() {
@@ -56,68 +54,81 @@ struct BrowserToolbar: View {
         }
     }
 
+    // MARK: - 前进 / 后退
+
     @ViewBuilder
     private var navigationButtons: some View {
-        if canGoForward {
+        if browser.canGoForward {
             HStack(spacing: 28) {
-                backButton
-                forwardButton
+                navButton("chevron.left", action: browser.goBack)
+                    .disabled(!browser.canGoBack)
+                navButton("chevron.right", action: browser.goForward)
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 14)
             .liquidGlassCapsule()
         } else {
-            backButton
+            navButton("chevron.left", action: browser.goBack)
+                .disabled(!browser.canGoBack)
                 .padding(14)
                 .liquidGlassCapsule()
         }
     }
 
-    private var backButton: some View {
-        Button {
-            tabManager.selectedTab?.goBack()
-        } label: {
-            Image(systemName: "chevron.left")
-                .font(.title2)
-                .frame(width: 24, height: 24)
-        }
-        .disabled(!canGoBack)
-    }
-
-    private var forwardButton: some View {
-        Button {
-            tabManager.selectedTab?.goForward()
-        } label: {
-            Image(systemName: "chevron.right")
+    private func navButton(_ systemImage: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
                 .font(.title2)
                 .frame(width: 24, height: 24)
         }
     }
 
-    private var canGoBack: Bool {
-        tabManager.selectedTab?.canGoBack == true
+    // MARK: - 新建标签 / 标签数按钮
+
+    private var tabActions: some View {
+        HStack(spacing: 18) {
+            Button(action: browser.createTab) {
+                Image(systemName: "plus")
+                    .font(.title3)
+                    .frame(width: 22, height: 22)
+            }
+            tabCountButton
+        }
     }
 
-    private var canGoForward: Bool {
-        tabManager.selectedTab?.canGoForward == true
+    /// Safari 风格圆角方框内显示标签数；后台开新标签时弹跳反馈
+    private var tabCountButton: some View {
+        Button { browser.showSwitcher = true } label: {
+            Text("\(tabManager.tabs.count)")
+                .font(.footnote.bold())
+                .monospacedDigit()
+                .frame(width: 20, height: 20)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 5)
+                        .stroke(.primary, lineWidth: 1.5)
+                )
+        }
+        .symbolEffect(.bounce, value: tabManager.tabs.count)
     }
+
+    // MARK: - 地址栏
 
     private var pageLoaded: Bool {
-        tabManager.selectedTab?.currentURL != nil
+        tabManager.selectedTab?.url != nil
     }
 
     private var addressField: some View {
         HStack(spacing: 8) {
             leadingIcon
-            TextField("搜索或输入网站", text: $addressInput)
+            TextField("搜索或输入网站", text: $browser.addressText)
                 .font(.body)
                 .keyboardType(.URL)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .submitLabel(.go)
                 .focused($addressFocused)
-                .onSubmit(submitAddress)
-            if !addressInput.isEmpty {
+                .onSubmit(browser.loadAddress)
+            if !browser.addressText.isEmpty {
                 clearButton
             }
             if pageLoaded {
@@ -148,7 +159,7 @@ struct BrowserToolbar: View {
 
     private var clearButton: some View {
         Button {
-            addressInput = ""
+            browser.addressText = ""
         } label: {
             Image(systemName: "xmark.circle.fill")
                 .foregroundStyle(.secondary)
@@ -156,9 +167,7 @@ struct BrowserToolbar: View {
     }
 
     private var reloadButton: some View {
-        Button {
-            tabManager.selectedTab?.reload()
-        } label: {
+        Button(action: browser.reload) {
             Image(systemName: "arrow.clockwise")
                 .font(.title3)
         }
@@ -175,28 +184,10 @@ struct BrowserToolbar: View {
         .liquidGlassCapsule()
     }
 
-    private func submitAddress() {
-        guard let url = BrowserURLBuilder.makeURL(from: addressInput) else {
-            return
-        }
-        tabManager.open(url)
-    }
-
-    private func syncAddressInput() {
-        addressInput = tabManager.selectedTab?.currentURL?.host ?? ""
-    }
-
-    private func syncAddressInputIfUnfocused() {
-        guard !addressFocused else {
-            return
-        }
-        syncAddressInput()
-    }
-
     private func showFullAddress() {
-        guard let fullAddress = tabManager.selectedTab?.currentURL?.absoluteString else {
+        guard let fullAddress = browser.activePageURL?.absoluteString else {
             return
         }
-        addressInput = fullAddress
+        browser.addressText = fullAddress
     }
 }
