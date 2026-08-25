@@ -73,6 +73,79 @@ final class HudunSessionViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.message, "已退出登录")
     }
 
+    func testSelectOnlyMarksLineWithoutTouchingNetworkOrHandler() async {
+        let stub = HudunServiceStub()
+        stub.lines = [makeLine(id: 7)]
+        let store = makeTempStore()
+        let viewModel = HudunSessionViewModel(service: stub, store: store)
+        var handlerCalls = 0
+        viewModel.connectRequestHandler = { _, _, _ in
+            handlerCalls += 1
+            return nil
+        }
+
+        await viewModel.restoreSessionIfNeeded()
+        viewModel.select(stub.lines[0])
+
+        XCTAssertEqual(viewModel.selectedLine?.id, 7)
+        XCTAssertEqual(stub.renewCalls, 0)
+        XCTAssertEqual(handlerCalls, 0)
+    }
+
+    func testBlockedLineCannotBeSelected() {
+        let stub = HudunServiceStub()
+        let store = makeTempStore()
+        let viewModel = HudunSessionViewModel(service: stub, store: store)
+
+        viewModel.select(makeLine(id: 8, blocked: true))
+
+        XCTAssertNil(viewModel.selectedLine)
+    }
+
+    func testConnectSelectedLineRenewsAndInvokesHandlerWithoutAutoSelect() async {
+        let stub = HudunServiceStub()
+        let store = makeTempStore()
+        let viewModel = HudunSessionViewModel(service: stub, store: store)
+        viewModel.select(makeLine(id: 9))
+        var capturedLineID: Int?
+        viewModel.connectRequestHandler = { _, lineID, _ in
+            capturedLineID = lineID
+            return nil
+        }
+
+        await viewModel.connectSelectedLine()
+
+        XCTAssertEqual(stub.renewCalls, 1)
+        XCTAssertEqual(capturedLineID, 9)
+        XCTAssertNil(viewModel.message)
+    }
+
+    func testClearSelectedLineForgetsSelectionMemory() {
+        let stub = HudunServiceStub()
+        let store = makeTempStore()
+        let viewModel = HudunSessionViewModel(service: stub, store: store)
+
+        viewModel.select(makeLine(id: 11))
+        viewModel.clearSelectedLine()
+
+        XCTAssertNil(viewModel.selectedLine)
+        XCTAssertNil(HudunSelectionMemory.savedLineID)
+    }
+
+    private func makeLine(id: Int, blocked: Bool = false) -> HudunLine {
+        HudunLine(
+            id: id,
+            name: "线路\(id)",
+            typeName: "wg",
+            groupName: "默认",
+            flagName: "HK",
+            ip: "1.2.3.4",
+            imageURL: nil,
+            vipState: 1,
+            isBlocked: blocked,
+            tier: "svip")
+    }
+
     private func makeTempStore() -> HudunFileCredentialStore {
         HudunFileCredentialStore(directory: FileManager.default.temporaryDirectory
             .appendingPathComponent("hudun-tests-\(UUID().uuidString)", isDirectory: true))
@@ -91,6 +164,7 @@ private final class HudunServiceStub: HudunServicing, @unchecked Sendable {
     var loginCalls = 0
     var lines: [HudunLine] = []
     var linesOutcomeFails = false
+    var renewCalls = 0
 
     func login(account: String, password: String) async throws -> HudunCredentials {
         loginCalls += 1
@@ -111,10 +185,11 @@ private final class HudunServiceStub: HudunServicing, @unchecked Sendable {
     }
 
     func renew(lineId: Int) async throws -> HudunWGConfig {
-        HudunWGConfig(privateKeyB64: "priv", address: "22.105.98.191",
-                      dns: "22.0.0.2", endpoint: "113.45.52.155:19921",
-                      peerPublicKey: "peer", mtu: 1300,
-                      expiresAt: Date(timeIntervalSinceNow: 3600),
-                      confString: "[Interface]")
+        renewCalls += 1
+        return HudunWGConfig(privateKeyB64: "priv", address: "22.105.98.191",
+                             dns: "22.0.0.2", endpoint: "113.45.52.155:19921",
+                             peerPublicKey: "peer", mtu: 1300,
+                             expiresAt: Date(timeIntervalSinceNow: 3600),
+                             confString: "[Interface]")
     }
 }

@@ -12,13 +12,11 @@ final class HudunSessionViewModel: ObservableObject {
     @Published private(set) var account: HudunAccountSummary?
     @Published private(set) var lines: [HudunLine] = []
     @Published private(set) var busy = false
-    @Published private(set) var connectingLineID: Int?
     @Published private(set) var selectedLine: HudunLine?
     @Published var message: String?
 
     /// 选线连接回调：由 RootView 注入，转交 HudunTunnelCoordinator。
     var connectRequestHandler: ((HudunWGConfig, Int, String) async -> String?)?
-
     private let service: any HudunServicing
     private let store: any HudunCredentialStoring
     private var restored = false
@@ -45,18 +43,26 @@ final class HudunSessionViewModel: ObservableObject {
         await reloadAccount()
     }
 
-    /// 选线即连接：renew 现取凭证 → 交协调器激活系统隧道。
-    func requestConnect(_ line: HudunLine) async {
+    /// 仅记录选中线路（不取凭证、不触发连接），勾选态持久化。
+    func select(_ line: HudunLine) {
+        guard !line.isBlocked else { return }
+        selectedLine = line
+        HudunSelectionMemory.savedLineID = line.id
+    }
+
+    /// 清除选中（改选 SS 节点或退出时调用）。
+    func clearSelectedLine() {
+        selectedLine = nil
+        HudunSelectionMemory.savedLineID = nil
+    }
+
+    /// 手动连接：对选中线路 renew 现取凭证 → 交协调器激活系统隧道。
+    func connectSelectedLine() async {
+        guard let line = selectedLine else { return }
         busy = true
-        connectingLineID = line.id
-        defer {
-            busy = false
-            connectingLineID = nil
-        }
+        defer { busy = false }
         do {
             let config = try await service.renew(lineId: line.id)
-            selectedLine = line
-            HudunSelectionMemory.savedLineID = line.id
             if let handler = connectRequestHandler {
                 message = await handler(config, line.id, line.name)
             }
