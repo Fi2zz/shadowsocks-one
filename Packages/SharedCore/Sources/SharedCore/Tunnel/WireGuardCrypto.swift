@@ -50,7 +50,7 @@ enum WireGuardCrypto {
         let t = hmac(chainingKey, ikm)
         let o1 = hmac(t, Data([0x01]))
         let o2 = hmac(t, o1 + Data([0x02]))
-        let o3 = hmac(t, o1 + Data([0x03]))
+        let o3 = hmac(t, o2 + Data([0x03]))
         return (o1, o2, o3)
     }
 
