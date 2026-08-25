@@ -15,6 +15,7 @@ final class BrowserViewModel: ObservableObject {
     @Published var loadError: String?
     @Published var showSwitcher = false
     @Published var backgroundToastTabID: UUID?
+    @Published var pageTint: BrowserPageTint?
 
     private var observations: [NSKeyValueObservation] = []
     private var lastScrollOffsetY: CGFloat = 0
@@ -37,7 +38,9 @@ final class BrowserViewModel: ObservableObject {
         canGoBack = webView.canGoBack
         canGoForward = webView.canGoForward
         progress = webView.estimatedProgress
+        pageTint = nil
         observations = makeObservations(for: webView)
+        reprobeTint(webView)
     }
 
     // MARK: - 用户操作
@@ -87,6 +90,21 @@ final class BrowserViewModel: ObservableObject {
         delegate.onLoadStarted = { [weak self] in self?.loadError = nil }
         delegate.onLoadFailed = { [weak self] message in self?.loadError = message }
         delegate.onBackgroundOpen = { [weak self] id in self?.backgroundToastTabID = id }
+        delegate.onTint = { [weak self] webView, payload in self?.applyTint(payload, from: webView) }
+    }
+
+    /// 探针消息只接受激活标签的 WebView，后台标签加载不抢占状态栏颜色
+    private func applyTint(_ payload: String?, from webView: WKWebView) {
+        guard BrowserTabManager.shared.tabID(for: webView) == BrowserTabManager.shared.activeTabID
+        else { return }
+        pageTint = BrowserPageTint(message: payload)
+    }
+
+    /// 切标签后主动重发当前颜色（JS 侧有去重，需 force 绕过）
+    private func reprobeTint(_ webView: WKWebView) {
+        Task { @MainActor in
+            _ = try? await webView.evaluateJavaScript(BrowserTintProbe.reprobeScript)
+        }
     }
 
     private func makeObservations(for webView: WKWebView) -> [NSKeyValueObservation] {

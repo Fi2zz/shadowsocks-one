@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		002C3061805A299FDB23E0CA /* UDPFlowKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E574FDB88BE19740909B37A /* UDPFlowKey.swift */; };
+		00DF59247323033D7C074CDD /* BrowserPageTintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A8888AB3DF4529266E4EDF /* BrowserPageTintTests.swift */; };
 		00E2F62BB615F5CADB5106C0 /* ShadowsocksAddressEncoderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E576C578EA32DB5535764507 /* ShadowsocksAddressEncoderTests.swift */; };
 		05CA46D055982EAE02B585CB /* UDPSessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39BA75A098135606CFA590D9 /* UDPSessionStore.swift */; };
 		07B5180256FB578A6BB12A2A /* HudunServicing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50C3224713840052E305061D /* HudunServicing.swift */; };
@@ -25,6 +26,7 @@
 		18E608472BBEB835730DCEAA /* DirectTCPRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA84D3A582E45B3675497B6A /* DirectTCPRelay.swift */; };
 		194C16818CDB4F5851A55E84 /* WGUDPFlows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BAE47B6B687434984628842 /* WGUDPFlows.swift */; };
 		1A00E9076B638919F0F6F8DB /* BrowserHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2A1B6EF5277D747A0F1C00 /* BrowserHistoryView.swift */; };
+		1C196335D297578D4F04AEEE /* BrowserTintProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = E596A3522272BC232DD1FE68 /* BrowserTintProbe.swift */; };
 		1E2081EB90B09802B989C333 /* UDPRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD5F8CAA125343776A37E72 /* UDPRouter.swift */; };
 		1E694B1CF0D3B6F814493502 /* TCPFlowSessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51CAB32C11432DC19749D792 /* TCPFlowSessionStore.swift */; };
 		1F993E0E4D42227DF0170D55 /* HudunDeviceIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = D94973F59A0BB51206D7C197 /* HudunDeviceIdentity.swift */; };
@@ -136,6 +138,7 @@
 		B417361FC056C11C2839856B /* BrowserBookmarkStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7B8FBE10BF05954AD588969 /* BrowserBookmarkStoreTests.swift */; };
 		B4A792C15D419677F900B174 /* ShadowsocksOnePacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B90EBC2914BFED861B1F08B4 /* ShadowsocksOnePacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B8F419010F5FD680BF0E8B8E /* TCPFlowStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18985CA62D01B7E4D9046CBA /* TCPFlowStateTests.swift */; };
+		BA0E89BA2833C2B12D5BCDFF /* BrowserStatusBarGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8845569DECBD03A5453D1C0A /* BrowserStatusBarGate.swift */; };
 		BBFB31C165E3F7654BB87715 /* HudunAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B7FA4374B65FD52BFBBF25 /* HudunAPI.swift */; };
 		BD40EEE5B2F10A8C72C537E5 /* HudunTunnelConfigurationStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1917590C662601D1A54D3D /* HudunTunnelConfigurationStoreTests.swift */; };
 		BE2AEE900DFDB47DA97E2B4A /* RouteMatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54105EC3541A882C9514C243 /* RouteMatcherTests.swift */; };
@@ -280,8 +283,10 @@
 		7E574FDB88BE19740909B37A /* UDPFlowKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPFlowKey.swift; sourceTree = "<group>"; };
 		7E9A4A0F1B9CBFD012574448 /* RoutingViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingViewModelTests.swift; sourceTree = "<group>"; };
 		838570461401A7D7D1841549 /* BrowserHistoryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserHistoryStoreTests.swift; sourceTree = "<group>"; };
+		85A8888AB3DF4529266E4EDF /* BrowserPageTintTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserPageTintTests.swift; sourceTree = "<group>"; };
 		85CF8A2952562289E2350AAD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		87B5B1FFAF3D38A45A6ED909 /* SharedCoreXcodeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SharedCoreXcodeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8845569DECBD03A5453D1C0A /* BrowserStatusBarGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserStatusBarGate.swift; sourceTree = "<group>"; };
 		8A39A983FC4B226C85A0225B /* ShadowsocksUDPRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksUDPRelay.swift; sourceTree = "<group>"; };
 		8D360835D01BAF6BC1BD9D0C /* TCPRetransmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPRetransmitter.swift; sourceTree = "<group>"; };
 		90209C6F1CFB098C798A8C2E /* LiquidGlass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlass.swift; sourceTree = "<group>"; };
@@ -327,6 +332,7 @@
 		E26326E09C300A99FABA7E8A /* ShadowsocksCodecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksCodecTests.swift; sourceTree = "<group>"; };
 		E4C464E08E1E6A405A3446B7 /* ConnectionTestSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionTestSection.swift; sourceTree = "<group>"; };
 		E576C578EA32DB5535764507 /* ShadowsocksAddressEncoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksAddressEncoderTests.swift; sourceTree = "<group>"; };
+		E596A3522272BC232DD1FE68 /* BrowserTintProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserTintProbe.swift; sourceTree = "<group>"; };
 		E7F9E86CEF1F56C672F17DAA /* DNSCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSCoordinator.swift; sourceTree = "<group>"; };
 		ECB1B5699382C44E10CF9902 /* TCPRouterCongestionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPRouterCongestionTests.swift; sourceTree = "<group>"; };
 		ED8288484943F54CFDF7153D /* NodePickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodePickerSheet.swift; sourceTree = "<group>"; };
@@ -460,11 +466,13 @@
 				0A2A1B6EF5277D747A0F1C00 /* BrowserHistoryView.swift */,
 				5CCC88ADD2C6B0423A23435A /* BrowserMoreMenu.swift */,
 				7DB2BD21BCA961739C60A2B7 /* BrowserRootView.swift */,
+				8845569DECBD03A5453D1C0A /* BrowserStatusBarGate.swift */,
 				4410E853ED3F81A4A6863EF9 /* BrowserTabCard.swift */,
 				C93F3D36BA5591553E3781BC /* BrowserTabManager.swift */,
 				F9E4DE8F4B7FBCD14B02CAD8 /* BrowserTabManager+Library.swift */,
 				A5611E824F57DD7CD8AE8EEF /* BrowserTabManager+Persistence.swift */,
 				A0960B2EEE30714FE16EDB70 /* BrowserTabSwitcher.swift */,
+				E596A3522272BC232DD1FE68 /* BrowserTintProbe.swift */,
 				469600B1321A06C37FA01B39 /* BrowserToolbar.swift */,
 				4E316DD72E14B731991AEEC9 /* BrowserViewModel.swift */,
 				C944526E596F3A3059555B4A /* BrowserWebView.swift */,
@@ -512,6 +520,7 @@
 			children = (
 				A7B8FBE10BF05954AD588969 /* BrowserBookmarkStoreTests.swift */,
 				838570461401A7D7D1841549 /* BrowserHistoryStoreTests.swift */,
+				85A8888AB3DF4529266E4EDF /* BrowserPageTintTests.swift */,
 				C30D527F15C404C04998F885 /* BrowserTabStoreTests.swift */,
 				27DE417C6702445237571D7B /* BrowserURLBuilderTests.swift */,
 				42642D728D2808C91C26E5B4 /* CNIPListStoreTests.swift */,
@@ -822,11 +831,13 @@
 				1A00E9076B638919F0F6F8DB /* BrowserHistoryView.swift in Sources */,
 				D578246FE34C81DED1933D58 /* BrowserMoreMenu.swift in Sources */,
 				6407DAB983962B09141B313D /* BrowserRootView.swift in Sources */,
+				BA0E89BA2833C2B12D5BCDFF /* BrowserStatusBarGate.swift in Sources */,
 				363AFADC6DD28FBA874FB337 /* BrowserTabCard.swift in Sources */,
 				AC968A45EF35339354E2B88C /* BrowserTabManager+Library.swift in Sources */,
 				8BB1FBC292A15E5781D00CEC /* BrowserTabManager+Persistence.swift in Sources */,
 				967DFA02942ACD097904BB75 /* BrowserTabManager.swift in Sources */,
 				B1BB42BE62A82EBFCC6DA88C /* BrowserTabSwitcher.swift in Sources */,
+				1C196335D297578D4F04AEEE /* BrowserTintProbe.swift in Sources */,
 				C6D563B3EBA7A060168480D9 /* BrowserToolbar.swift in Sources */,
 				59BDA3CC8ADAA5D8082BCC11 /* BrowserViewModel.swift in Sources */,
 				B034A71236390290FD65EC1F /* BrowserWebView.swift in Sources */,
@@ -910,6 +921,7 @@
 			files = (
 				B417361FC056C11C2839856B /* BrowserBookmarkStoreTests.swift in Sources */,
 				A40F0872A05721405CC064A6 /* BrowserHistoryStoreTests.swift in Sources */,
+				00DF59247323033D7C074CDD /* BrowserPageTintTests.swift in Sources */,
 				A9BB8A9BEFC501AE8E332FC8 /* BrowserTabStoreTests.swift in Sources */,
 				2292FC4271C7A86B8DA710E9 /* BrowserURLBuilderTests.swift in Sources */,
 				29119E624C83D97DFEEE19FE /* CNIPListStoreTests.swift in Sources */,

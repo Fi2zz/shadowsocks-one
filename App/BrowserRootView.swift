@@ -1,4 +1,6 @@
+import SharedCore
 import SwiftUI
+import UIKit
 
 struct BrowserRootView: View {
     @ObservedObject var viewModel: RootViewModel
@@ -14,10 +16,12 @@ struct BrowserRootView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            rootStack(safeBottom: proxy.safeAreaInsets.bottom)
+            rootStack(safeTop: proxy.safeAreaInsets.top, safeBottom: proxy.safeAreaInsets.bottom)
                 .background(Color(uiColor: .systemBackground))
+                .background(BrowserStatusBarGate(prefersLightText: prefersLightStatusText))
                 .animation(.easeOut(duration: 0.25), value: browser.progress)
                 .animation(.easeInOut(duration: 0.2), value: browser.toolbarCollapsed)
+                .animation(.easeInOut(duration: 0.2), value: browser.pageTint)
         }
         .overlay(alignment: .top) { loadErrorBanner }
         .fullScreenCover(isPresented: $browser.showSwitcher) {
@@ -27,9 +31,10 @@ struct BrowserRootView: View {
         .sheet(isPresented: $morePresented) { moreMenu }
     }
 
-    private func rootStack(safeBottom: CGFloat) -> some View {
+    private func rootStack(safeTop: CGFloat, safeBottom: CGFloat) -> some View {
         ZStack(alignment: .bottom) {
             webViewLayer
+            chromeTint(height: safeTop)
             bottomContent(safeBottom: safeBottom)
         }
         // 容器安全区全部穿透（顶部内容画到状态栏后面，对齐 Safari）；
@@ -43,6 +48,39 @@ struct BrowserRootView: View {
                 tabManager.persistAll()
             }
         }
+    }
+
+    /// 状态栏区域染色层：页面顶色（Safari 探针算法）延伸到状态栏背后
+    @ViewBuilder
+    private func chromeTint(height: CGFloat) -> some View {
+        if height > 0 {
+            Rectangle()
+                .fill(tintColor)
+                .frame(height: height)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .allowsHitTesting(false)
+        }
+    }
+
+    private var resolvedTint: BrowserPageTint? {
+        browser.pageTint?.resolved(over: systemBackgroundTint)
+    }
+
+    private var tintColor: Color {
+        guard let tint = resolvedTint else {
+            return Color(uiColor: .systemBackground)
+        }
+        return Color(.sRGB, red: tint.red / 255, green: tint.green / 255, blue: tint.blue / 255)
+    }
+
+    private var prefersLightStatusText: Bool {
+        resolvedTint?.prefersLightStatusBarText ?? false
+    }
+
+    private var systemBackgroundTint: BrowserPageTint {
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        UIColor.systemBackground.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        return BrowserPageTint(red: red, green: green, blue: blue, alpha: alpha)
     }
 
     @ViewBuilder
