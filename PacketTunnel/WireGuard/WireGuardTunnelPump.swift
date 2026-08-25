@@ -9,6 +9,7 @@ final class WireGuardTunnelPump {
     private let privateKey: Curve25519.KeyAgreement.PrivateKey
     private let peerPublicKey: Curve25519.KeyAgreement.PublicKey
     private let packetFlow: TunnelPacketFlow
+    let egress: WGProxiedEgress
     private let diagnostics: TunnelDiagnosticsLogging?
     private let channel: WireGuardUDPChannel
 
@@ -22,9 +23,11 @@ final class WireGuardTunnelPump {
     init(configuration: HudunTunnelLaunchConfiguration,
          privateKeyBase64: String,
          packetFlow: TunnelPacketFlow,
+         egress: WGProxiedEgress,
          diagnostics: TunnelDiagnosticsLogging?) throws {
         self.configuration = configuration
         self.packetFlow = packetFlow
+        self.egress = egress
         self.diagnostics = diagnostics
         guard let keyData = Data(base64Encoded: privateKeyBase64) else {
             throw WireGuardError.badPacket("私钥 base64 非法")
@@ -40,6 +43,9 @@ final class WireGuardTunnelPump {
 
     func start() {
         channel.start()
+        egress.attachOutbound { [weak self] packet in
+            self?.sealAndSend(packet)
+        }
         performHandshake()
         startReader()
         startReceiver()
@@ -141,10 +147,18 @@ final class WireGuardTunnelPump {
         guard let session else { return }
         do {
             if let inner = try session.openDatagram(datagram) {
-                writePackets([inner])
+                Task { await egress.deliverInbound(inner) }
             }
         } catch {
             diagnostics?("WG open failed: \(error.localizedDescription)")
+        }
+    }
+
+    /// 代理流出站统一入口：封装进 WG 会话并发送。
+    private func sealAndSend(_ ipPacket: Data) {
+        guard let session, handshakeSucceeded else { return }
+        if let datagram = try? session.sealPacket(ipPacket) {
+            channel.send(datagram)
         }
     }
 
@@ -178,7 +192,5 @@ final class WireGuardTunnelPump {
         }
     }
 
-    private func writePackets(_ packets: [Data]) {
-        packetFlow.writePackets(packets, withProtocols: [NSNumber(value: AF_INET)])
-    }
 }
+

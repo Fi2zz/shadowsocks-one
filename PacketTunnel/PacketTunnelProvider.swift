@@ -6,6 +6,7 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     private static let upstreamDNSServers = ["223.5.5.5", "119.29.29.29"]
     private var engine: TunnelEngine?
     var wireGuardPump: WireGuardTunnelPump?
+    var wireGuardEngine: TunnelEngine?
     private var runtimeStatusStore: TunnelRuntimeStatusStore?
     var diagnostics: TunnelDiagnosticsLogging?
 
@@ -132,9 +133,12 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         self.engine = nil
         let pump = wireGuardPump
         wireGuardPump = nil
+        let wgEngine = wireGuardEngine
+        wireGuardEngine = nil
 
         Task {
             await engine?.stop()
+            await wgEngine?.stop()
             pump?.stop()
             completionHandler()
         }
@@ -143,8 +147,10 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
     override func sleep(completionHandler: @escaping () -> Void) {
         let engine = self.engine
         let pump = wireGuardPump
+        let wgEngine = wireGuardEngine
         Task {
             await engine?.stop()
+            await wgEngine?.stop()
             pump?.stop()
             completionHandler()
         }
@@ -180,13 +186,13 @@ final class PacketTunnelProvider: NEPacketTunnelProvider {
         runtimeStatusStore?.saveLastFailureDetail(error.localizedDescription)
     }
 
-    private func loadRoutingConfiguration() throws -> RoutingConfiguration {
+    func loadRoutingConfiguration() throws -> RoutingConfiguration {
         try RoutingConfigurationStore(
             appGroupID: SharedContainerSettings.appGroupID
         ).load()
     }
 
-    private func loadCNIPRanges() throws -> CNIPRangeList {
+    func loadCNIPRanges() throws -> CNIPRangeList {
         if let ranges = loadDownloadedCNIPRanges() {
             return ranges
         }

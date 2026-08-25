@@ -23,6 +23,7 @@
 		15E4831B40B9870D78BCD207 /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = C1E49C35C302856834AC88CC /* SharedCore */; };
 		17381EEC87722BFA5B9F1725 /* RTTEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8596E290EFA20C0FE72A94B /* RTTEstimator.swift */; };
 		18E608472BBEB835730DCEAA /* DirectTCPRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA84D3A582E45B3675497B6A /* DirectTCPRelay.swift */; };
+		194C16818CDB4F5851A55E84 /* WGUDPFlows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BAE47B6B687434984628842 /* WGUDPFlows.swift */; };
 		1A00E9076B638919F0F6F8DB /* BrowserHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A2A1B6EF5277D747A0F1C00 /* BrowserHistoryView.swift */; };
 		1E2081EB90B09802B989C333 /* UDPRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD5F8CAA125343776A37E72 /* UDPRouter.swift */; };
 		1E694B1CF0D3B6F814493502 /* TCPFlowSessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51CAB32C11432DC19749D792 /* TCPFlowSessionStore.swift */; };
@@ -33,6 +34,7 @@
 		218731644E6E067F6C1E4CBA /* TCPFlowState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA96F418A420452F3E4A37C2 /* TCPFlowState.swift */; };
 		219BD1A00EBFA19864E96634 /* TCPRouterReturnPathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5028A1A1A9885EE724704BEE /* TCPRouterReturnPathTests.swift */; };
 		223EDD8E64F874BD399BB8FD /* TCPRetransmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D360835D01BAF6BC1BD9D0C /* TCPRetransmitter.swift */; };
+		224ABB778EEFCD20966E792A /* WGProxiedEgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9EBE8479F3AC206E29A9057 /* WGProxiedEgress.swift */; };
 		2292FC4271C7A86B8DA710E9 /* BrowserURLBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27DE417C6702445237571D7B /* BrowserURLBuilderTests.swift */; };
 		24EE5A65EF6379BAE47F06C2 /* TunnelConfigurationStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE860E71865F6B42AA89044 /* TunnelConfigurationStoreTests.swift */; };
 		25754A0E8EFD7D63427FD356 /* UDPPacketBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F30D2F7A356FA598165EE05 /* UDPPacketBuilderTests.swift */; };
@@ -67,6 +69,7 @@
 		4CCF20767342603B8FFE3E0F /* WireGuardUDPChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D5F6273DAE7A663E1225B69 /* WireGuardUDPChannel.swift */; };
 		4F0CCEDAE5C2EC2EEC08489D /* TCPRouterCongestionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB1B5699382C44E10CF9902 /* TCPRouterCongestionTests.swift */; };
 		5097402A0F6366299AD19E5F /* RTTEstimatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 795C455F2D3CD57DACE3C6C6 /* RTTEstimatorTests.swift */; };
+		51DA941C41CC56774F81479A /* WGTCPProxyRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB922022438715D24568C6F6 /* WGTCPProxyRelay.swift */; };
 		5264B63A7817F5EF75F73910 /* WireGuardTunnelPump.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BCCFFE8C2827FA55395E436 /* WireGuardTunnelPump.swift */; };
 		53F796EE99A70642FCAA017B /* DiagnosticsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18F5C0FC9A219F4E810A47F /* DiagnosticsSection.swift */; };
 		5649CF53708B6093B40085C6 /* WebViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00806D227E720FB435390C6F /* WebViewRepresentable.swift */; };
@@ -143,7 +146,9 @@
 		D56BDDBAE58049E2CB5F5481 /* UDPFlowRelaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDEC52DFBD1422D04E3BFC2B /* UDPFlowRelaying.swift */; };
 		D578246FE34C81DED1933D58 /* BrowserMoreMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CCC88ADD2C6B0423A23435A /* BrowserMoreMenu.swift */; };
 		D5CBD7F549C76E318EF8A578 /* TCPFlowRelaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099B09012909CB5D35B16E64 /* TCPFlowRelaying.swift */; };
+		D9298C74DB527AF3E1D8D2CC /* WGProxiedEgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9EBE8479F3AC206E29A9057 /* WGProxiedEgress.swift */; };
 		DB72D8921DF0855EFB876B6B /* HudunWGConfSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC176D31D6952AF1B175577 /* HudunWGConfSheet.swift */; };
+		DCE4BEFE2BB3FB1710DFB57A /* WGUDPFlows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BAE47B6B687434984628842 /* WGUDPFlows.swift */; };
 		DEB28782E3D5B189A8A89B12 /* LocalAEADEchoServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0246B1DA9710B6AAAF1A8A94 /* LocalAEADEchoServer.swift */; };
 		DF903B7D753AC97BEACB5680 /* TCPFlowEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31DBF5B039D7ACC31114AD9E /* TCPFlowEvent.swift */; };
 		E059FC9F338B4B053C61EE60 /* ShadowsocksTCPRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4CA285A34D01DE68716B286 /* ShadowsocksTCPRelay.swift */; };
@@ -156,6 +161,7 @@
 		F7C456B42E729BC9BA8AFC6E /* HudunTunnelCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D38EDA170D33608ED66C494 /* HudunTunnelCoordinator.swift */; };
 		FC1D1CA1F10BFD327EE11C26 /* HudunProfileSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9B8DE0A3BA2BD0EC7368B42 /* HudunProfileSection.swift */; };
 		FCE816D1C820004A246E0ED3 /* SSURLParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CBCE0B79532877194A5BC9D /* SSURLParserTests.swift */; };
+		FDDE1D5C24AB2BA4F298E2A8 /* WGTCPProxyRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB922022438715D24568C6F6 /* WGTCPProxyRelay.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -234,6 +240,7 @@
 		469600B1321A06C37FA01B39 /* BrowserToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserToolbar.swift; sourceTree = "<group>"; };
 		488EF0DC7A388D3F575FA343 /* TunnelPacketWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelPacketWriter.swift; sourceTree = "<group>"; };
 		4A65C6B6B47CC3DBE8EA30B5 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		4BAE47B6B687434984628842 /* WGUDPFlows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGUDPFlows.swift; sourceTree = "<group>"; };
 		4F30D2F7A356FA598165EE05 /* UDPPacketBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPPacketBuilderTests.swift; sourceTree = "<group>"; };
 		50007DBE8236B1A83D150678 /* ProfileMappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileMappingTests.swift; sourceTree = "<group>"; };
 		5028A1A1A9885EE724704BEE /* TCPRouterReturnPathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPRouterReturnPathTests.swift; sourceTree = "<group>"; };
@@ -293,6 +300,7 @@
 		C4FF09C9AD0616F64D46E5FC /* TCPRouterWindowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPRouterWindowTests.swift; sourceTree = "<group>"; };
 		C93F3D36BA5591553E3781BC /* BrowserTabManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserTabManager.swift; sourceTree = "<group>"; };
 		C9B8DE0A3BA2BD0EC7368B42 /* HudunProfileSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudunProfileSection.swift; sourceTree = "<group>"; };
+		C9EBE8479F3AC206E29A9057 /* WGProxiedEgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGProxiedEgress.swift; sourceTree = "<group>"; };
 		CAF744EC686E46CEEB0938AA /* HudunLoginSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudunLoginSection.swift; sourceTree = "<group>"; };
 		CC5E929EBCD95AED7FA9DD15 /* TCPPacketBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPPacketBuilderTests.swift; sourceTree = "<group>"; };
 		D0B249DA0A152DE0A8220C05 /* ConnectionStateDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStateDisplay.swift; sourceTree = "<group>"; };
@@ -302,6 +310,7 @@
 		D8596E290EFA20C0FE72A94B /* RTTEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RTTEstimator.swift; sourceTree = "<group>"; };
 		D94973F59A0BB51206D7C197 /* HudunDeviceIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudunDeviceIdentity.swift; sourceTree = "<group>"; };
 		DA84D3A582E45B3675497B6A /* DirectTCPRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectTCPRelay.swift; sourceTree = "<group>"; };
+		DB922022438715D24568C6F6 /* WGTCPProxyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGTCPProxyRelay.swift; sourceTree = "<group>"; };
 		DDD5F8CAA125343776A37E72 /* UDPRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPRouter.swift; sourceTree = "<group>"; };
 		E18107D19B051C69B17265EE /* IPListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPListViewModel.swift; sourceTree = "<group>"; };
 		E26326E09C300A99FABA7E8A /* ShadowsocksCodecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksCodecTests.swift; sourceTree = "<group>"; };
@@ -525,6 +534,9 @@
 		9D58AF1A88CD8816DFE605A5 /* WireGuard */ = {
 			isa = PBXGroup;
 			children = (
+				C9EBE8479F3AC206E29A9057 /* WGProxiedEgress.swift */,
+				DB922022438715D24568C6F6 /* WGTCPProxyRelay.swift */,
+				4BAE47B6B687434984628842 /* WGUDPFlows.swift */,
 				27B140710520341B5D53B90E /* WireGuardProviderSupport.swift */,
 				6BCCFFE8C2827FA55395E436 /* WireGuardTunnelPump.swift */,
 				1D5F6273DAE7A663E1225B69 /* WireGuardUDPChannel.swift */,
@@ -775,6 +787,9 @@
 				C2B7F66CEC087501618BDB59 /* UDPRouterTests.swift in Sources */,
 				05CA46D055982EAE02B585CB /* UDPSessionStore.swift in Sources */,
 				79BD099A805DA494A00AF0F5 /* UDPSessionStoreTests.swift in Sources */,
+				D9298C74DB527AF3E1D8D2CC /* WGProxiedEgress.swift in Sources */,
+				51DA941C41CC56774F81479A /* WGTCPProxyRelay.swift in Sources */,
+				DCE4BEFE2BB3FB1710DFB57A /* WGUDPFlows.swift in Sources */,
 				6437325E4878A0105A3949DC /* WireGuardProviderSupport.swift in Sources */,
 				A025911935FBB9EB6884E967 /* WireGuardTunnelPump.swift in Sources */,
 				4CCF20767342603B8FFE3E0F /* WireGuardUDPChannel.swift in Sources */,
@@ -858,6 +873,9 @@
 				336E19F2A0BC446DBA2214F9 /* UDPFlowRelaying.swift in Sources */,
 				42AF195854C1FCECA1F69202 /* UDPRouter.swift in Sources */,
 				F6DD636A0C44ABE867E5A4C6 /* UDPSessionStore.swift in Sources */,
+				224ABB778EEFCD20966E792A /* WGProxiedEgress.swift in Sources */,
+				FDDE1D5C24AB2BA4F298E2A8 /* WGTCPProxyRelay.swift in Sources */,
+				194C16818CDB4F5851A55E84 /* WGUDPFlows.swift in Sources */,
 				9B4A0FD1133C9BC5723EE9EE /* WireGuardProviderSupport.swift in Sources */,
 				5264B63A7817F5EF75F73910 /* WireGuardTunnelPump.swift in Sources */,
 				68AF7AFFBA8F3AED0CB10774 /* WireGuardUDPChannel.swift in Sources */,
