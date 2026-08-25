@@ -19,9 +19,10 @@ enum BrowserTintProbe {
     static let reprobeScript = "__ssOneProbeTint && __ssOneProbeTint(true)"
 
     static let javaScript = """
-    (function () {
+      (function () {
       'use strict';
-      var LAST = null;
+      var LAST_TOP = null;
+      var LAST_BOTTOM = null;
       function colorOf(css) {
         if (!css) return null;
         var m = /rgba?\\(([^)]+)\\)/.exec(css);
@@ -54,7 +55,7 @@ enum BrowserTintProbe {
           a: 1
         };
       }
-      function topEdgeColor(el) {
+      function edgeColorOf(el) {
         var cur = el, inOverlay = false, acc = null;
         for (var depth = 0; cur && cur.nodeType === 1 && depth < 16; depth++) {
           var cs = getComputedStyle(cur);
@@ -73,13 +74,12 @@ enum BrowserTintProbe {
         // 对齐 Safari：只有固定/粘滞覆盖层染色，文档流元素一律回退 body 背景
         return inOverlay ? acc : null;
       }
-      function probe(force) {
+      function edgeColorAt(y, w) {
         var result = null;
-        var w = document.documentElement.clientWidth;
         var xs = [w / 2, 12, w - 12];
         for (var i = 0; i < xs.length && !result; i++) {
-          var el = document.elementFromPoint(xs[i], 2);
-          if (el) result = topEdgeColor(el);
+          var el = document.elementFromPoint(xs[i], y);
+          if (el) result = edgeColorOf(el);
         }
         if (!result) {
           var order = [document.body, document.documentElement];
@@ -87,11 +87,22 @@ enum BrowserTintProbe {
             if (order[j]) result = colorOf(getComputedStyle(order[j]).backgroundColor);
           }
         }
-        var key = result ? [result.r, result.g, result.b, result.a].join(',') : 'none';
-        if (force || key !== LAST) {
-          LAST = key;
+        return result;
+      }
+      function keyOf(c) {
+        return c ? [c.r, c.g, c.b, c.a].join(',') : 'none';
+      }
+      function probe(force) {
+        var w = document.documentElement.clientWidth;
+        var h = document.documentElement.clientHeight;
+        var top = edgeColorAt(2, w);
+        var bottom = edgeColorAt(h - 2, w);
+        var tKey = keyOf(top), bKey = keyOf(bottom);
+        if (force || tKey !== LAST_TOP || bKey !== LAST_BOTTOM) {
+          LAST_TOP = tKey;
+          LAST_BOTTOM = bKey;
           if (window.webkit && window.webkit.messageHandlers.ssOneTint) {
-            window.webkit.messageHandlers.ssOneTint.postMessage(key);
+            window.webkit.messageHandlers.ssOneTint.postMessage({ t: tKey, b: bKey });
           }
         }
       }

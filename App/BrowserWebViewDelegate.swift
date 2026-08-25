@@ -10,7 +10,7 @@ final class BrowserWebViewDelegate: NSObject {
     var onBackgroundOpen: ((UUID) -> Void)?
     var onLoadStarted: (() -> Void)?
     var onLoadFailed: ((String) -> Void)?
-    var onTint: ((WKWebView, String?) -> Void)?
+    var onTint: ((WKWebView, _ top: String?, _ bottom: String?) -> Void)?
 
     private static let supportedSchemes = ["http", "https", "about"]
 }
@@ -86,14 +86,15 @@ extension BrowserWebViewDelegate: WKUIDelegate {
 }
 
 extension BrowserWebViewDelegate: WKScriptMessageHandler {
-    // 染色探针上报（"r,g,b,a" / "none"），转发给 BrowserViewModel 按激活标签过滤
+    // 染色探针上报 {t: "r,g,b,a"| "none", b: ...}，转发给 BrowserViewModel 按激活标签过滤
     func userContentController(
         _ userContentController: WKUserContentController,
         didReceive message: WKScriptMessage
     ) {
         guard message.name == BrowserTintProbe.messageHandlerName,
-              let webView = message.webView
+              let webView = message.webView,
+              let payload = message.body as? [String: String]
         else { return }
-        onTint?(webView, message.body as? String)
+        onTint?(webView, payload["t"], payload["b"])
     }
 }
