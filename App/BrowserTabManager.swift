@@ -1,102 +1,151 @@
 import Combine
-import Foundation
 import SharedCore
+import WebKit
 
+/// 多标签核心协调者。标签是纯数据（驱动 SwiftUI），WebView 实例归本类的
+/// LRU 缓存所有（内存最多保活 maxLiveWebViews 个，淘汰前落盘状态与缩略图），
+/// SwiftUI 只挂载；标签与页面会话经 interactionState 持久化，重启可恢复。
 @MainActor
 final class BrowserTabManager: ObservableObject {
-    @Published private(set) var tabs: [WebViewStore] = []
-    @Published private(set) var selectedTabID: UUID
-    @Published private(set) var history: [BrowserHistoryEntry] = []
+    static let shared = makeDefault()
 
-    private let historyStore: BrowserHistoryStore?
-    private var tabObservers: [UUID: AnyCancellable] = [:]
+    // setter 供 +Persistence / +Library 扩展刷新（同模块内），外部只读
+    @Published var tabs: [BrowserTab] = []
+    @Published var activeTabID: UUID?
+    @Published var history: [BrowserHistoryEntry] = []
+    @Published var bookmarks: [BrowserBookmarkEntry] = []
 
-    init(historyStore: BrowserHistoryStore?) {
+    let store: BrowserTabStore?
+    let historyStore: BrowserHistoryStore?
+    let bookmarkStore: BrowserBookmarkStore?
+
+    private let webViewFactory: () -> WKWebView
+    var webViewCache: [UUID: WKWebView] = [:]
+    let maxLiveWebViews = 4
+
+    init(
+        store: BrowserTabStore?,
+        historyStore: BrowserHistoryStore?,
+        bookmarkStore: BrowserBookmarkStore?,
+        factory: @escaping () -> WKWebView
+    ) {
+        self.store = store
         self.historyStore = historyStore
-        let firstTab = WebViewStore()
-        self.tabs = [firstTab]
-        self.selectedTabID = firstTab.id
-        wireHistoryRecording(to: firstTab)
+        self.bookmarkStore = bookmarkStore
+        self.webViewFactory = factory
+        restoreTabs()
         reloadHistory()
+        reloadBookmarks()
     }
 
-    static func makeDefault() -> BrowserTabManager {
-        BrowserTabManager(historyStore: makeHistoryStore())
+    var selectedTab: BrowserTab? {
+        tabs.first { $0.id == activeTabID }
     }
 
-    var selectedTab: WebViewStore? {
-        tabs.first { $0.id == selectedTabID }
-    }
+    // MARK: - 标签操作
 
-    func addTab() {
-        let tab = WebViewStore()
-        wireHistoryRecording(to: tab)
+    @discardableResult
+    func createTab(url: URL? = nil, activate: Bool = true) -> BrowserTab {
+        let tab = BrowserTab(title: "新标签页", url: url)
         tabs.append(tab)
-        selectedTabID = tab.id
+        if activate {
+            activeTabID = tab.id
+        }
+        return tab
     }
 
-    func closeTab(id: UUID) {
+    func closeTab(_ id: UUID) {
         guard let index = tabs.firstIndex(where: { $0.id == id }) else {
             return
         }
-        tabs.remove(at: index)
-        tabObservers.removeValue(forKey: id)
-        ensureSelection(afterClosingAt: index)
+        let tab = tabs.remove(at: index)
+        webViewCache.removeValue(forKey: id)
+        store?.deleteFiles(for: tab)
+        if activeTabID == id {
+            activeTabID = tabs.isEmpty ? nil : tabs[min(index, tabs.count - 1)].id
+        }
+        if tabs.isEmpty {
+            createTab()
+        }
     }
 
-    func selectTab(id: UUID) {
-        guard tabs.contains(where: { $0.id == id }) else {
+    /// 切换前把离开标签的 interactionState 与缩略图落盘
+    func selectTab(_ id: UUID) {
+        guard activeTabID != id, tabs.contains(where: { $0.id == id }) else {
             return
         }
-        selectedTabID = id
+        persistSession(of: activeTabID)
+        activeTabID = id
+        touch(id)
     }
 
     func open(_ url: URL) {
-        selectedTab?.load(url)
+        activeWebView?.load(URLRequest(url: url))
     }
 
-    func clearHistory() {
-        try? historyStore?.clear()
-        reloadHistory()
-    }
-
-    private func ensureSelection(afterClosingAt index: Int) {
-        if tabs.isEmpty {
-            addTab()
+    func updateTab(_ id: UUID, title: String?, url: URL?) {
+        guard let index = tabs.firstIndex(where: { $0.id == id }) else {
             return
         }
-        guard !tabs.contains(where: { $0.id == selectedTabID }) else {
+        if let title, !title.isEmpty {
+            tabs[index].title = title
+        }
+        if let url {
+            tabs[index].url = url
+        }
+    }
+
+    // MARK: - WebView 供给
+
+    func webView(for tabID: UUID) -> WKWebView {
+        if let cached = webViewCache[tabID] {
+            return cached
+        }
+        evictIfNeeded()
+        let webView = webViewFactory()
+        restoreSession(into: webView, tabID: tabID)
+        webViewCache[tabID] = webView
+        // 不在此处 touch（lastActiveAt 已由 create/select 盖章），
+        // 避免容器挂载期间变更 @Published 触发 SwiftUI 更新告警
+        return webView
+    }
+
+    var activeWebView: WKWebView? {
+        activeTabID.map { webView(for: $0) }
+    }
+
+    func tabID(for webView: WKWebView) -> UUID? {
+        webViewCache.first(where: { $0.value === webView })?.key
+    }
+
+    func snapshotImage(for tab: BrowserTab) -> UIImage? {
+        store.flatMap { UIImage(contentsOfFile: $0.snapshotURL(for: tab).path) }
+    }
+
+    // MARK: - 导航事件（共用代理回调）
+
+    func handleDidFinish(_ webView: WKWebView) {
+        guard let id = tabID(for: webView) else {
             return
         }
-        selectedTabID = tabs[min(index, tabs.count - 1)].id
-    }
-
-    private func wireHistoryRecording(to tab: WebViewStore) {
-        tab.onFinishNavigation = { [weak self] url, title in
-            self?.recordHistory(url: url, title: title)
-        }
-        // 子对象的 @Published 变化不会自动冒泡：转发给上层，
-        // 否则观察 tabManager 的视图拿不到标签内的状态更新（折叠、导航态、进度）
-        tabObservers[tab.id] = tab.objectWillChange.sink { [weak self] _ in
-            self?.objectWillChange.send()
+        updateTab(id, title: webView.title, url: webView.url)
+        if let url = webView.url, url.scheme?.hasPrefix("http") == true {
+            recordHistory(url: url, title: webView.title ?? "")
         }
     }
 
-    private func recordHistory(url: URL, title: String) {
-        try? historyStore?.append(BrowserHistoryEntry(url: url, title: title))
-        reloadHistory()
+    static func makeDefault() -> BrowserTabManager {
+        let base = applicationSupport.appendingPathComponent("ShadowsocksOne", isDirectory: true)
+        return BrowserTabManager(
+            store: try? BrowserTabStore(directory: base.appendingPathComponent("Tabs")),
+            historyStore: try? BrowserHistoryStore(directory: base),
+            bookmarkStore: try? BrowserBookmarkStore(directory: base),
+            factory: BrowserWebViewFactory.make
+        )
     }
 
-    private func reloadHistory() {
-        history = (try? historyStore?.loadEntries()) ?? []
-    }
-
-    private static func makeHistoryStore() -> BrowserHistoryStore? {
-        let baseURL = FileManager.default.urls(
-            for: .applicationSupportDirectory,
-            in: .userDomainMask
-        ).first ?? FileManager.default.temporaryDirectory
-        let directory = baseURL.appendingPathComponent("ShadowsocksOne", isDirectory: true)
-        return try? BrowserHistoryStore(directory: directory)
+    private static var applicationSupport: URL {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? FileManager.default.temporaryDirectory
     }
 }
