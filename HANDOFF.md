@@ -3,6 +3,14 @@
 > 写给下一个接手会话。日期：2026-08-21。
 > 任务 A（UDP 转发）与任务 B（弱网 TCP 体感优化）均已完成并测试全绿；任务 B 见下文「任务 B」节。
 
+## 后续更新（2026-08-25）：Safari 式状态栏染色（页面顶色延伸）
+
+- **效果**：网页顶部固定/粘滞导航的颜色自动延伸到状态栏背后（如 QQ 新闻详情页的 #37f 蓝），深色顶色时状态栏文字自动切浅色，与 Safari 浏览器行为逐像素对齐。机制依据对 Safari 的实测逆向（见会话记录）：Safari 采样「内容区顶边渲染色」——fixed/sticky 覆盖层取其背景色（渐变取首个色标、半透明沿祖先链合成），纯文档流元素不染色、回退 body→html 背景色。
+- **实现**：`App/BrowserTintProbe.swift`（documentStart 注入的 JS 探针：elementFromPoint 采样顶边 3 点 + 祖先链遍历，DOMContentLoaded/load/pageshow/scroll(rAF 节流)/MutationObserver(根属性+head 子树)/pageshow 后 3 次补采触发，颜色变化才上报 `ssOneTint` 消息）→ `BrowserWebViewDelegate.onTint` → `BrowserViewModel.pageTint`（按激活标签过滤）→ `BrowserRootView.chromeTint` 顶部染色层 + `BrowserStatusBarGate` 状态栏文字样式。颜色解析/合成/亮度判定在 SharedCore `BrowserPageTint`（7 个单测）。
+- **两个关键坑**：① 遍历祖先链不能因「凑满不透明色」提前 break——fixed 祖先可能在更上层（QQ 的蓝色 header 是 static，祖父才是 fixed wrapper），inOverlay 判定必须走完整链；② `rgba(0,0,0,0)` 是所有元素的默认计算背景色，alpha=0 必须返回 null，否则短路掉渐变检查。
+- **UA 对齐**：`BrowserWebViewFactory.safariUserAgent()` 构造与系统 Safari 一致的 UA（补 Version/Safari 令牌，Safari 大版本=iOS 大版本）。WKWebView 默认 UA 会被站点识别为内嵌 WebView——QQ 新闻据此插入「打开 App」横幅，只补 Safari 令牌不补 Version 还会被当老 Safari 跳转旧版页（实测踩坑）。若未来站点误判可从此处回退。
+- **自动化钩子**：`simctl launch booted com.fits.socks.one -SSOneAutoOpen <url>` 启动即打开 URL（ShadowsocksOneApp 读 UserDefaults 参数域），用于模拟器 UI 验证；正常使用不会触发。
+
 ## 后续更新（2026-08-25）：浏览器按 docs/WKWebView_browser_core.md 方案重做
 
 - **架构反转**：旧「每标签常驻 WKWebView + ZStack 切可见性」已废弃（`WebViewStore` / `WebViewRepresentable` / `BrowserTabOverview` 已删）。现在是：标签 = 纯数据 `BrowserTab`（SharedCore），WebView 实例归 `BrowserTabManager.shared` 的 LRU 缓存（最多 4 个活实例，淘汰前落盘 interactionState + 快照）；SwiftUI 的 `BrowserWebViewContainer` 只挂载不创建，**绝不要给容器加 `.id(tabID)`**。规格见 `docs/WKWebView_browser_core.md`，实现与其一一对应。
