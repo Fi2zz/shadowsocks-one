@@ -80,6 +80,8 @@ public enum WireGuardHandshake {
         var chain = WireGuardCrypto.kdf1(initiation.chainKey, responderEphemeralPub)
         chain = WireGuardCrypto.kdf1(
             chain, shared(initiation.ephemeralPrivate, responderEphemeral))
+        chain = WireGuardCrypto.kdf1(
+            chain, shared(staticPrivate, responderEphemeral))
 
         let psk = Data(repeating: 0, count: 32)
         let (chainC, tau, verifyKey) = WireGuardCrypto.kdf3(chain, psk)

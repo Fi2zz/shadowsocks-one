@@ -120,6 +120,7 @@ final class WireGuardCryptoTests: XCTestCase {
         hash = WireGuardCrypto.hash(hash, responderEphemeralPub)
         chain = WireGuardCrypto.kdf1(chainB, responderEphemeralPub)
         chain = WireGuardCrypto.kdf1(chain, try dh(responderEphemeral, ephemeralPubIKey))
+        chain = WireGuardCrypto.kdf1(chain, try dh(responderEphemeral, initiatorStaticKey))
 
         let psk = Data(repeating: 0, count: 32)
         let (chainC, tauKey, verifyKey) = WireGuardCrypto.kdf3(chain, psk)
