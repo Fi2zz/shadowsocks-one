@@ -29,7 +29,12 @@ extension PacketTunnelProvider {
                 diagnostics: diagnostics)
             egress.attachPacketWriter(writer)
 
-            let routing = try loadRoutingConfiguration()
+            let userRouting = try loadRoutingConfiguration()
+            // 护盾原 App 语义：CN 段恒直连（智能分流），不受 SS 开关影响
+            let routing = RoutingConfiguration(
+                bypassCNIP: true,
+                domainWhitelist: userRouting.domainWhitelist,
+                proxyDomains: userRouting.proxyDomains)
             let matcher = RouteMatcher(
                 configuration: routing,
                 cnIPRanges: try loadCNIPRanges())
@@ -38,6 +43,7 @@ extension PacketTunnelProvider {
                 matcher: matcher,
                 writer: writer,
                 whitelist: routing.domainWhitelist,
+                localFirstDNS: true,
                 tunnelAddress: configuration.tunnelAddress,
                 diagnostics: diagnostics)
             self.wireGuardEngine = engine
@@ -78,6 +84,7 @@ extension PacketTunnelProvider {
         matcher: RouteMatcher,
         writer: TunnelPacketWriter,
         whitelist: [String],
+        localFirstDNS: Bool,
         tunnelAddress: String,
         diagnostics: TunnelDiagnosticsLogging?
     ) -> TunnelEngine {
@@ -90,6 +97,7 @@ extension PacketTunnelProvider {
             upstreamClient: wgDNS,
             localUpstreamClient: LocalDNSUpstreamClient(),
             matcher: matcher,
+            localFirstFallback: localFirstDNS,
             packetWriter: writer,
             diagnostics: diagnostics)
 

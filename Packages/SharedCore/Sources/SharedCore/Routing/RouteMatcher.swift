@@ -49,6 +49,16 @@ public final class RouteMatcher {
         return .proxy
     }
 
+    /// IP 是否落在 CN 段（供 DNS 本地优先回退验证解析结果属地）。
+    public func containsCNIP(_ ipString: String) -> Bool {
+        cnIPRanges.contains(ipString)
+    }
+
+    /// 域名是否命中用户显式代理规则（区别于「默认代理」兜底）。
+    public func explicitlyProxied(host: String) -> Bool {
+        proxyRules.contains(where: { $0.matches(host) })
+    }
+
     /// DNS 解析路径决策：只看域名规则，不看 IP 规则与默认路由
     ///（解析发生时尚无目的 IP；未命中名单的域名必须远程解析防污染）。
     public func dnsDecision(forHost host: String) -> RouteDecision {

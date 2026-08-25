@@ -24,9 +24,12 @@ final class DNSCoordinator: DNSCoordinating {
     private let upstreamClient: any DNSPayloadQuerying
     private let localUpstreamClient: (any DNSPayloadQuerying)?
     private let matcher: RouteMatcher?
+    private let localFirstFallback: Bool
     private let packetWriter: any TunnelPacketWriting
     private let diagnostics: TunnelDiagnosticsLogging?
 
+    /// localFirstFallback：默认代理的域名先走本地解析，若结果全部落在
+    /// CN 段则直接采用（国内站低延迟），否则改走远程解析防污染。
     init(
         cache: DNSCache,
         whitelist: [String],
@@ -34,9 +37,11 @@ final class DNSCoordinator: DNSCoordinating {
         upstreamClient: any DNSPayloadQuerying,
         localUpstreamClient: (any DNSPayloadQuerying)? = nil,
         matcher: RouteMatcher? = nil,
+        localFirstFallback: Bool = false,
         packetWriter: any TunnelPacketWriting,
         diagnostics: TunnelDiagnosticsLogging? = nil
     ) {
+        self.localFirstFallback = localFirstFallback
         self.cache = cache
         self.whitelist = whitelist
         self.resolver = resolver
@@ -72,12 +77,27 @@ final class DNSCoordinator: DNSCoordinating {
             return
         }
 
-        let choice = selectUpstream(for: udp.payload)
+        var choice = selectUpstream(for: udp.payload)
         do {
-            let responsePayload = try await choice.client.query(
+            var responsePayload = try await choice.client.query(
                 serverIP: packet.destinationAddress,
                 payload: udp.payload
             )
+            if choice.label == "local-first" {
+                if let validated = validatedLocalResult(responsePayload, matcher: matcher) {
+                    responsePayload = validated
+                    choice = UpstreamChoice(
+                        client: choice.client, host: choice.host,
+                        label: "local-verified")
+                } else {
+                    diagnostics?("DNS \(choice.host) local-first 未命中 CN，转远程")
+                    responsePayload = try await upstreamClient.query(
+                        serverIP: packet.destinationAddress,
+                        payload: udp.payload)
+                    choice = UpstreamChoice(
+                        client: upstreamClient, host: choice.host, label: "proxy-fallback")
+                }
+            }
             let addresses = (try? cacheResponse(responsePayload)) ?? []
             diagnostics?("DNS \(choice.host) via \(choice.label) ok [\(addresses.joined(separator: ","))]")
             try writeResponse(responsePayload, for: packet, udp: udp)
@@ -85,6 +105,24 @@ final class DNSCoordinator: DNSCoordinating {
             diagnostics?("DNS \(choice.host) via \(choice.label) failed: \(error.localizedDescription)")
             throw error
         }
+    }
+
+    /// 本地解析结果全部落在 CN 段才采纳，防止污染 IP 进入直连路径。
+    private func validatedLocalResult(
+        _ responsePayload: Data, matcher: RouteMatcher?
+    ) -> Data? {
+        guard let matcher,
+              let message = try? DNSMessage(data: responsePayload),
+              !message.answers.isEmpty else {
+            return nil
+        }
+
+        let addresses = message.answers.compactMap(\.ipv4Address)
+        guard !addresses.isEmpty,
+              addresses.allSatisfy({ matcher.containsCNIP($0) }) else {
+            return nil
+        }
+        return responsePayload
     }
 
     private func writeResponse(_ responsePayload: Data, for packet: IPPacket, udp: UDPPacket) throws {
@@ -111,10 +149,16 @@ final class DNSCoordinator: DNSCoordinating {
             return UpstreamChoice(client: upstreamClient, host: "?", label: "proxy")
         }
 
-        let directChoice = matcher.dnsDecision(forHost: host) == .direct
-        return directChoice
-            ? UpstreamChoice(client: localUpstreamClient, host: host, label: "local")
-            : UpstreamChoice(client: upstreamClient, host: host, label: "proxy")
+        if matcher.dnsDecision(forHost: host) == .direct {
+            return UpstreamChoice(client: localUpstreamClient, host: host, label: "local")
+        }
+        if localFirstFallback, !matcher.explicitlyProxied(host: host) {
+            return UpstreamChoice(
+                client: localUpstreamClient,
+                host: host,
+                label: "local-first")
+        }
+        return UpstreamChoice(client: upstreamClient, host: host, label: "proxy")
     }
 
     private static let aaaaQueryType: UInt16 = 28
