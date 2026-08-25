@@ -91,7 +91,11 @@ public enum WireGuardHandshake {
                 SymmetricKey(data: verifyKey), counter: 0,
                 combined: data.subdata(in: 44..<60), aad: hash)
         } catch {
-            throw WireGuardError.authenticationFailed
+            throw WireGuardError.badPacket(
+                "校验失败[ephR=\(WireGuardCrypto.hexPrefix(responderEphemeralPub)) "
+                    + "h'=\(WireGuardCrypto.hexPrefix(hash)) "
+                    + "kv=\(WireGuardCrypto.hexPrefix(verifyKey)) "
+                    + "tag=\(WireGuardCrypto.hexPrefix(data.subdata(in: 44..<60)))]")
         }
         chain = chainC
         hash = Self.hash(hash, data.subdata(in: 44..<60))

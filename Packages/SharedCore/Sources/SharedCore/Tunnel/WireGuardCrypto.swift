@@ -80,6 +80,11 @@ enum WireGuardCrypto {
         return try ChaChaPoly.open(box, using: key, authenticating: aad)
     }
 
+    /// 调试摘要：前 8 字节 hex。
+    static func hexPrefix(_ data: Data) -> String {
+        data.prefix(8).map { String(format: "%02x", $0) }.joined()
+    }
+
     /// TAI64N 时间戳（64 位秒大端 + 32 位纳秒大端），防重放需单调递增。
     static func tai64n(now: Date = Date()) -> Data {
         let seconds = UInt64(now.timeIntervalSince1970) &+ 0x400000000000000a

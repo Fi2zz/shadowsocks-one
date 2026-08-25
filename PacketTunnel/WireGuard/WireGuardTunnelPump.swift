@@ -44,7 +44,7 @@ final class WireGuardTunnelPump {
         startReader()
         startReceiver()
         scheduleKeepalive()
-        diagnostics?("WG pump started \(configuration.endpointHost):\(configuration.endpointPort)")
+        diagnostics?("WG pump v3 started \(configuration.endpointHost):\(configuration.endpointPort) line=\(configuration.lineName)")
     }
 
     func stop() {
