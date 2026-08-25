@@ -71,6 +71,7 @@ public enum WireGuardHandshake {
         guard readUInt32LE(data, 8) == initiation.localIndex else {
             throw WireGuardError.badPacket("响应索引不匹配")
         }
+        let headerHex = WireGuardCrypto.hexPrefix(data)
         let peerIndex = readUInt32LE(data, 4)
         let responderEphemeralPub = data.subdata(in: 12..<44)
         let responderEphemeral = try Curve25519.KeyAgreement.PublicKey(
@@ -92,7 +93,8 @@ public enum WireGuardHandshake {
                 combined: data.subdata(in: 44..<60), aad: hash)
         } catch {
             throw WireGuardError.badPacket(
-                "校验失败[ephR=\(WireGuardCrypto.hexPrefix(responderEphemeralPub)) "
+                "校验失败[hdr=\(headerHex) "
+                    + "ephR=\(WireGuardCrypto.hexPrefix(responderEphemeralPub)) "
                     + "h'=\(WireGuardCrypto.hexPrefix(hash)) "
                     + "kv=\(WireGuardCrypto.hexPrefix(verifyKey)) "
                     + "tag=\(WireGuardCrypto.hexPrefix(data.subdata(in: 44..<60)))]")
