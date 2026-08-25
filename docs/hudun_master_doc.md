@@ -549,6 +549,12 @@ HUDUN_LIVE=1 HUDUN_TOKEN=<token> HUDUN_DEVICEID=<did> HUDUN_UID=<uid> \
 4. Swift 十六进制解析按 Character 切片出过半字节流事故 → 用字节对解析（已有单测守护）
 5. NWConnection 回调上下文必须自持有至 finish，否则 continuation 泄漏挂死
 6. 「sign 服务端不校验」为过时结论（2026-08-24 起全端点强校验）
+7. **服务端 WG 握手为白皮书链式变体（2026-08-25 真机穷举实证）**：
+   - KDF3 第三输出 = `HMAC(t, T2‖0x3)`（链式），非 wireguard-go 的扁平 `HMAC(t, T1‖0x3)`
+   - msg1 需 `mixKey(E_pub_i)`（临时公钥先混入链键）——Go 实现同样有此步
+   - 响应处理：三段 mixKey（E_pub_r / EE / SE）→ KDF3(psk) → τ 混 hash 作 Empty 的 AAD
+   - 服务端响应包 mac1/mac2 全零；msg1 校验失败时静默丢弃
+   - 症状特征：握手超时=包被丢；`校验失败`=响应已到但 KDF 风格不匹配
 
 # 第 9 章 合规边界
 

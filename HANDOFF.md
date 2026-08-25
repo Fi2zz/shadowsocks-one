@@ -62,3 +62,11 @@
 - 真机验证（`make run`）：
   - UDP/QUIC：Safari 访问 Google 系站点，用 Mac 端 `tcpdump` 或路由表观察 UDP/443 是否走通；语音用 FaceTime/微信语音实测。
   - 弱网 TCP：iOS 开发者设置里的 Network Link Conditioner 模拟丢包/高延迟，对比改进前后的加载体验。
+
+## 护盾账号 + WireGuard 数据面（2026-08-25，已完成）
+
+- 「护盾账号」入口在浏览器 `...` 菜单：登录/退出/静默恢复（4003 自动清凭证）、线路快照缓存、选线即连接。
+- 选线流程：`HudunSessionViewModel.requestConnect` → renew 现取 WG 凭证 → `HudunTunnelCoordinator.activate` 写入 app group 配置 + Keychain 私钥 + 活动模式标记 → 复用同一 NETunnelProviderManager 连接。
+- 扩展侧按 `active-tunnel-mode.json` 分流：wireguard 走 `PacketTunnel/WireGuard/WireGuardTunnelPump.swift`（全局模式接管，无 DNS 劫持、无分流），shadowsocks 走原引擎。ConnectionIntegrationTests target 也编译 WireGuard 目录（project.yml 已加）。
+- **服务端是白皮书链式 KDF 变体**（非 wireguard-go）：KDF3 第三输出 = HMAC(t, T2‖0x3)；msg1 需 mixKey(E_pub)；响应三段 mixKey 后 KDF3(psk)、τ 混 hash 作 AAD；响应 mac 全零。详见 docs/hudun_master_doc.md §8 第 7 条。SharedCore 的 WireGuardCrypto/WireGuardHandshake 已对齐此语义，回环单测以 wireguard-go 语义+该变体双向守护。
+- 排障：握手问题看「导入与分流」底部隧道诊断的 `WG handshake ok/rejected/fatal` 行；数据面不通而握手 ok 时查 pump 收发日志。
