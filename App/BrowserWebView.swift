@@ -1,28 +1,16 @@
 import WebKit
 
-/// 顶部安全区由 BrowserContainerView 在 frame 层处理（Safari 式原生内缩），
-/// 这里只负责底部：工具栏是悬浮玻璃胶囊，滚动内容与指示条预留其高度。
-final class BrowserWebView: WKWebView {
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        let toolbarClearance = CGFloat(80)
-        guard scrollView.contentInset.bottom != toolbarClearance else {
-            return
-        }
-        scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: toolbarClearance, right: 0)
-        scrollView.verticalScrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: toolbarClearance, right: 0)
-    }
-}
-
 /// WebView 唯一的创建入口：由 BrowserTabManager 在需要时调用，
 /// 实例归 TabManager 的缓存所有，SwiftUI 视图只负责挂载、绝不创建。
+/// 顶部/底部安全区与工具栏避让都在 frame 层处理（BrowserContainerView），
+/// 与 Safari 的 chrome/内容分离同构。
 @MainActor
 enum BrowserWebViewFactory {
     static func make() -> WKWebView {
         let configuration = WKWebViewConfiguration()
         configuration.allowsInlineMediaPlayback = true
         BrowserTintProbe.install(into: configuration, handler: BrowserWebViewDelegate.shared)
-        let webView = BrowserWebView(frame: .zero, configuration: configuration)
+        let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.customUserAgent = safariUserAgent()
         webView.allowsBackForwardNavigationGestures = true
         let delegate = BrowserWebViewDelegate.shared

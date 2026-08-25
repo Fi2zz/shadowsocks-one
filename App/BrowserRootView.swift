@@ -32,9 +32,11 @@ struct BrowserRootView: View {
     }
 
     private func rootStack(safeTop: CGFloat, safeBottom: CGFloat) -> some View {
-        ZStack(alignment: .bottom) {
-            webViewLayer
+        let bottomChrome = bottomChromeHeight(safeBottom: safeBottom)
+        return ZStack(alignment: .bottom) {
+            webViewLayer(bottomInset: bottomChrome)
             chromeTint(height: safeTop)
+            bottomChromeTint(height: bottomChrome)
             bottomContent(safeBottom: safeBottom)
         }
         // 容器安全区全部穿透（顶部内容画到状态栏后面，对齐 Safari）；
@@ -50,6 +52,12 @@ struct BrowserRootView: View {
         }
     }
 
+    /// 底部 chrome 区 = 工具栏区 + 底部安全区；工具栏收起时归零（内容沉到
+    /// Home 指示条后面，对应 Safari 底栏收起态）
+    private func bottomChromeHeight(safeBottom: CGFloat) -> CGFloat {
+        browser.toolbarCollapsed ? 0 : safeBottom + 60
+    }
+
     /// 状态栏区域染色层：页面顶色（Safari 探针算法）延伸到状态栏背后
     @ViewBuilder
     private func chromeTint(height: CGFloat) -> some View {
@@ -62,12 +70,36 @@ struct BrowserRootView: View {
         }
     }
 
+    /// 底部 chrome 区染色层：页面底边色延伸到工具栏背后（Safari 对底栏区域做同样的事）
+    @ViewBuilder
+    private func bottomChromeTint(height: CGFloat) -> some View {
+        if height > 0 {
+            Rectangle()
+                .fill(bottomTintColor)
+                .frame(height: height)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                .allowsHitTesting(false)
+        }
+    }
+
     private var resolvedTint: BrowserPageTint? {
         browser.pageTint?.resolved(over: systemBackgroundTint)
     }
 
+    private var resolvedBottomTint: BrowserPageTint? {
+        browser.pageBottomTint?.resolved(over: systemBackgroundTint)
+    }
+
     private var tintColor: Color {
-        guard let tint = resolvedTint else {
+        color(of: resolvedTint)
+    }
+
+    private var bottomTintColor: Color {
+        color(of: resolvedBottomTint)
+    }
+
+    private func color(of tint: BrowserPageTint?) -> Color {
+        guard let tint else {
             return Color(uiColor: .systemBackground)
         }
         return Color(.sRGB, red: tint.red / 255, green: tint.green / 255, blue: tint.blue / 255)
@@ -84,10 +116,10 @@ struct BrowserRootView: View {
     }
 
     @ViewBuilder
-    private var webViewLayer: some View {
+    private func webViewLayer(bottomInset: CGFloat) -> some View {
         if let tabID = tabManager.activeTabID {
             // 不加 .id(tabID)：那会销毁重建 representable，容器本身要复用
-            BrowserWebViewContainer(tabID: tabID)
+            BrowserWebViewContainer(tabID: tabID, bottomInset: bottomInset)
         }
     }
 
