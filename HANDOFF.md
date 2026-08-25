@@ -3,6 +3,15 @@
 > 写给下一个接手会话。日期：2026-08-21。
 > 任务 A（UDP 转发）与任务 B（弱网 TCP 体感优化）均已完成并测试全绿；任务 B 见下文「任务 B」节。
 
+## 后续更新（2026-08-25）：浏览器按 docs/WKWebView_browser_core.md 方案重做
+
+- **架构反转**：旧「每标签常驻 WKWebView + ZStack 切可见性」已废弃（`WebViewStore` / `WebViewRepresentable` / `BrowserTabOverview` 已删）。现在是：标签 = 纯数据 `BrowserTab`（SharedCore），WebView 实例归 `BrowserTabManager.shared` 的 LRU 缓存（最多 4 个活实例，淘汰前落盘 interactionState + 快照）；SwiftUI 的 `BrowserWebViewContainer` 只挂载不创建，**绝不要给容器加 `.id(tabID)`**。规格见 `docs/WKWebView_browser_core.md`，实现与其一一对应。
+- **持久化**：`Application Support/ShadowsocksOne/Tabs/`（tabs.json + states/{id}.bin + snapshots/{id}.jpg），store 在 SharedCore（`BrowserTabStore`，UserDefaults 可注入便于单测）。进后台 `persistAll()`；恢复优先 `interactionState`（连前进后退栈一起还原），为空才退化加载 tab.url。
+- **新能力**：`target="_blank"` 后台开标签 + Toast「查看」（`BrowserWebViewDelegate.onBackgroundOpen`）；Safari 式层叠卡片切换器（`BrowserTabSwitcher` + `BrowserTabCard`，3D 透视 + 左滑关闭）；书签（SharedCore `BrowserBookmarkStore`，入口在「更多」菜单）；「清除浏览数据」= WKWebsiteDataStore 全清 + 历史；外部 scheme 交系统；WebContent 进程被杀自动 reload；标签数按钮 iOS 17 `symbolEffect(.bounce)` 反馈。
+- **事件通路**：所有 WebView 共用 `BrowserWebViewDelegate.shared`（工厂 `BrowserWebViewFactory.make` 统一挂代理）；页面事件经闭包转发给 `BrowserViewModel`（错误横幅 / 后台打开 Toast）。激活 WebView 的 KVO 观察集中在 `BrowserViewModel.observeActiveWebView()`，切标签整体替换 observations 数组；工具栏折叠（滚动迟滞）也在这里观察 contentOffset。
+- **坑**：`WKWebView.interactionState` 在 Swift 里是 `Any?`，落盘要 `as? Data`；新 SDK 的 `removeData(ofTypes:)` 完成回调无参；KVO 键路径用 `\.url`（不是 `\.URL`）。不要在 `webView(for:)` 里 touch @Published——容器 updateUIView 会调用它，view-update 期间改状态会触发 SwiftUI 告警（LRU 时序由 create/select 盖章保证）。
+- 真机待验证项（对应方案 §14 验收标准）：强杀重启恢复全部标签栈、后台打开不跳页、切换器透视流畅、20 标签内存受控、内存警告后不白屏、tel:/mailto: 跳系统。
+
 ## 仓库与流程（必读）
 
 - 路径 `/Users/fitz/REPO/ShadowsocksX-NG`（目录名未改，可择期 rename 为 shadowsocks-one）；远端 `git@github.com:Fi2zz/shadowsocks-one.git`，唯一分支 `master`。

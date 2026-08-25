@@ -129,11 +129,15 @@ SharedCore/Connection/ + SharedCore/Tunnel/ShadowsocksTCPTransport.swift：
 
 ### 8. 内置浏览器（App 主界面）
 
-App 主界面是 Safari 风格的多标签浏览器（`App/Browser*.swift`），原有「节点」「导入与分流」两个页面原样收进底部工具栏的「更多」（`...`）菜单（`BrowserMoreMenu`），以 sheet 打开。
+App 主界面是 Safari 风格的多标签浏览器（`App/Browser*.swift`），「节点」「导入与分流」等页面收进底部工具栏的「更多」（`...`）菜单（`BrowserMoreMenu`），以 sheet 打开。
 
-- **多标签**：每个标签常驻一个 `WKWebView`（`WebViewStore`），全部放在 `ZStack` 中仅选中者可见，切换不重载，导航栈/滚动位置保留；`BrowserTabManager` 管理标签数组、选中态与历史记录
-- **底部工具栏**：地址栏（自动补 `https://`、聚焦全选、清空、取消）+ 前进/后退（可前进时合并为一个胶囊）+ 历史入口；iOS 26 用 `glassEffect` Liquid Glass 样式（`App/LiquidGlass.swift` 做能力回退）
-- **标签总览**：网格卡片新建/关闭/切换；历史记录存本地 JSON（封顶 200 条、同 URL 去重置顶、可清空），URL 规范化与历史 store 在 SharedCore 并有单测
+- **多标签**：标签是纯数据（SharedCore `BrowserTab`），WebView 实例归 `BrowserTabManager` 的 LRU 缓存所有（内存最多保活 4 个，淘汰前落盘 `interactionState` 与缩略图）；SwiftUI 的 `BrowserWebViewContainer` 只做挂载、绝不创建，切换/弹出全屏不销毁页面
+- **会话恢复**：标签数组存 `Application Support/ShadowsocksOne/Tabs/tabs.json`，每标签的页面 + 前进后退栈经 `WKWebView.interactionState` 落盘（`states/{id}.bin`），重启 App 完整恢复；缩略图（`snapshots/{id}.jpg`）供切换器显示
+- **后台打开**：`target="_blank"` / `window.open` 链接在后台新建标签不打断当前浏览，Toast 提示带「查看」，标签数按钮弹跳反馈
+- **Safari 式切换器**：全屏层叠卡片（3D 透视、上部重叠、滚动浏览），左滑关闭、点按选中；后台未加载标签显示 globe 占位图
+- **底部工具栏**：地址栏（自动补 `https://`、聚焦全选、清空、取消）+ 前进/后退 + 新建标签 + 标签数按钮；下滚折叠为胶囊；iOS 26 用 `glassEffect` Liquid Glass 样式（`App/LiquidGlass.swift` 做能力回退）
+- **健壮性**：外部 scheme（tel:/mailto:/App Store）交给系统打开；WebContent 进程被杀自动 reload 不白屏；侧滑前进后退手势开启
+- **书签与隐私**：书签添加/列表/左滑删除（SharedCore `BrowserBookmarkStore`）；「清除浏览数据」同时清 WKWebView 网站数据与历史记录；历史记录存本地 JSON（封顶 200 条、同 URL 去重置顶）
 - **排障设施**：顶部加载进度条（KVO `estimatedProgress`）+ 导航失败错误横幅（含 error domain/code），配合「导入与分流」页的隧道诊断日志定位加载问题
 
 ## 工程与测试
@@ -157,6 +161,6 @@ xcodebuild -project ShadowsocksOne.xcodeproj -scheme "Shadowsocks One" \
 - 用户态 TCP 仍为简化实现：ISN 固定、无选项协商（wscale/SACK）；重传/窗口/拥塞控制仅覆盖服务端 → 客户端方向
 - 域名分流依赖 DNS 缓存反查：未经过 DNS 解析的纯 IP 流量不会命中域名名单（内网/CN 网段按 IP 直接判断，不受影响）
 - UDP 支持转发（四元组 NAT 会话、过 `RouteMatcher` 分流），端口 53 的 DNS 拦截优先于 UDP 转发
-- 浏览器所有标签的 WKWebView 常驻内存，未做非活跃回收；历史记录仅存本地
+- 浏览器历史记录仅存本地；内存中最多保活 4 个 WebView，更早的标签切回时按 interactionState 恢复
 - 不支持 SS 插件（obfs 等），含插件的节点会被拒绝
 - `SharedCore/Connection/ConnectionManager` 是早期"App 内直连探测"方案的遗留设施，主链路已切换到系统 VPN，仅测试引用
