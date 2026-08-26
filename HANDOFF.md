@@ -11,7 +11,7 @@
 - **顶部安全区在 Swift 原生层生效**（对齐 Safari 分层）：`BrowserContainerView.layoutSubviews` 把 WebView 的 frame 放到顶部安全区下方（状态栏区域归原生 chrome 染色层所有），网页布局视口天然不含安全区（env() 恒 0、innerHeight=778）。旧的 contentInset 顶部补丁已删（实测是死代码——UIKit 安全区传播本来就会内缩布局）；`BrowserWebView` 子类已整个删除。
 - **底部 chrome 区同样对齐（2026-08-25 晚）**：实测 Safari 底部机制与顶部对称——底栏展开态布局视口止于 chrome 上沿（innerH=714），URL 栏区 + Home 条区（约 98pt）由 Safari 用**页面底边渲染色**绘制；底栏收起态视口延伸到物理底部、env(bottom) 下发给页面。我们的实现：探针同时采样顶边/底边（消息 payload 变为 `{t, b}`），`BrowserContainerView.bottomInset` 在 frame 层挖出底部 chrome 区（工具栏展开 = safeBottom+60，收起 = 0 内容沉到 Home 条后面，带 0.2s 动画），`bottomChromeTint` 用页面底边色绘制该区。注意 env() 的 CSS 值是活值而 JS 快照是死值——测量时别用 getComputedStyle 快照下结论（踩过）。
 - **UA 对齐**：`BrowserWebViewFactory.safariUserAgent()` 构造与系统 Safari 一致的 UA（补 Version/Safari 令牌，Safari 大版本=iOS 大版本）。WKWebView 默认 UA 会被站点识别为内嵌 WebView——QQ 新闻据此插入「打开 App」横幅，只补 Safari 令牌不补 Version 还会被当老 Safari 跳转旧版页（实测踩坑）。若未来站点误判可从此处回退。
-- **自动化钩子**：`simctl launch booted com.fits.socks.one -SSOneAutoOpen <url>` 启动即打开 URL（ShadowsocksOneApp 读 UserDefaults 参数域），用于模拟器 UI 验证；正常使用不会触发。
+- **自动化钩子**：`simctl launch booted com.fits.socks.one -SSOneAutoOpen <url> -SSOneAutoScroll <y>` 启动即打开 URL、6 秒后滚动到指定位置（UserDefaults 参数域，模拟器验证染色用）；多模拟器同时 Booted 时 `simctl install/launch booted` 会歧义解析（曾解析到 Watch 上报「device family 不支持」），要用显式 UDID。
 
 ## 后续更新（2026-08-25）：浏览器按 docs/WKWebView_browser_core.md 方案重做
 
