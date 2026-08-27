@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import ShadowsocksOnePacketTunnel
+@testable import ShadowsocksBrowserPacketTunnel
 
 final class RTTEstimatorTests: XCTestCase {
     func testInitialRTOBeforeAnySample() {

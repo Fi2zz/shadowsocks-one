@@ -1,6 +1,6 @@
 import Foundation
 import SharedCore
-@testable import ShadowsocksOnePacketTunnel
+@testable import ShadowsocksBrowserPacketTunnel
 
 final class UDPRelaySpy: UDPFlowRelaying {
     let key: UDPFlowKey

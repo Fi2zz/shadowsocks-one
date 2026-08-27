@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import ShadowsocksOne
+@testable import ShadowsocksBrowser
 
 /// 会话层单测：登录/退出/静默恢复/4003 失效（网络层用替身，不触网）。
 @MainActor

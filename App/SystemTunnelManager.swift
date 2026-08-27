@@ -97,13 +97,13 @@ final class SystemTunnelManager: TunnelControlling {
     private func configure(_ manager: NETunnelProviderManager) {
         let providerProtocol = (manager.protocolConfiguration as? NETunnelProviderProtocol) ?? NETunnelProviderProtocol()
         providerProtocol.providerBundleIdentifier = providerBundleIdentifier
-        providerProtocol.serverAddress = "Shadowsocks One"
+        providerProtocol.serverAddress = "Shadowsocks Browser"
         providerProtocol.providerConfiguration = [
             "configurationSource": "app-group",
         ]
         providerProtocol.disconnectOnSleep = false
 
-        manager.localizedDescription = "Shadowsocks One"
+        manager.localizedDescription = "Shadowsocks Browser"
         manager.protocolConfiguration = providerProtocol
         manager.isEnabled = true
     }

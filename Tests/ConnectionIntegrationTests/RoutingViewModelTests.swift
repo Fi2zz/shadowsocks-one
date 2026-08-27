@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 import SharedCore
-@testable import ShadowsocksOne
+@testable import ShadowsocksBrowser
 
 @MainActor
 final class RoutingViewModelTests: XCTestCase {

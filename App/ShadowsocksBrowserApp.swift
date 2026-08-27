@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct ShadowsocksOneApp: App {
+struct ShadowsocksBrowserApp: App {
     private var runningTests: Bool {
         ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
     }
@@ -20,17 +20,17 @@ struct ShadowsocksOneApp: App {
         }
     }
 
-    /// UI 自动化钩子：`simctl launch booted com.fits.socks.one -SSOneAutoOpen <url>`
+    /// UI 自动化钩子：`simctl launch booted com.fits.socks.browser -SSBrowserAutoOpen <url>`
     /// 启动参数会进入 UserDefaults 参数域，正常使用永远不会设置该键；
-    /// `-SSOneAutoScroll <y>` 在页面加载后 6 秒滚动到指定位置（模拟器验证染色用）
+    /// `-SSBrowserAutoScroll <y>` 在页面加载后 6 秒滚动到指定位置（模拟器验证染色用）
     private static func openAutomationURLIfNeeded() {
-        guard let raw = UserDefaults.standard.string(forKey: "SSOneAutoOpen"),
+        guard let raw = UserDefaults.standard.string(forKey: "SSBrowserAutoOpen"),
               let url = URL(string: raw)
         else { return }
         DispatchQueue.main.async {
             let webView = BrowserTabManager.shared.activeWebView
             webView?.load(URLRequest(url: url))
-            guard let scrollRaw = UserDefaults.standard.string(forKey: "SSOneAutoScroll"),
+            guard let scrollRaw = UserDefaults.standard.string(forKey: "SSBrowserAutoScroll"),
                   let scrollY = Double(scrollRaw)
             else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + 6) {

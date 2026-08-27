@@ -2,7 +2,7 @@ import Darwin
 import Foundation
 import XCTest
 import SharedCore
-@testable import ShadowsocksOnePacketTunnel
+@testable import ShadowsocksBrowserPacketTunnel
 
 final class UDPRouterTests: XCTestCase {
     func testUsesDirectRelayForCNTarget() async throws {

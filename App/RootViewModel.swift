@@ -48,7 +48,7 @@ final class RootViewModel: ObservableObject {
         RootViewModel(
             parser: SSURLParser(),
             tunnelController: SystemTunnelManager(
-                providerBundleIdentifier: "com.fits.socks.one.PacketTunnel"
+                providerBundleIdentifier: "com.fits.socks.browser.PacketTunnel"
             ),
             storeBuilder: {
                 try makeProfileStore()
@@ -205,7 +205,7 @@ final class RootViewModel: ObservableObject {
             for: .applicationSupportDirectory,
             in: .userDomainMask
         ).first ?? FileManager.default.temporaryDirectory
-        return baseURL.appendingPathComponent("ShadowsocksOne", isDirectory: true)
+        return baseURL.appendingPathComponent("ShadowsocksBrowser", isDirectory: true)
     }
 
     private static func makeProfileStore() throws -> ProfileStore {
@@ -217,7 +217,7 @@ final class RootViewModel: ObservableObject {
         } catch {
             return try ProfileStore(
                 localDirectory: FileManager.default.temporaryDirectory
-                    .appendingPathComponent("ShadowsocksOne", isDirectory: true),
+                    .appendingPathComponent("ShadowsocksBrowser", isDirectory: true),
                 keychainService: SharedContainerSettings.keychainService
             )
         }

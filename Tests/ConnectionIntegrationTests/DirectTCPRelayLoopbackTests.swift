@@ -1,7 +1,7 @@
 import Foundation
 import Network
 import XCTest
-@testable import ShadowsocksOnePacketTunnel
+@testable import ShadowsocksBrowserPacketTunnel
 
 /// 用真实 NWConnection 走一遍 DirectTCPRelay 数据面：
 /// 本地 echo 服务器 → relay 发出 → echo 回来 → onInboundBytes 收到原文。

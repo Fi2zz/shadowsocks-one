@@ -1,7 +1,7 @@
 // HudunCryptoTests.swift — docs/hudun_master_doc.md §6.1 固定向量（离线，必须全绿）
 import XCTest
 import CryptoKit
-@testable import ShadowsocksOne
+@testable import ShadowsocksBrowser
 
 final class HudunCryptoTests: XCTestCase {
 

@@ -1,10 +1,10 @@
-PROJECT := ShadowsocksOne.xcodeproj
-SCHEME := Shadowsocks One
-BUNDLE_ID := com.fits.socks.one
+PROJECT := ShadowsocksBrowser.xcodeproj
+SCHEME := ShadowsocksBrowser
+BUNDLE_ID := com.fits.socks.browser
 DEVICE_ID ?= 14EDD430-3B6F-5969-B920-F1C427404CA4
 SIMULATOR ?= platform=iOS Simulator,name=iPhone 17
 DERIVED_DATA := .build/derived-data
-APP_PATH := $(DERIVED_DATA)/Build/Products/Debug-iphoneos/ShadowsocksOne.app
+APP_PATH := $(DERIVED_DATA)/Build/Products/Debug-iphoneos/ShadowsocksBrowser.app
 
 .PHONY: generate build test build-device install run
 

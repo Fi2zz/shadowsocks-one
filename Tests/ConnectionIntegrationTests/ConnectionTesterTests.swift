@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import ShadowsocksOne
+@testable import ShadowsocksBrowser
 
 final class ConnectionTesterTests: XCTestCase {
     func testNormalizeURLAddsHTTPSWhenSchemeMissing() {

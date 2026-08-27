@@ -1,6 +1,6 @@
 import XCTest
 import SharedCore
-@testable import ShadowsocksOnePacketTunnel
+@testable import ShadowsocksBrowserPacketTunnel
 
 final class TCPFlowStateTests: XCTestCase {
     func testConsumesClientSYNAndProducesSYNACK() throws {

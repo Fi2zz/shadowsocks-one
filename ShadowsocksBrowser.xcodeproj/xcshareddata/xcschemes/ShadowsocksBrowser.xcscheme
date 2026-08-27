@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "94B199099815873DD40E7CEE"
-               BuildableName = "Shadowsocks One.app"
-               BlueprintName = "Shadowsocks One"
-               ReferencedContainer = "container:ShadowsocksOne.xcodeproj">
+               BlueprintIdentifier = "EEB0A4ACAA070AC61BBDFED9"
+               BuildableName = "ShadowsocksBrowser.app"
+               BlueprintName = "ShadowsocksBrowser"
+               ReferencedContainer = "container:ShadowsocksBrowser.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,10 +29,10 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D735B011E44A17E0D59B0C84"
-               BuildableName = "ShadowsocksOnePacketTunnel.appex"
-               BlueprintName = "ShadowsocksOnePacketTunnel"
-               ReferencedContainer = "container:ShadowsocksOne.xcodeproj">
+               BlueprintIdentifier = "2E48189CE5F5D1105DBCFCE0"
+               BuildableName = "ShadowsocksBrowserPacketTunnel.appex"
+               BlueprintName = "ShadowsocksBrowserPacketTunnel"
+               ReferencedContainer = "container:ShadowsocksBrowser.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,10 +46,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "94B199099815873DD40E7CEE"
-            BuildableName = "Shadowsocks One.app"
-            BlueprintName = "Shadowsocks One"
-            ReferencedContainer = "container:ShadowsocksOne.xcodeproj">
+            BlueprintIdentifier = "EEB0A4ACAA070AC61BBDFED9"
+            BuildableName = "ShadowsocksBrowser.app"
+            BlueprintName = "ShadowsocksBrowser"
+            ReferencedContainer = "container:ShadowsocksBrowser.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -58,10 +58,10 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4ABDC9CC75B72610F4582D14"
+               BlueprintIdentifier = "64F190D587A0E41631D5D107"
                BuildableName = "ConnectionIntegrationTests.xctest"
                BlueprintName = "ConnectionIntegrationTests"
-               ReferencedContainer = "container:ShadowsocksOne.xcodeproj">
+               ReferencedContainer = "container:ShadowsocksBrowser.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -69,10 +69,10 @@
             parallelizable = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "C56D35D5970C59250E40D3C4"
+               BlueprintIdentifier = "59EDF407B3409DF324A70193"
                BuildableName = "SharedCoreXcodeTests.xctest"
                BlueprintName = "SharedCoreXcodeTests"
-               ReferencedContainer = "container:ShadowsocksOne.xcodeproj">
+               ReferencedContainer = "container:ShadowsocksBrowser.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -93,10 +93,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "94B199099815873DD40E7CEE"
-            BuildableName = "Shadowsocks One.app"
-            BlueprintName = "Shadowsocks One"
-            ReferencedContainer = "container:ShadowsocksOne.xcodeproj">
+            BlueprintIdentifier = "EEB0A4ACAA070AC61BBDFED9"
+            BuildableName = "ShadowsocksBrowser.app"
+            BlueprintName = "ShadowsocksBrowser"
+            ReferencedContainer = "container:ShadowsocksBrowser.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -110,10 +110,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "94B199099815873DD40E7CEE"
-            BuildableName = "Shadowsocks One.app"
-            BlueprintName = "Shadowsocks One"
-            ReferencedContainer = "container:ShadowsocksOne.xcodeproj">
+            BlueprintIdentifier = "EEB0A4ACAA070AC61BBDFED9"
+            BuildableName = "ShadowsocksBrowser.app"
+            BlueprintName = "ShadowsocksBrowser"
+            ReferencedContainer = "container:ShadowsocksBrowser.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

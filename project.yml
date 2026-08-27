@@ -1,4 +1,4 @@
-name: ShadowsocksOne
+name: ShadowsocksBrowser
 options:
   deploymentTarget:
     iOS: "17.0"
@@ -6,38 +6,38 @@ packages:
   SharedCore:
     path: Packages/SharedCore
 targets:
-  Shadowsocks One:
+  ShadowsocksBrowser:
     type: application
     platform: iOS
     sources:
       - App
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.fits.socks.one
+        PRODUCT_BUNDLE_IDENTIFIER: com.fits.socks.browser
         DEVELOPMENT_TEAM: 8Z7LGX7B48
         CODE_SIGN_STYLE: Automatic
-        PRODUCT_NAME: ShadowsocksOne
-        PRODUCT_MODULE_NAME: ShadowsocksOne
+        PRODUCT_NAME: ShadowsocksBrowser
+        PRODUCT_MODULE_NAME: ShadowsocksBrowser
         INFOPLIST_FILE: App/Info.plist
-        CODE_SIGN_ENTITLEMENTS: App/ShadowsocksOne.entitlements
+        CODE_SIGN_ENTITLEMENTS: App/ShadowsocksBrowser.entitlements
         TARGETED_DEVICE_FAMILY: "1,2"
     dependencies:
       - package: SharedCore
-      - target: ShadowsocksOnePacketTunnel
+      - target: ShadowsocksBrowserPacketTunnel
         embed: true
 
-  ShadowsocksOnePacketTunnel:
+  ShadowsocksBrowserPacketTunnel:
     type: app-extension
     platform: iOS
     sources:
       - PacketTunnel
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.fits.socks.one.PacketTunnel
+        PRODUCT_BUNDLE_IDENTIFIER: com.fits.socks.browser.PacketTunnel
         DEVELOPMENT_TEAM: 8Z7LGX7B48
         CODE_SIGN_STYLE: Automatic
-        PRODUCT_NAME: ShadowsocksOnePacketTunnel
-        PRODUCT_MODULE_NAME: ShadowsocksOnePacketTunnel
+        PRODUCT_NAME: ShadowsocksBrowserPacketTunnel
+        PRODUCT_MODULE_NAME: ShadowsocksBrowserPacketTunnel
         INFOPLIST_FILE: PacketTunnel/Info.plist
         CODE_SIGN_ENTITLEMENTS: PacketTunnel/PacketTunnel.entitlements
         SKIP_INSTALL: YES
@@ -59,13 +59,13 @@ targets:
       - path: PacketTunnel/TunnelEngine.swift
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.fits.socks.one.ConnectionIntegrationTests
+        PRODUCT_BUNDLE_IDENTIFIER: com.fits.socks.browser.ConnectionIntegrationTests
         GENERATE_INFOPLIST_FILE: YES
         TARGETED_DEVICE_FAMILY: "1,2"
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/ShadowsocksOne.app/ShadowsocksOne"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/ShadowsocksBrowser.app/ShadowsocksBrowser"
         BUNDLE_LOADER: "$(TEST_HOST)"
     dependencies:
-      - target: Shadowsocks One
+      - target: ShadowsocksBrowser
       - package: SharedCore
   SharedCoreXcodeTests:
     type: bundle.unit-test
@@ -74,7 +74,7 @@ targets:
       - Packages/SharedCore/Tests/SharedCoreTests
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.fits.socks.one.SharedCoreXcodeTests
+        PRODUCT_BUNDLE_IDENTIFIER: com.fits.socks.browser.SharedCoreXcodeTests
         GENERATE_INFOPLIST_FILE: YES
         TARGETED_DEVICE_FAMILY: "1,2"
         TEST_HOST: ""
@@ -82,16 +82,16 @@ targets:
     dependencies:
       - package: SharedCore
 schemes:
-  Shadowsocks One:
+  ShadowsocksBrowser:
     build:
       targets:
-        Shadowsocks One: all
-        ShadowsocksOnePacketTunnel: [build]
+        ShadowsocksBrowser: all
+        ShadowsocksBrowserPacketTunnel: [build]
     test:
       targets:
         - ConnectionIntegrationTests
         - SharedCoreXcodeTests
-  ShadowsocksOnePacketTunnel:
+  ShadowsocksBrowserPacketTunnel:
     build:
       targets:
-        ShadowsocksOnePacketTunnel: all
+        ShadowsocksBrowserPacketTunnel: all

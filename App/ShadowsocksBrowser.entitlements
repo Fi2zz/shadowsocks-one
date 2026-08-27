@@ -12,7 +12,7 @@
 	</array>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)com.fits.socks.one.shared</string>
+		<string>$(AppIdentifierPrefix)com.fits.socks.browser.shared</string>
 	</array>
 </dict>
 </plist>

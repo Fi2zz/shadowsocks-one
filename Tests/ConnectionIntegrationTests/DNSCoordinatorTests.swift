@@ -1,7 +1,7 @@
 import Foundation
 import XCTest
 import SharedCore
-@testable import ShadowsocksOnePacketTunnel
+@testable import ShadowsocksBrowserPacketTunnel
 
 final class DNSCoordinatorTests: XCTestCase {
     func testAnswersAAAAQueryWithEmptyResponseWithoutUpstream() async throws {

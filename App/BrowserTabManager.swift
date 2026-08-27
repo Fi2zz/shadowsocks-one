@@ -135,7 +135,7 @@ final class BrowserTabManager: ObservableObject {
     }
 
     static func makeDefault() -> BrowserTabManager {
-        let base = applicationSupport.appendingPathComponent("ShadowsocksOne", isDirectory: true)
+        let base = applicationSupport.appendingPathComponent("ShadowsocksBrowser", isDirectory: true)
         return BrowserTabManager(
             store: try? BrowserTabStore(directory: base.appendingPathComponent("Tabs")),
             historyStore: try? BrowserHistoryStore(directory: base),

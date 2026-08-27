@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import ShadowsocksOnePacketTunnel
+@testable import ShadowsocksBrowserPacketTunnel
 
 final class TCPSendBufferTests: XCTestCase {
     private let t0 = Date(timeIntervalSince1970: 1_000)

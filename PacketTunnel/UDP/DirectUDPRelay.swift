@@ -9,7 +9,7 @@ enum UDPRelayError: Error, Equatable {
 
 final class DirectUDPRelay: UDPFlowRelaying {
     private let connection: NWConnection
-    private let queue = DispatchQueue(label: "ShadowsocksOne.PacketTunnel.DirectUDPRelay")
+    private let queue = DispatchQueue(label: "ShadowsocksBrowser.PacketTunnel.DirectUDPRelay")
     private let stateLock = NSLock()
     private var didStart = false
     private var receiveTask: Task<Void, Never>?

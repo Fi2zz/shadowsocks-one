@@ -16,10 +16,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D735B011E44A17E0D59B0C84"
-               BuildableName = "ShadowsocksOnePacketTunnel.appex"
-               BlueprintName = "ShadowsocksOnePacketTunnel"
-               ReferencedContainer = "container:ShadowsocksOne.xcodeproj">
+               BlueprintIdentifier = "2E48189CE5F5D1105DBCFCE0"
+               BuildableName = "ShadowsocksBrowserPacketTunnel.appex"
+               BlueprintName = "ShadowsocksBrowserPacketTunnel"
+               ReferencedContainer = "container:ShadowsocksBrowser.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,10 +33,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D735B011E44A17E0D59B0C84"
-            BuildableName = "ShadowsocksOnePacketTunnel.appex"
-            BlueprintName = "ShadowsocksOnePacketTunnel"
-            ReferencedContainer = "container:ShadowsocksOne.xcodeproj">
+            BlueprintIdentifier = "2E48189CE5F5D1105DBCFCE0"
+            BuildableName = "ShadowsocksBrowserPacketTunnel.appex"
+            BlueprintName = "ShadowsocksBrowserPacketTunnel"
+            ReferencedContainer = "container:ShadowsocksBrowser.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -57,10 +57,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D735B011E44A17E0D59B0C84"
-            BuildableName = "ShadowsocksOnePacketTunnel.appex"
-            BlueprintName = "ShadowsocksOnePacketTunnel"
-            ReferencedContainer = "container:ShadowsocksOne.xcodeproj">
+            BlueprintIdentifier = "2E48189CE5F5D1105DBCFCE0"
+            BuildableName = "ShadowsocksBrowserPacketTunnel.appex"
+            BlueprintName = "ShadowsocksBrowserPacketTunnel"
+            ReferencedContainer = "container:ShadowsocksBrowser.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -74,10 +74,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D735B011E44A17E0D59B0C84"
-            BuildableName = "ShadowsocksOnePacketTunnel.appex"
-            BlueprintName = "ShadowsocksOnePacketTunnel"
-            ReferencedContainer = "container:ShadowsocksOne.xcodeproj">
+            BlueprintIdentifier = "2E48189CE5F5D1105DBCFCE0"
+            BuildableName = "ShadowsocksBrowserPacketTunnel.appex"
+            BlueprintName = "ShadowsocksBrowserPacketTunnel"
+            ReferencedContainer = "container:ShadowsocksBrowser.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

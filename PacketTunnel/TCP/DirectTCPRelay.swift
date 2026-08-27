@@ -10,7 +10,7 @@ final class DirectTCPRelay: TCPFlowRelaying {
     private let connection: NWConnection
     private let endpoint: String
     private let diagnostics: TunnelDiagnosticsLogging?
-    private let queue = DispatchQueue(label: "ShadowsocksOne.PacketTunnel.DirectTCPRelay")
+    private let queue = DispatchQueue(label: "ShadowsocksBrowser.PacketTunnel.DirectTCPRelay")
     private let stateLock = NSLock()
     private var didStart = false
     private var firstReceiveLogged = false
