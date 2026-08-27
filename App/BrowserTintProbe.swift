@@ -110,9 +110,16 @@ enum BrowserTintProbe {
       ['DOMContentLoaded', 'load', 'pageshow'].forEach(function (name) {
         window.addEventListener(name, function () { probe(false); }, true);
       });
-      // 主题色常由页面 JS 在加载后异步注入（如 QQ 新闻的 --bg-page 变量），
-      // 监听根节点属性与 head 子树变化，并在 pageshow 后补采几次
-      var observer = new MutationObserver(function () { probe(false); });
+      // 主题色常由页面 JS 在加载后异步注入（如 QQ 新闻 hydration 后请求换肤
+      // 接口再改深层元素的内联 style），监听根节点属性、head 子树、以及 body
+      // 子树内任意元素的 style/class 变化，并在 pageshow 后补采几次
+      var pending = false;
+      function scheduleProbe() {
+        if (pending) return;
+        pending = true;
+        requestAnimationFrame(function () { pending = false; probe(false); });
+      }
+      var observer = new MutationObserver(scheduleProbe);
       function observeRoot() {
         var filter = { attributes: true, attributeFilter: ['style', 'class'] };
         observer.observe(document.documentElement, filter);
@@ -121,17 +128,17 @@ enum BrowserTintProbe {
       observeRoot();
       document.addEventListener('DOMContentLoaded', observeRoot);
       if (document.head) observer.observe(document.head, { childList: true, subtree: true });
+      if (document.body) {
+        observer.observe(document.body, {
+          attributes: true, attributeFilter: ['style', 'class'], subtree: true
+        });
+      }
       window.addEventListener('pageshow', function () {
         [400, 1200, 3000].forEach(function (delay) {
           setTimeout(function () { probe(false); }, delay);
         });
       });
-      var pending = false;
-      window.addEventListener('scroll', function () {
-        if (pending) return;
-        pending = true;
-        requestAnimationFrame(function () { pending = false; probe(false); });
-      }, { passive: true });
+      window.addEventListener('scroll', scheduleProbe, { passive: true });
     })();
     """
 }
