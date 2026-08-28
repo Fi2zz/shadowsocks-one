@@ -9,6 +9,7 @@ struct BrowserRootView: View {
     @ObservedObject var hudunSession: HudunSessionViewModel
 
     @StateObject private var browser = BrowserViewModel()
+    @StateObject private var keyboard = KeyboardHeightObserver()
     @ObservedObject private var tabManager = BrowserTabManager.shared
     @Environment(\.scenePhase) private var scenePhase
     @FocusState private var addressFocused: Bool
@@ -29,6 +30,18 @@ struct BrowserRootView: View {
         }
         .overlay(alignment: .bottom) { backgroundToast }
         .sheet(isPresented: $morePresented) { moreMenu }
+        // 第三方键盘（微信键盘）会生成残缺的键盘安全区（实测约 136pt，远小于实际
+        // 424pt），在根层级忽略，底栏避让完全交给 KeyboardHeightObserver 手动计算
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .onAppear(perform: autoFocusAddressBarIfNeeded)
+    }
+
+    /// UI 自动化钩子：`-SSBrowserAutoFocus 1` 启动 1 秒后聚焦地址栏（验证键盘避让用）
+    private func autoFocusAddressBarIfNeeded() {
+        guard UserDefaults.standard.string(forKey: "SSBrowserAutoFocus") != nil else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            addressFocused = true
+        }
     }
 
     private func rootStack(safeTop: CGFloat, safeBottom: CGFloat) -> some View {
@@ -40,8 +53,9 @@ struct BrowserRootView: View {
             bottomContent(safeBottom: safeBottom)
         }
         // 容器安全区全部穿透（顶部内容画到状态栏后面，对齐 Safari）；
-        // 键盘区域必须保留，否则键盘避让失效、输入框被键盘盖住
-        .ignoresSafeArea(.container)
+        // 键盘安全区一并忽略：系统键盘安全区对第三方键盘不生效（iOS 26.6 实测），
+        // 底栏键盘避让统一由 KeyboardHeightObserver 手动垫高，防止双重叠加
+        .ignoresSafeArea([.container, .keyboard])
         .onChange(of: tabManager.activeTabID) { _ in
             browser.observeActiveWebView()
         }
@@ -123,7 +137,7 @@ struct BrowserRootView: View {
         }
     }
 
-    /// 展开态贴在安全区上沿；收缩胶囊沉到安全区之下（Home 指示条区域）
+    /// 收缩胶囊沉到安全区之下（Home 指示条区域）；展开态由键盘观察者手动垫高
     @ViewBuilder
     private func bottomContent(safeBottom: CGFloat) -> some View {
         if browser.toolbarCollapsed {
@@ -141,8 +155,9 @@ struct BrowserRootView: View {
             loadingProgressBar
             toolbar
         }
-        // 键盘弹起时系统已完成避让，再垫安全区高度会把输入框顶到半空
-        .padding(.bottom, addressFocused ? 4 : safeBottom + 4)
+        // 键盘在时垫键盘高度（键盘已占据 Home 指示条区域），否则垫底部安全区
+        .padding(.bottom, keyboard.height > 0 ? keyboard.height + 4 : safeBottom + 4)
+        .animation(keyboard.animation, value: keyboard.height)
     }
 
     private var compactPill: some View {

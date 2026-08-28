@@ -88,6 +88,7 @@
 		7E12E512971D074C0C17992E /* DiagnosticsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B72B16C2400AC82E687A334 /* DiagnosticsSection.swift */; };
 		804F626D9E4395B8AB42AAFD /* WGUDPFlows.swift in Sources */ = {isa = PBXBuildFile; fileRef = B39B942BE62749D43FF72336 /* WGUDPFlows.swift */; };
 		83A7B941600EF3C6C3887912 /* DirectTCPRelayLoopbackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9FA8ED53EFCBD9FBF7BCD7 /* DirectTCPRelayLoopbackTests.swift */; };
+		89483E90282D769FAB826C18 /* KeyboardHeightObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4935B9780ECD25F68770F2E /* KeyboardHeightObserver.swift */; };
 		8C17D9A73230692932118FD5 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C204C2BD043B9DDB6B4FAE13 /* PacketTunnelProvider.swift */; };
 		8CBAF3417CF3063690FAF207 /* WireGuardProviderSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F997DE0743EEEEF4D89AA0 /* WireGuardProviderSupport.swift */; };
 		8CDE90B210DD734BE3C7F711 /* BrowserTabManager+Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = A953925968747E214152AC06 /* BrowserTabManager+Library.swift */; };
@@ -295,6 +296,7 @@
 		9EC0050D4EF8798D8E9D39E5 /* ShadowsocksBrowserPacketTunnel.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = ShadowsocksBrowserPacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9FEBDDBA49AAB6FB8FACCAD2 /* HudunServicing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudunServicing.swift; sourceTree = "<group>"; };
 		A02D8B735334B9E13F44A840 /* WireGuardTunnelPump.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardTunnelPump.swift; sourceTree = "<group>"; };
+		A4935B9780ECD25F68770F2E /* KeyboardHeightObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardHeightObserver.swift; sourceTree = "<group>"; };
 		A667EF5C20375466D2C8E214 /* TunnelEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelEngine.swift; sourceTree = "<group>"; };
 		A716C735A252B0BB2886D769 /* ConnectionManagerStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionManagerStateTests.swift; sourceTree = "<group>"; };
 		A7193AC6407A9E0570359945 /* NodePickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodePickerSheet.swift; sourceTree = "<group>"; };
@@ -509,6 +511,7 @@
 				707ED24D3354ED8AEA5ACBD5 /* ImportTabView.swift */,
 				F05C35B432B98DBCEA92A34F /* Info.plist */,
 				32B2B83F89687871D6B738C3 /* IPListViewModel.swift */,
+				A4935B9780ECD25F68770F2E /* KeyboardHeightObserver.swift */,
 				544A42ABD55AC83F0CDCDF2A /* LiquidGlass.swift */,
 				BE1103B4CAC4254AC6BBD1BF /* MessageSection.swift */,
 				A7193AC6407A9E0570359945 /* NodePickerSheet.swift */,
@@ -800,6 +803,7 @@
 				3AD03C5474507B841456303E /* IPListViewModel.swift in Sources */,
 				4E363115FAF330D5F81460BD /* ImportSection.swift in Sources */,
 				25D88B093A07A702A7A95D3C /* ImportTabView.swift in Sources */,
+				89483E90282D769FAB826C18 /* KeyboardHeightObserver.swift in Sources */,
 				1330FC712D2F9510C52BBB6C /* LiquidGlass.swift in Sources */,
 				485D24A4B9B49557950F68F7 /* MessageSection.swift in Sources */,
 				A9AF27F005824C2AC7DDC5E2 /* NodePickerSheet.swift in Sources */,
@@ -979,7 +983,7 @@
 				PRODUCT_MODULE_NAME = ShadowsocksBrowser;
 				PRODUCT_NAME = ShadowsocksBrowser;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,4";
 			};
 			name = Release;
 		};
@@ -1000,7 +1004,7 @@
 				PRODUCT_MODULE_NAME = ShadowsocksBrowser;
 				PRODUCT_NAME = ShadowsocksBrowser;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,4";
 			};
 			name = Debug;
 		};
