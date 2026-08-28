@@ -20,7 +20,8 @@ targets:
         PRODUCT_MODULE_NAME: ShadowsocksBrowser
         INFOPLIST_FILE: App/Info.plist
         CODE_SIGN_ENTITLEMENTS: App/ShadowsocksBrowser.entitlements
-        TARGETED_DEVICE_FAMILY: "1,2"
+        # family 4 = Xcode 26 新机型模拟器（iPhone 17 / Air）的标识，真机仍为 1/2
+        TARGETED_DEVICE_FAMILY: "1,2,4"
     dependencies:
       - package: SharedCore
       - target: ShadowsocksBrowserPacketTunnel
