@@ -45,7 +45,7 @@
 | 属性 | 决定什么 | 取值 |
 |---|---|---|
 | WebView frame | 网页**渲染**到哪里 | 全屏（延伸到状态栏与物理底边） |
-| chrome 避让 inset | fixed 元素**锚定**位置、滚动**停留**边界、`env()` 上报 | 底部 = chrome 总高，显隐时随 SwiftUI 动画同步 |
+| chrome 避让 inset | 布局视口**锚定**、fixed 元素位置、滚动**停留**边界、`env()` 上报 | 顶部 = 真实状态栏高；底部 = chrome 总高，显隐时随 SwiftUI 动画同步 |
 
 避让经 `BrowserChromeViewController` 双通道下发：
 
@@ -53,10 +53,13 @@
   （顶部 = 真实状态栏高，底部 = chrome 总高），恢复 SwiftUI `ignoresSafeArea`
   消费掉的安全区；仅在值变化时写入，避免每次布局触发 WebKit 安全区重算。
 2. **显式通道**——iOS 26 实测 WKWebView 不会自发消费安全区进入页面
-  （env/布局视口均不变），需经 `_setObscuredInsets:`（fixed 元素布局视口与
-  滚动范围）与 `_setUnobscuredSafeAreaInsets:`（env 上报值）显式下发。
-  验证记录见 c9b6cda 提交信息（env(top)=状态栏高，env(bottom)=chrome 高，
-  布局视口高度 874→768）。
+  （env/布局视口均不变），需经 `_setObscuredInsets:`（布局视口锚定、fixed
+  元素与滚动范围）与 `_setUnobscuredSafeAreaInsets:`（env 上报值）显式下发。
+  **obscured.top 必须 = 真实状态栏高**：为 0 时布局视口顶锚到屏幕 0 点，
+  非 cover 页（viewport-fit=auto，不读 env）内容直接伸进状态栏；
+  cover 页不受 obscured 顶部约束（viewport-fit=cover 语义），仍靠 env
+  自己画进状态栏。验证记录见 c9b6cda 与 2026-08-31 修复提交（auto 页
+  innerH 874→706 = 总高 − 状态栏 62 − chrome 106，cover 页视觉不变）。
 
 - 滚动时正文从玻璃底栏底下流过（frame 全屏的自然结果）；
 - 松手停稳后内容与 fixed 元素不被栏压住（inset 的作用）；
@@ -115,6 +118,9 @@ BrowserRootView (SwiftUI)
 - c735eba：玻璃下透内容 + 工具栏折叠稳定化（迟滞/钳制补偿/回弹冻结/UA 冻结令牌）。
 - c9b6cda：全屏 Safari 路线终态（chrome VC 双通道，移除顶/底染色层与手动
   contentInset 通道，themeColor KVO 接入）。
+- 2026-08-31 修复：`obscured.top` 由 0 改为真实状态栏高——c9b6cda 的 top=0
+  使非 cover 页布局视口锚在屏幕 0 点，内容伸进状态栏（模拟器探针页实证，
+  修复后 auto 页 innerH 768→706，cover 页视觉不变）。
 
 返工记录（教训：验证结论必须回写本文档，避免重复试错）：
 
@@ -129,6 +135,9 @@ BrowserRootView (SwiftUI)
 
 - **WKWebView 不消费安全区**（iOS 26 实测）：只设 `additionalSafeAreaInsets`
   页面 env/布局视口不变，必须走 §4.1 显式通道。
+- **obscured.top 不能为 0**：`_setObscuredInsets:` 的 top 决定布局视口顶部锚点；
+  为 0 时非 cover 页（viewport-fit=auto，不读 env）内容伸进状态栏。
+  cover 页靠 viewport-fit=cover 语义穿透，不受影响。
 - **私有 API 风险**：`_setObscuredInsets:` / `_setUnobscuredSafeAreaInsets:` 有
   App Store 审核风险（决策见 §3）；经 `NSSelectorFromString` + IMP 调用，
   方法不存在时降级为无避让，不崩溃。
