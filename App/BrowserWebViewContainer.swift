@@ -38,11 +38,9 @@ struct BrowserWebViewContainer: UIViewRepresentable {
     }
 }
 
-/// Safari 式原生层安全区：WebView frame 全屏，页面内容延伸进状态栏并从其
-/// 下滑过（对齐 Safari 收起顶栏态）；顶部/底部避让都经 WebKit 内部 inset
-/// 机制下发——`_obscuredInsets` 驱动滚动范围与边缘颜色填充，
-/// `_unobscuredSafeAreaInsets` 决定页面 env(safe-area-inset-*) 上报值与
-/// fixed 元素的布局视口锚定。
+/// Safari 式原生层安全区：WebView 的 frame 只让开顶部安全区（状态栏染色层绘制），
+/// 底部一路延伸到物理屏幕底边，内容透过液态玻璃工具栏渲染、不被底色遮住。
+/// bottomInset 经 WebKit 内部 inset 机制下发，滚动范围与页面安全区由 WebKit 同步处理。
 final class BrowserContainerView: UIView {
     var bottomInset: CGFloat = 0 {
         didSet {
@@ -51,25 +49,23 @@ final class BrowserContainerView: UIView {
         }
     }
 
-    /// 顶部安全区高度。SwiftUI ignoresSafeArea 消费掉安全区时容器自身上报为 0，
-    /// 此时回退读 window（根视图仍全屏，window 值始终正确）
-    private var topSafeInset: CGFloat {
-        safeAreaInsets.top != 0 ? safeAreaInsets.top : (window?.safeAreaInsets.top ?? 0)
-    }
-
     override func layoutSubviews() {
         super.layoutSubviews()
         guard let webView = subviews.first else {
             return
         }
-        // frame 全屏：头部由页面自己画进状态栏区域（cover 页），不做 frame 裁剪
-        webView.frame = bounds
+        let topInset = safeAreaInsets.top != 0
+            ? safeAreaInsets.top
+            : (window?.safeAreaInsets.top ?? 0)
+        let height = max(bounds.height - topInset, 0)
+        webView.frame = CGRect(x: 0, y: safeAreaInsets.top, width: bounds.width, height: height)
         applyChromeInsets()
     }
 
-    /// 顶部不遮挡（内容从状态栏下滑过，对齐 Safari 收起态）但计入安全区：
-    /// cover 页用 env(safe-area-inset-top) 自行画头部，非 cover 页布局视口
-    /// 自动停在状态栏下方；底部为 chrome 区高度，fixed 元素与滚动范围据此避让。
+    /// Safari 底栏避让在 iOS 26 由两个 WebKit 内部 inset 共同实现：
+    /// `_obscuredInsets` 驱动滚动范围与边缘颜色填充；`_unobscuredSafeAreaInsets`
+    /// 决定页面 env(safe-area-inset-bottom) 的上报值与 fixed 元素的布局视口，
+    /// QQ 新闻等 fixed 横幅据此停在 chrome 上方。
     /// REASON: 公开 API 无等价能力——scrollView.contentInset 只改滚动停留边界，
     /// 不影响 fixed 布局视口与 env 上报（4a4a6b5 已验证并放弃该路线）；
     /// KVC/NSInvocation 在 Swift 侧不可达这些 setter，只能取 IMP 直接调用；
@@ -79,18 +75,17 @@ final class BrowserContainerView: UIView {
         guard let webView = subviews.first as? WKWebView else {
             return
         }
-        let obscured = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
-        let unobscuredSafeArea = UIEdgeInsets(top: topSafeInset, left: 0, bottom: bottomInset, right: 0)
-        Self.setEdgeInsets(obscured, on: webView, setter: "_setObscuredInsets:")
-        Self.setEdgeInsets(unobscuredSafeArea, on: webView, setter: "_setUnobscuredSafeAreaInsets:")
+        let insets = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
+        Self.setEdgeInsets(insets, on: webView, setter: "_setObscuredInsets:")
+        Self.setEdgeInsets(insets, on: webView, setter: "_setUnobscuredSafeAreaInsets:")
         hideColorExtensionViews(in: webView)
     }
 
     /// iOS 26 边缘色填充视图（WKColorExtensionView）会把 chrome 区底下的实时页面
     /// 内容盖成不透明色块；隐藏后透出实时内容（对齐 Safari 玻璃下可见内容的观感）。
-    /// 只隐藏底部延伸视图：顶部延伸视图承担页面顶色向橡皮筋回弹区域的连续填充
-    /// （状态栏区域的内容透出依赖它），不能动。WebKit 在 inset 边集合变化时会
-    /// 重建这些视图，故每次下发时兜底隐藏一次即可。
+    /// 只隐藏底部延伸视图：顶部延伸视图承担页面顶色向状态栏方向/橡皮筋回弹区域的
+    /// 连续填充，是顶部染色的一部分，不能动。WebKit 在 inset 边集合变化时会重建
+    /// 这些视图，故每次下发时兜底隐藏一次即可。
     private func hideColorExtensionViews(in webView: WKWebView) {
         guard let extensionClass = NSClassFromString("WKColorExtensionView") else {
             return

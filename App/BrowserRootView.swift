@@ -17,7 +17,7 @@ struct BrowserRootView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            rootStack(safeBottom: proxy.safeAreaInsets.bottom)
+            rootStack(safeTop: proxy.safeAreaInsets.top, safeBottom: proxy.safeAreaInsets.bottom)
                 .background(Color(uiColor: .systemBackground))
                 .background(BrowserStatusBarGate(prefersLightText: prefersLightStatusText))
                 .animation(.easeOut(duration: 0.25), value: browser.progress)
@@ -55,14 +55,14 @@ struct BrowserRootView: View {
         }
     }
 
-    private func rootStack(safeBottom: CGFloat) -> some View {
+    private func rootStack(safeTop: CGFloat, safeBottom: CGFloat) -> some View {
         let bottomChrome = browser.bottomChromeHeight(keyboardHeight: keyboard.height)
         return ZStack(alignment: .bottom) {
             webViewLayer(bottomInset: bottomChrome)
+            chromeTint(height: safeTop)
             bottomContent(safeBottom: safeBottom)
         }
-        // 容器安全区全部穿透：顶部状态栏区域由页面自己绘制（cover 页头部延伸
-        // 进来，非 cover 页由 WebKit 边缘填充），底部内容透过液态玻璃 chrome；
+        // 容器安全区全部穿透（顶部内容画到状态栏后面，对齐 Safari）；
         // 键盘安全区一并忽略：系统键盘安全区对第三方键盘不生效（iOS 26.6 实测），
         // 底栏键盘避让统一由 KeyboardHeightObserver 手动垫高，防止双重叠加
         .ignoresSafeArea([.container, .keyboard])
@@ -78,8 +78,31 @@ struct BrowserRootView: View {
         }
     }
 
+    /// 状态栏区域染色层：页面顶色（Safari 探针算法）延伸到状态栏背后
+    @ViewBuilder
+    private func chromeTint(height: CGFloat) -> some View {
+        if height > 0 {
+            Rectangle()
+                .fill(tintColor)
+                .frame(height: height)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .allowsHitTesting(false)
+        }
+    }
+
     private var resolvedTint: BrowserPageTint? {
         browser.pageTint?.resolved(over: systemBackgroundTint)
+    }
+
+    private var tintColor: Color {
+        color(of: resolvedTint)
+    }
+
+    private func color(of tint: BrowserPageTint?) -> Color {
+        guard let tint else {
+            return Color(uiColor: .systemBackground)
+        }
+        return Color(.sRGB, red: tint.red / 255, green: tint.green / 255, blue: tint.blue / 255)
     }
 
     private var prefersLightStatusText: Bool {
