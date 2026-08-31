@@ -2,7 +2,7 @@ import WebKit
 
 /// WebView 唯一的创建入口：由 BrowserTabManager 在需要时调用，
 /// 实例归 TabManager 的缓存所有，SwiftUI 视图只负责挂载、绝不创建。
-/// 顶部安全区由 frame 层让开、底部 chrome 由 obscured inset 表达
+/// frame 全屏，顶部/底部 chrome 避让都经 obscured inset 表达
 /// （都在 BrowserContainerView），与 Safari 的 chrome/内容分离同构。
 @MainActor
 enum BrowserWebViewFactory {
