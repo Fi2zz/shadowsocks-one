@@ -95,6 +95,10 @@ enum BrowserTintProbe {
       function probe(force) {
         var w = document.documentElement.clientWidth;
         var h = document.documentElement.clientHeight;
+        // 顶部回弹期间视口顶边已探出内容之外，采样会回落到 body 底色导致
+        // 状态栏色块闪烁丢失；回弹期间冻结采样，保持回弹前的顶色（对齐 Safari）
+        var sy = window.scrollY || 0;
+        if (sy < 0) return;
         var top = edgeColorAt(2, w);
         var bottom = edgeColorAt(h - 2, w);
         var tKey = keyOf(top), bKey = keyOf(bottom);

@@ -34,6 +34,17 @@ struct BrowserRootView: View {
         // 424pt），在根层级忽略，底栏避让完全交给 KeyboardHeightObserver 手动计算
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear(perform: autoFocusAddressBarIfNeeded)
+        .onAppear(perform: openURLIfRequested)
+    }
+
+    /// UI 自动化钩子：`-SSBrowserOpenURL <url>` 启动后直接打开指定页面（布局验证用）
+    private func openURLIfRequested() {
+        guard let raw = UserDefaults.standard.string(forKey: "SSBrowserOpenURL"),
+              let url = URL(string: raw)
+        else {
+            return
+        }
+        tabManager.open(url)
     }
 
     /// UI 自动化钩子：`-SSBrowserAutoFocus 1` 启动 1 秒后聚焦地址栏（验证键盘避让用）
@@ -45,17 +56,18 @@ struct BrowserRootView: View {
     }
 
     private func rootStack(safeTop: CGFloat, safeBottom: CGFloat) -> some View {
-        let bottomChrome = bottomChromeHeight(safeBottom: safeBottom)
+        let bottomChrome = browser.bottomChromeHeight(keyboardHeight: keyboard.height)
         return ZStack(alignment: .bottom) {
             webViewLayer(bottomInset: bottomChrome)
             chromeTint(height: safeTop)
-            bottomChromeTint(height: bottomChrome)
             bottomContent(safeBottom: safeBottom)
         }
         // 容器安全区全部穿透（顶部内容画到状态栏后面，对齐 Safari）；
         // 键盘安全区一并忽略：系统键盘安全区对第三方键盘不生效（iOS 26.6 实测），
         // 底栏键盘避让统一由 KeyboardHeightObserver 手动垫高，防止双重叠加
         .ignoresSafeArea([.container, .keyboard])
+        .onAppear { browser.bottomSafeArea = safeBottom }
+        .onChange(of: safeBottom) { browser.bottomSafeArea = $0 }
         .onChange(of: tabManager.activeTabID) { _ in
             browser.observeActiveWebView()
         }
@@ -64,12 +76,6 @@ struct BrowserRootView: View {
                 tabManager.persistAll()
             }
         }
-    }
-
-    /// 底部 chrome 区 = 工具栏区 + 底部安全区；工具栏收起时归零（内容沉到
-    /// Home 指示条后面，对应 Safari 底栏收起态）
-    private func bottomChromeHeight(safeBottom: CGFloat) -> CGFloat {
-        browser.toolbarCollapsed ? 0 : safeBottom + 60
     }
 
     /// 状态栏区域染色层：页面顶色（Safari 探针算法）延伸到状态栏背后
@@ -84,32 +90,12 @@ struct BrowserRootView: View {
         }
     }
 
-    /// 底部 chrome 区染色层：页面底边色延伸到工具栏背后（Safari 对底栏区域做同样的事）
-    @ViewBuilder
-    private func bottomChromeTint(height: CGFloat) -> some View {
-        if height > 0 {
-            Rectangle()
-                .fill(bottomTintColor)
-                .frame(height: height)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                .allowsHitTesting(false)
-        }
-    }
-
     private var resolvedTint: BrowserPageTint? {
         browser.pageTint?.resolved(over: systemBackgroundTint)
     }
 
-    private var resolvedBottomTint: BrowserPageTint? {
-        browser.pageBottomTint?.resolved(over: systemBackgroundTint)
-    }
-
     private var tintColor: Color {
         color(of: resolvedTint)
-    }
-
-    private var bottomTintColor: Color {
-        color(of: resolvedBottomTint)
     }
 
     private func color(of tint: BrowserPageTint?) -> Color {
@@ -165,12 +151,14 @@ struct BrowserRootView: View {
             browser.expandToolbar()
         } label: {
             Text(browser.activePageURL?.host ?? "")
-                .font(.body)
+                .font(.footnote.weight(.light))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 10)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 2)
         }
+        // plain 风格避免默认 Button 把文字着成 accent 蓝（对齐 Safari 的深色文字）
+        .buttonStyle(.plain)
         .liquidGlassCapsule()
     }
 

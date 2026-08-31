@@ -106,6 +106,7 @@ struct BrowserToolbar: View {
                 reloadButton
             }
         }
+        .frame(height: 24)
         .padding(.horizontal, 14)
         .padding(.vertical, 14)
         .liquidGlassCapsule()
@@ -141,8 +142,8 @@ struct BrowserToolbar: View {
         Button(action: browser.reload) {
             Image(systemName: "arrow.clockwise")
                 .font(.title3)
+                .frame(width: 24, height: 24)
         }
-        .padding(4)
     }
 
     private func iconButton(systemImage: String, action: @escaping () -> Void) -> some View {
