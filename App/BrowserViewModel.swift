@@ -16,6 +16,8 @@ final class BrowserViewModel: ObservableObject {
     @Published var showSwitcher = false
     @Published var backgroundToastTabID: UUID?
     @Published var pageTint: BrowserPageTint?
+    /// 页面 meta theme-color（KVO 监听），优先于 JS 采样结果
+    @Published var themeColorTint: BrowserPageTint?
 
     /// 底部安全区高度由视图层注入（GeometryReader 读取），供 chrome 高度与钳制补偿计算
     var bottomSafeArea: CGFloat = 0
@@ -57,8 +59,17 @@ final class BrowserViewModel: ObservableObject {
         canGoForward = webView.canGoForward
         progress = webView.estimatedProgress
         pageTint = nil
+        themeColorTint = themeColorTint(of: webView)
         observations = makeObservations(for: webView)
         reprobeTint(webView)
+    }
+
+    /// 已有 meta theme-color 时直接采用（KVO 前的初值），否则等待探针采样
+    private func themeColorTint(of webView: WKWebView) -> BrowserPageTint? {
+        guard let color = webView.themeColor else { return nil }
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        color.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        return BrowserPageTint(red: red, green: green, blue: blue, alpha: alpha)
     }
 
     // MARK: - 用户操作
@@ -142,6 +153,9 @@ final class BrowserViewModel: ObservableObject {
             },
             webView.observe(\.canGoForward, options: .new) { [weak self] observed, _ in
                 Task { @MainActor in self?.canGoForward = observed.canGoForward }
+            },
+            webView.observe(\.themeColor, options: .new) { [weak self] observed, _ in
+                Task { @MainActor in self?.themeColorTint = self?.themeColorTint(of: observed) }
             },
             webView.scrollView.observe(\.contentOffset, options: .new) { [weak self] scrollView, _ in
                 Task { @MainActor in self?.handleScroll(in: scrollView) }

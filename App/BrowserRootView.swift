@@ -17,12 +17,11 @@ struct BrowserRootView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            rootStack(safeTop: proxy.safeAreaInsets.top, safeBottom: proxy.safeAreaInsets.bottom)
+            rootStack(safeBottom: proxy.safeAreaInsets.bottom)
                 .background(Color(uiColor: .systemBackground))
                 .background(BrowserStatusBarGate(prefersLightText: prefersLightStatusText))
                 .animation(.easeOut(duration: 0.25), value: browser.progress)
                 .animation(.easeInOut(duration: 0.2), value: browser.toolbarCollapsed)
-                .animation(.easeInOut(duration: 0.2), value: browser.pageTint)
         }
         .overlay(alignment: .top) { loadErrorBanner }
         .fullScreenCover(isPresented: $browser.showSwitcher) {
@@ -55,15 +54,15 @@ struct BrowserRootView: View {
         }
     }
 
-    private func rootStack(safeTop: CGFloat, safeBottom: CGFloat) -> some View {
+    private func rootStack(safeBottom: CGFloat) -> some View {
         let bottomChrome = browser.bottomChromeHeight(keyboardHeight: keyboard.height)
         return ZStack(alignment: .bottom) {
             webViewLayer(bottomInset: bottomChrome)
-            chromeTint(height: safeTop)
             bottomContent(safeBottom: safeBottom)
         }
-        // 容器安全区全部穿透（顶部内容画到状态栏后面，对齐 Safari）；
-        // 键盘安全区一并忽略：系统键盘安全区对第三方键盘不生效（iOS 26.6 实测），
+        // 容器安全区全部穿透：顶部状态栏区域完全交给页面（cover 页自己把
+        // 头部画进状态栏，无任何原生染色层，对齐 Safari）；键盘安全区一并
+        // 忽略：系统键盘安全区对第三方键盘不生效（iOS 26.6 实测），
         // 底栏键盘避让统一由 KeyboardHeightObserver 手动垫高，防止双重叠加
         .ignoresSafeArea([.container, .keyboard])
         .onAppear { browser.bottomSafeArea = safeBottom }
@@ -78,31 +77,9 @@ struct BrowserRootView: View {
         }
     }
 
-    /// 状态栏区域染色层：页面顶色（Safari 探针算法）延伸到状态栏背后
-    @ViewBuilder
-    private func chromeTint(height: CGFloat) -> some View {
-        if height > 0 {
-            Rectangle()
-                .fill(tintColor)
-                .frame(height: height)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .allowsHitTesting(false)
-        }
-    }
-
+    /// 状态栏文字深浅判定：theme-color 优先，其次探针采样的页面顶色
     private var resolvedTint: BrowserPageTint? {
-        browser.pageTint?.resolved(over: systemBackgroundTint)
-    }
-
-    private var tintColor: Color {
-        color(of: resolvedTint)
-    }
-
-    private func color(of tint: BrowserPageTint?) -> Color {
-        guard let tint else {
-            return Color(uiColor: .systemBackground)
-        }
-        return Color(.sRGB, red: tint.red / 255, green: tint.green / 255, blue: tint.blue / 255)
+        browser.themeColorTint ?? browser.pageTint?.resolved(over: systemBackgroundTint)
     }
 
     private var prefersLightStatusText: Bool {

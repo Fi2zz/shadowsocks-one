@@ -2,8 +2,8 @@ import WebKit
 
 /// WebView 唯一的创建入口：由 BrowserTabManager 在需要时调用，
 /// 实例归 TabManager 的缓存所有，SwiftUI 视图只负责挂载、绝不创建。
-/// 顶部安全区由 frame 层让开、底部 chrome 由 obscured inset 表达
-/// （都在 BrowserContainerView），与 Safari 的 chrome/内容分离同构。
+/// frame 全屏（Safari 路线）：顶部状态栏区域完全交给页面，底部 chrome 避让
+/// 由 BrowserContainerView 经公开 inset 通道下发，与 Safari 的 chrome/内容分离同构。
 @MainActor
 enum BrowserWebViewFactory {
     static func make() -> WKWebView {
@@ -11,6 +11,8 @@ enum BrowserWebViewFactory {
         configuration.allowsInlineMediaPlayback = true
         BrowserTintProbe.install(into: configuration, handler: BrowserWebViewDelegate.shared)
         let webView = WKWebView(frame: .zero, configuration: configuration)
+        // 保持默认 .automatic：WebKit 经安全区管线自动处理 env 上报、fixed
+        // 元素布局视口、滚动范围与指示条（安全区由 BrowserChromeViewController 注入）
         webView.customUserAgent = safariUserAgent()
         webView.allowsBackForwardNavigationGestures = true
         let delegate = BrowserWebViewDelegate.shared
