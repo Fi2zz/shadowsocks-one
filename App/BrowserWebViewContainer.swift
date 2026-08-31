@@ -83,26 +83,20 @@ final class BrowserChromeViewController: UIViewController {
         additionalSafeAreaInsets = target
     }
 
-    /// 显式 inset 与安全区目标一致：obscured 驱动 fixed 元素布局视口与滚动范围，
-    /// unobscuredSafeArea 驱动页面 env(safe-area-inset-*) 上报值；
-    /// 与 safe-area 通道同样仅在变化时写入（viewDidLayoutSubviews 每次布局都会走到这里）
+    /// 显式 inset 与安全区目标一致：obscured 驱动布局视口锚定、fixed 元素与滚动
+    /// 范围，unobscuredSafeArea 驱动页面 env(safe-area-inset-*) 上报值。
+    /// obscured.top 必须 = 真实状态栏高：为 0 时布局视口顶锚到屏幕 0 点，
+    /// 非 cover 页（viewport-fit=auto，不读 env）内容直接伸进状态栏；
+    /// cover 页不受 obscured 约束（viewport-fit=cover 语义），仍靠 env 自己画进状态栏。
+    /// 相同值重复下发由 WebKit setter 自身 no-op，无需 App 侧变化守卫。
     private func applyWebKitInsets() {
         guard let webView = view.subviews.first as? WKWebView else { return }
         let top = realTopInset
-        let unchanged = lastWebKitInset?.top == top
-            && lastWebKitInset?.bottom == chromeInset
-            && lastInsetTarget === webView
-        guard !unchanged else { return }
-        let insets = UIEdgeInsets(top: 0, left: 0, bottom: chromeInset, right: 0)
+        let insets = UIEdgeInsets(top: top, left: 0, bottom: chromeInset, right: 0)
         Self.setEdgeInsets(insets, on: webView, setter: "_setObscuredInsets:")
         let unobscured = UIEdgeInsets(top: top, left: 0, bottom: chromeInset, right: 0)
         Self.setEdgeInsets(unobscured, on: webView, setter: "_setUnobscuredSafeAreaInsets:")
-        lastWebKitInset = (top: top, bottom: chromeInset)
-        lastInsetTarget = webView
     }
-
-    private var lastWebKitInset: (top: CGFloat, bottom: CGFloat)?
-    private weak var lastInsetTarget: WKWebView?
 
     private var realTopInset: CGFloat {
         view.window?.safeAreaInsets.top ?? 0
