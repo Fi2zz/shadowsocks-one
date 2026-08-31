@@ -58,7 +58,10 @@ final class BrowserContainerView: UIView {
             ? safeAreaInsets.top
             : (window?.safeAreaInsets.top ?? 0)
         let height = max(bounds.height - topInset, 0)
-        webView.frame = CGRect(x: 0, y: safeAreaInsets.top, width: bounds.width, height: height)
+        // y 必须用带回退的 topInset：SwiftUI ignoresSafeArea 消费掉安全区时
+        // 容器自身 safeAreaInsets.top 可能为 0，回退到 0 会让 WebView 退化为
+        // 全屏，chromeTint 平涂层随之盖住页面头部（头部丢失）
+        webView.frame = CGRect(x: 0, y: topInset, width: bounds.width, height: height)
         applyChromeInsets()
     }
 
