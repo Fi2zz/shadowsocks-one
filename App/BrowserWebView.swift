@@ -3,7 +3,8 @@ import WebKit
 /// WebView 唯一的创建入口：由 BrowserTabManager 在需要时调用，
 /// 实例归 TabManager 的缓存所有，SwiftUI 视图只负责挂载、绝不创建。
 /// frame 全屏（Safari 路线）：顶部状态栏区域完全交给页面，底部 chrome 避让
-/// 由 BrowserContainerView 经公开 inset 通道下发，与 Safari 的 chrome/内容分离同构。
+/// 由 BrowserChromeViewController 双通道下发（公开安全区 + WebKit 显式 inset），
+/// 与 Safari 的 chrome/内容分离同构。
 @MainActor
 enum BrowserWebViewFactory {
     static func make() -> WKWebView {
