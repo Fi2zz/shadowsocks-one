@@ -1,18 +1,15 @@
 import SwiftUI
 import WebKit
 
-/// `_setObscuredInsets:` / `_setUnobscuredSafeAreaInsets:` 的 C 调用约定签名
-/// （UIEdgeInsets 结构体参数，无法走 perform/KVC）
-private typealias EdgeInsetsSetter = @convention(c) (AnyObject, Selector, UIEdgeInsets) -> Void
-
 /// 只负责把 TabManager 缓存中的 WebView 挂到容器上，绝不创建。
 /// tabID 变化时 SwiftUI 调 updateUIView，在此换挂接对象；容器视图本身复用，
 /// WebView 不因视图重建 / fullScreenCover 弹出而销毁，页面状态得以保留。
 struct BrowserWebViewContainer: UIViewRepresentable {
     let tabID: UUID
     /// 底部 chrome 区高度（展开 = 工具栏 + 底部安全区；收起 = 胶囊 + 底部安全区）。
-    /// 经容器的 obscured inset 下发给 WebKit：内容渲染到物理底部、透过液态玻璃
-    /// chrome 可见，fixed 底部元素与滚动范围同时避让 chrome 区（对齐 Safari）
+    /// 经 scrollView.contentInset 下发：WebView frame 全屏延伸到物理底边，内容
+    /// 透过液态玻璃 chrome 渲染；fixed 底部元素锚定与滚动停留边界同时避让
+    /// chrome 区（对齐 Safari）
     let bottomInset: CGFloat
 
     func makeUIView(context: Context) -> UIView {
@@ -40,7 +37,9 @@ struct BrowserWebViewContainer: UIViewRepresentable {
 
 /// Safari 式原生层安全区：WebView 的 frame 只让开顶部安全区（状态栏染色层绘制），
 /// 底部一路延伸到物理屏幕底边，内容透过液态玻璃工具栏渲染、不被底色遮住。
-/// bottomInset 经 WebKit 内部 inset 机制下发，滚动范围与页面安全区由 WebKit 同步处理。
+/// 底部避让走公开 API：scrollView.contentInset.bottom = chrome 高度，
+/// contentInsetAdjustmentBehavior = .never（工厂创建时设置）防止系统自动 inset
+/// 双重叠加；fixed 元素锚定与滚动停留边界由 WebKit 据此调整。
 final class BrowserContainerView: UIView {
     var bottomInset: CGFloat = 0 {
         didSet {
@@ -62,29 +61,38 @@ final class BrowserContainerView: UIView {
         applyChromeInsets()
     }
 
-    /// Safari 底栏避让在 iOS 26 由两个 WebKit 内部 inset 共同实现：
-    /// `_obscuredInsets` 驱动滚动范围与边缘颜色填充；`_unobscuredSafeAreaInsets`
-    /// 决定页面 env(safe-area-inset-bottom) 的上报值，QQ 新闻等 fixed 横幅据此
-    /// 停在 chrome 上方。REASON: 公开 API 无等价能力（scrollView.contentInset 不影响
-    /// fixed 布局视口与 env 上报）；KVC/NSInvocation 在 Swift 侧不可达这些 setter，
-    /// 只能取 IMP 直接调用；若上架 App Store 需评估审核风险，届时回退为 frame 裁剪方案。
-    /// 方法不存在时（未来系统移除）降级为无避让，不崩溃。
+    /// 底部避让下发入口：inset 驱动 fixed 元素锚定与滚动范围；
+    /// 兜底隐藏 iOS 26 边缘填充视图，保证玻璃下透出实时内容
     func applyChromeInsets() {
         guard let webView = subviews.first as? WKWebView else {
             return
         }
-     //   let insets = UIEdgeInsets(top: 0, left: 0, bottom: bottomInset, right: 0)
-    //    Self.setEdgeInsets(insets, on: webView, setter: "_setObscuredInsets:")
-//        Self.setEdgeInsets(insets, on: webView, setter: "_setUnobscuredSafeAreaInsets:")
+        applyBottomInset(to: webView)
         hideColorExtensionViews(in: webView)
     }
 
-    /// obscured inset 会触发 WebKit 创建 WKColorExtensionView（iOS 26 边缘色填充），
-    /// 它把 chrome 区底下的实时页面内容盖成不透明色块；隐藏后透出实时内容
-    /// （对齐 Safari 玻璃下可见内容的观感）。只隐藏底部延伸视图：顶部延伸视图承担
-    /// 页面顶色向状态栏方向/橡皮筋回弹区域的连续填充，是顶部染色的一部分，不能动。
-    /// WebKit 只在 inset 边集合变化时重建这些视图，帧/颜色更新不会重置 hidden，
-    /// 故每次下发时兜底隐藏一次即可。
+    /// contentInset 随 chrome 显隐 / 键盘高度 0.2s 动画同步（对齐 Safari 底栏滑动）
+    private func applyBottomInset(to webView: WKWebView) {
+        let scrollView = webView.scrollView
+        guard scrollView.contentInset.bottom != bottomInset else {
+            return
+        }
+        let update = {
+            scrollView.contentInset.bottom = self.bottomInset
+            scrollView.verticalScrollIndicatorInsets.bottom = self.bottomInset
+        }
+        if window != nil {
+            UIView.animate(withDuration: 0.2, animations: update)
+        } else {
+            update()
+        }
+    }
+
+    /// iOS 26 边缘色填充视图（WKColorExtensionView）会把 chrome 区底下的实时页面
+    /// 内容盖成不透明色块；隐藏后透出实时内容（对齐 Safari 玻璃下可见内容的观感）。
+    /// 只隐藏底部延伸视图：顶部延伸视图承担页面顶色向状态栏方向/橡皮筋回弹区域的
+    /// 连续填充，是顶部染色的一部分，不能动。WebKit 在 inset 边集合变化时会重建
+    /// 这些视图，故每次下发时兜底隐藏一次即可。
     private func hideColorExtensionViews(in webView: WKWebView) {
         guard let extensionClass = NSClassFromString("WKColorExtensionView") else {
             return
@@ -100,16 +108,5 @@ final class BrowserContainerView: UIView {
     private func bottomEdgeExtension(_ view: UIView, in scrollView: UIScrollView) -> Bool {
         let contentBottom = max(scrollView.contentSize.height, scrollView.bounds.height)
         return view.frame.minY >= contentBottom - 1
-    }
-
-    private static func setEdgeInsets(_ insets: UIEdgeInsets, on webView: WKWebView, setter name: String) {
-        let selector = NSSelectorFromString(name)
-        guard webView.responds(to: selector),
-              let method = class_getInstanceMethod(WKWebView.self, selector)
-        else {
-            return
-        }
-        let imp = unsafeBitCast(method_getImplementation(method), to: EdgeInsetsSetter.self)
-        imp(webView, selector, insets)
     }
 }
