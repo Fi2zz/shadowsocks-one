@@ -105,7 +105,7 @@ struct BrowserRootView: View {
     private func bottomContent(safeBottom: CGFloat) -> some View {
         if browser.toolbarCollapsed {
             compactPill
-                .padding(.bottom, 10)
+                .padding(.bottom, BrowserChromeMetrics.pillBottomPadding)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
         } else {
             expandedBottomArea(safeBottom: safeBottom)
@@ -114,7 +114,7 @@ struct BrowserRootView: View {
     }
 
     private func expandedBottomArea(safeBottom: CGFloat) -> some View {
-        VStack(spacing: 4) {
+        VStack(spacing: BrowserChromeMetrics.barSpacing) {
             loadingProgressBar
             toolbar
         }

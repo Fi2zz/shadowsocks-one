@@ -17,7 +17,7 @@ struct BrowserToolbar: View {
             trailingButton
         }
         .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.vertical, BrowserChromeMetrics.barVerticalPadding)
         .animation(.easeInOut(duration: 0.2), value: addressFocused)
         .onChange(of: addressFocused) { focused in
             handleFocusChange(focused)
@@ -64,12 +64,12 @@ struct BrowserToolbar: View {
                 navButton("chevron.right", action: browser.goForward)
             }
             .padding(.horizontal, 24)
-            .padding(.vertical, 14)
+            .padding(.vertical, BrowserChromeMetrics.capsuleVerticalPadding)
             .liquidGlassCapsule()
         } else {
             navButton("chevron.left", action: browser.goBack)
                 .disabled(!browser.canGoBack)
-                .padding(14)
+                .padding(BrowserChromeMetrics.capsuleVerticalPadding)
                 .liquidGlassCapsule()
         }
     }
@@ -106,9 +106,9 @@ struct BrowserToolbar: View {
                 reloadButton
             }
         }
-        .frame(height: 24)
+        .frame(height: BrowserChromeMetrics.fieldContentHeight)
         .padding(.horizontal, 14)
-        .padding(.vertical, 14)
+        .padding(.vertical, BrowserChromeMetrics.capsuleVerticalPadding)
         .liquidGlassCapsule()
     }
 
@@ -152,7 +152,7 @@ struct BrowserToolbar: View {
                 .font(.title2)
                 .frame(width: 24, height: 24)
         }
-        .padding(14)
+        .padding(BrowserChromeMetrics.capsuleVerticalPadding)
         .liquidGlassCapsule()
     }
 

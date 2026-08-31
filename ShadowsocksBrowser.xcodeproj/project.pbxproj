@@ -26,6 +26,7 @@
 		19BFE7C5E3A83DCE6F900802 /* RoutingViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1324DE7E5AA406C75CD8FBB6 /* RoutingViewModelTests.swift */; };
 		1BBDFB78FE9731B7AA7460C2 /* ConnectionTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70ADBAFD61F4A56FE3F3088C /* ConnectionTester.swift */; };
 		1F2968941C7FAA2D858F9A42 /* WGTCPProxyRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74FAABCC1D474242F34D7604 /* WGTCPProxyRelay.swift */; };
+		1F3528392B2757DCBE45A3A3 /* ToolbarFoldingMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1323E0E992DDA6BED0389759 /* ToolbarFoldingMachine.swift */; };
 		20547F94871FA51C12AA6500 /* DirectTCPRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71512531AE0D401546585682 /* DirectTCPRelay.swift */; };
 		22F5684C28C332BE2D53076D /* ShadowsocksTCPRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACF07783A002B650729F169F /* ShadowsocksTCPRelay.swift */; };
 		23D279F8448410D75B1FA080 /* TCPFlowSessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D415D9A4E88EB9B6E8E6CDAC /* TCPFlowSessionStore.swift */; };
@@ -142,6 +143,7 @@
 		D4ADFD3651FA561F4C989C61 /* UDPFlowRelaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9832769DDE0A6E83E2DB308 /* UDPFlowRelaying.swift */; };
 		D4C3D979BAC848A82BAADB89 /* ConnectionTestSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3D11970F8FBB0E53ED1E836 /* ConnectionTestSection.swift */; };
 		D582472C84EEB0D436298C26 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1F490A501B960606F8227DF /* Assets.xcassets */; };
+		D78DCD1E844A256322465999 /* BrowserChromeMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB5C0A403134EC4BF1DA94F /* BrowserChromeMetrics.swift */; };
 		D7D50C4A8BBA37F65E447C22 /* TCPFlowEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CD0FF60E5AC57FBDFE127C4 /* TCPFlowEvent.swift */; };
 		D883BA0ADC7C9C5BDCD04E87 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C204C2BD043B9DDB6B4FAE13 /* PacketTunnelProvider.swift */; };
 		DA7A6ECD21990FECB1A8C486 /* BrowserPageTintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A0F8EB779A10F25176570D /* BrowserPageTintTests.swift */; };
@@ -160,6 +162,7 @@
 		EEA5875E39E8DEA6F32D42D3 /* TunnelEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A667EF5C20375466D2C8E214 /* TunnelEngine.swift */; };
 		EEEA46C769B97ED62534FA1D /* TCPFlowState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C332972F2DA76DD4B6728A41 /* TCPFlowState.swift */; };
 		EF45B0E2381D5F7B4CF6823F /* SharedCore in Frameworks */ = {isa = PBXBuildFile; productRef = 86A62B2B7A5CFD9908229138 /* SharedCore */; };
+		F0A4415F4606AA5BCAAA3E6A /* ToolbarFoldingMachineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 779DEA4429272C82E36DBF51 /* ToolbarFoldingMachineTests.swift */; };
 		F0A4DC29BCD0A235F1A6CC45 /* TCPFlowState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C332972F2DA76DD4B6728A41 /* TCPFlowState.swift */; };
 		F1A712ACA74D7ED7D1378D0B /* IPListViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D57617E4681D5406F30779E /* IPListViewModelTests.swift */; };
 		F36ED7401CE79DCFB3EE7EFA /* BrowserWebViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CA85206CC692422CF24EE5 /* BrowserWebViewDelegate.swift */; };
@@ -216,6 +219,7 @@
 		098E7DD77F352BCA357DE4C0 /* BrowserBookmarkStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserBookmarkStoreTests.swift; sourceTree = "<group>"; };
 		0E10B8C741B321942DE627FC /* UDPRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPRouter.swift; sourceTree = "<group>"; };
 		119D85837C25EEFD0BAE8420 /* DNSCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSCoordinatorTests.swift; sourceTree = "<group>"; };
+		1323E0E992DDA6BED0389759 /* ToolbarFoldingMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarFoldingMachine.swift; sourceTree = "<group>"; };
 		1324DE7E5AA406C75CD8FBB6 /* RoutingViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingViewModelTests.swift; sourceTree = "<group>"; };
 		1710A701A1EAC450EE991138 /* BrowserToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserToolbar.swift; sourceTree = "<group>"; };
 		175D28DAA89AF257E18CB143 /* UDPSessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPSessionStore.swift; sourceTree = "<group>"; };
@@ -273,7 +277,9 @@
 		72057943E4C1E990B39850C9 /* ShadowsocksUDPRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksUDPRelay.swift; sourceTree = "<group>"; };
 		74FAABCC1D474242F34D7604 /* WGTCPProxyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGTCPProxyRelay.swift; sourceTree = "<group>"; };
 		750CB8B70EDBA2A51B05D7D5 /* WGProxiedEgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGProxiedEgress.swift; sourceTree = "<group>"; };
+		779DEA4429272C82E36DBF51 /* ToolbarFoldingMachineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarFoldingMachineTests.swift; sourceTree = "<group>"; };
 		791643DF04B0EB268ED93592 /* RouteMatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteMatcherTests.swift; sourceTree = "<group>"; };
+		7BB5C0A403134EC4BF1DA94F /* BrowserChromeMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserChromeMetrics.swift; sourceTree = "<group>"; };
 		7D9FD740D8FB793807EB6186 /* BrowserTabManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserTabManager.swift; sourceTree = "<group>"; };
 		7F0511E9B6B93BFE9B67C65E /* TCPSendBufferTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPSendBufferTests.swift; sourceTree = "<group>"; };
 		7F97DAD9DCED1D526A0FA5C9 /* BrowserTintProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserTintProbe.swift; sourceTree = "<group>"; };
@@ -405,6 +411,7 @@
 				70A3066682EDFB07D06CACD5 /* TCPRouterTests.swift */,
 				A9BF9FE47887EDC3F143A598 /* TCPRouterWindowTests.swift */,
 				7F0511E9B6B93BFE9B67C65E /* TCPSendBufferTests.swift */,
+				779DEA4429272C82E36DBF51 /* ToolbarFoldingMachineTests.swift */,
 				5DB86E23488395A486B6B915 /* TunnelEngineUDPTests.swift */,
 				63AF100F112FE2104570B46F /* UDPRelaySpy.swift */,
 				5D0EFD00BCE47ED5C1D3A6B0 /* UDPRouterTests.swift */,
@@ -476,6 +483,7 @@
 			children = (
 				C1F490A501B960606F8227DF /* Assets.xcassets */,
 				8E683E0536FDF5A661E4B47E /* BrowserBookmarkListView.swift */,
+				7BB5C0A403134EC4BF1DA94F /* BrowserChromeMetrics.swift */,
 				2CAB41C951DBD5EB87224A53 /* BrowserHistoryView.swift */,
 				8542797006E13A2B23CEA2B1 /* BrowserMoreMenu.swift */,
 				3DF523028A2206AECFE5876E /* BrowserRootView.swift */,
@@ -523,6 +531,7 @@
 				859B0AFE76AAEE66E092ADF4 /* ShadowsocksBrowser.entitlements */,
 				F3C8A0F5EE3973F41DD98BA3 /* ShadowsocksBrowserApp.swift */,
 				03521227D755214CEE538EB0 /* SystemTunnelManager.swift */,
+				1323E0E992DDA6BED0389759 /* ToolbarFoldingMachine.swift */,
 				9CD6F7AA85F615FA0651FA05 /* TunnelControlling.swift */,
 				69B0D4F5C4C3D2E0E182A71A /* VPNControlSection.swift */,
 			);
@@ -769,6 +778,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				23F45C9E5B554CB6379D8160 /* BrowserBookmarkListView.swift in Sources */,
+				D78DCD1E844A256322465999 /* BrowserChromeMetrics.swift in Sources */,
 				68203423D866F86372C8E08C /* BrowserHistoryView.swift in Sources */,
 				BB7AD12ABBEADC6744518D38 /* BrowserMoreMenu.swift in Sources */,
 				D47309C7C35A2B98DDD27E67 /* BrowserRootView.swift in Sources */,
@@ -814,6 +824,7 @@
 				0EA44C0430D70B7967769975 /* RoutingViewModel.swift in Sources */,
 				1997024D4CBFF265583B127F /* ShadowsocksBrowserApp.swift in Sources */,
 				16B08D16CC170B1A22DBA714 /* SystemTunnelManager.swift in Sources */,
+				1F3528392B2757DCBE45A3A3 /* ToolbarFoldingMachine.swift in Sources */,
 				94F5D68C4303F85A3C8A48B6 /* TunnelControlling.swift in Sources */,
 				186B5B38768C3ABF561A77A3 /* VPNControlSection.swift in Sources */,
 			);
@@ -892,6 +903,7 @@
 				69C86CB8AF7B6AAF13A1A48E /* TCPRouterWindowTests.swift in Sources */,
 				73B0EC2E16E4A1B67B50D78E /* TCPSendBuffer.swift in Sources */,
 				47F99740F5781AB8385AF594 /* TCPSendBufferTests.swift in Sources */,
+				F0A4415F4606AA5BCAAA3E6A /* ToolbarFoldingMachineTests.swift in Sources */,
 				60A059E52967B7C89ECA4893 /* TunnelDiagnostics.swift in Sources */,
 				FE33B4D7EBEAD4162DCBD431 /* TunnelEngine.swift in Sources */,
 				A036B7C544D6F1FBE30E9A65 /* TunnelEngineUDPTests.swift in Sources */,

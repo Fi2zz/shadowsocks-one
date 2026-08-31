@@ -22,13 +22,8 @@ final class BrowserViewModel: ObservableObject {
     /// 底部安全区高度由视图层注入（GeometryReader 读取），供 chrome 高度与钳制补偿计算
     var bottomSafeArea: CGFloat = 0
 
-    /// 展开态 chrome 内容高：工具栏 68 + 间距 4
-    private static let expandedChromeContent: CGFloat = 72
-    /// 收起态 chrome 内容高：胶囊 36 + 上下间距 20
-    private static let collapsedChromeContent: CGFloat = 56
-
     private var observations: [NSKeyValueObservation] = []
-    private var lastScrollOffsetY: CGFloat = 0
+    private var folding = ToolbarFoldingMachine()
 
     init() {
         wireDelegateCallbacks()
@@ -43,9 +38,11 @@ final class BrowserViewModel: ObservableObject {
     /// （Safari 收起态内容仍停在胶囊上方，不沉到其背后）；键盘在时改为键盘 + 工具栏高度
     func bottomChromeHeight(keyboardHeight: CGFloat) -> CGFloat {
         if keyboardHeight > 0 {
-            return keyboardHeight + Self.expandedChromeContent
+            return keyboardHeight + BrowserChromeMetrics.expandedChromeContent
         }
-        let content = toolbarCollapsed ? Self.collapsedChromeContent : Self.expandedChromeContent
+        let content = toolbarCollapsed
+            ? BrowserChromeMetrics.collapsedChromeContent
+            : BrowserChromeMetrics.expandedChromeContent
         return bottomSafeArea + content
     }
 
@@ -94,9 +91,9 @@ final class BrowserViewModel: ObservableObject {
     }
 
     func expandToolbar() {
-        toolbarCollapsed = false
-        // 基准点对齐当前偏移，否则展开后首个滚动事件会算出巨量 delta 立刻又折叠
-        lastScrollOffsetY = BrowserTabManager.shared.activeWebView?.scrollView.contentOffset.y ?? 0
+        let offsetY = BrowserTabManager.shared.activeWebView?.scrollView.contentOffset.y ?? 0
+        folding.expand(baseline: offsetY)
+        toolbarCollapsed = folding.collapsed
     }
 
     func viewBackgroundTab() {
@@ -163,57 +160,21 @@ final class BrowserViewModel: ObservableObject {
         ]
     }
 
-    /// 下滚超过阈值折叠工具栏，上滚超过阈值恢复；未翻转时基准点跟随当前方向极值，
-    /// 保证任意位置反向滚动 24pt 即可翻转（Safari 手感），同时形成迟滞避免抖动
+    /// 滚动事件转交纯逻辑状态机（ToolbarFoldingMachine），镜像其折叠态驱动 chrome 动画
     private func handleScroll(in scrollView: UIScrollView) {
-        let offsetY = scrollView.contentOffset.y
-        let delta = offsetY - lastScrollOffsetY
-        let scrollingDown = delta > 24 && offsetY > 0
-        let scrollingUp = delta < -24
-        if scrollingDown, !toolbarCollapsed {
-            collapseToolbar(offsetY: offsetY)
-            return
-        }
-        if scrollingUp, toolbarCollapsed {
-            expandToolbar(offsetY: offsetY)
-            return
-        }
-        followBaseline(offsetY: offsetY, scrollView: scrollView)
-    }
-
-    /// 折叠态基准点跟随下移极值、展开态跟随上移极值；橡皮筋越界部分不跟进，
-    /// 松手回弹不会被误判为反向滚动
-    private func followBaseline(offsetY: CGFloat, scrollView: UIScrollView) {
-        if toolbarCollapsed {
-            let maxY = scrollView.contentSize.height - scrollView.bounds.height + collapsedBottomInset
-            lastScrollOffsetY = max(lastScrollOffsetY, min(offsetY, maxY))
-            return
-        }
-        lastScrollOffsetY = min(lastScrollOffsetY, max(offsetY, 0))
-    }
-
-    /// 折叠后底部 inset 降为收起态高度，超出新最大偏移的部分会被系统钳掉；这段钳制
-    /// 位移不是用户滚动，基准点必须同步下移，否则会被误判为上滚而反复展开/折叠（底部颤抖）
-    private func collapseToolbar(offsetY: CGFloat) {
-        toolbarCollapsed = true
-        lastScrollOffsetY = offsetY - clampedDrop(offsetY: offsetY)
-    }
-
-    private func expandToolbar(offsetY: CGFloat) {
-        toolbarCollapsed = false
-        lastScrollOffsetY = offsetY
+        folding.handleScroll(
+            offsetY: scrollView.contentOffset.y,
+            collapsedMaxOffsetY: collapsedMaxOffsetY(of: scrollView)
+        )
+        toolbarCollapsed = folding.collapsed
     }
 
     private var collapsedBottomInset: CGFloat {
-        bottomSafeArea + Self.collapsedChromeContent
+        bottomSafeArea + BrowserChromeMetrics.collapsedChromeContent
     }
 
-    /// 折叠后 offsetY 超出新最大偏移的量（即将被钳制的距离）
-    private func clampedDrop(offsetY: CGFloat) -> CGFloat {
-        guard let scrollView = BrowserTabManager.shared.activeWebView?.scrollView else {
-            return 0
-        }
-        let newMaxY = scrollView.contentSize.height - scrollView.bounds.height + collapsedBottomInset
-        return max(0, offsetY - newMaxY)
+    /// 折叠态 inset 下的最大合法偏移：超出部分会被系统钳制
+    private func collapsedMaxOffsetY(of scrollView: UIScrollView) -> CGFloat {
+        scrollView.contentSize.height - scrollView.bounds.height + collapsedBottomInset
     }
 }
