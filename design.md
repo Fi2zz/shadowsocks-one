@@ -31,9 +31,11 @@
 - **顶部 = Safari 路线**：WebView frame 全屏，状态栏区域不放任何原生视图；
   `contentInsetAdjustmentBehavior` 保持默认 `.automatic`。
 - **底部避让 = 多通道**（见 §4.1），不是初版的手动 contentInset 路线。
-- **公开 contentInset 路线已被证伪**：`scrollView.contentInset.bottom` 无法移动
-  `position:fixed` 元素、不改变 `env()` 上报，QQ 新闻 fixed 底条仍被压住。
-  两次验证：4a4a6b5、c98aebd（7 分钟后由 d4f552e 回退）。**不要再试第三次。**
+- **公开 contentInset 路线已被证伪**（作为 chrome 避让方案）：
+  `scrollView.contentInset.bottom` 无法移动 `position:fixed` 元素、不改变
+  `env()` 上报，QQ 新闻 fixed 底条仍被压住。两次验证：4a4a6b5、c98aebd
+  （7 分钟后由 d4f552e 回退）。**不要再拿它做避让；它唯一合法的职责是
+  滚动停留边界（见 §4.1 通道 2 末尾）。**
 - **私有 API 风险已拍板（2026-08-31，2026-09-01 修订）**：布局视口通道在
   iOS 26+ 已改用公开属性 `obscuredContentInsets`，`_setObscuredInsets:` 仅作
   iOS 26 以下回退；`_setUnobscuredSafeAreaInsets:`（env 上报，经 IMP 调用）
@@ -64,6 +66,13 @@
   `_automaticallyAdjustsViewLayoutSizesWithObscuredInset` 才真正生效。
   **top 必须 = 真实状态栏高**：为 0 时非 cover 页（viewport-fit=auto）内容
   直接伸进状态栏（c9b6cda 与 2026-08-31 修复实证，auto 页 innerH=706）。
+  另：iOS 26 的 WKWebView scrollView 以 `.never` 调整行为运行，且
+  `obscuredContentInsets` 不回写 contentInset（实测 adjustedContentInset=0，
+  页底内容会停在物理底边被 chrome 遮盖），滚动停留边界需向
+  `scrollView.contentInset.bottom` 手动下发 chrome 总高
+  （`verticalScrollIndicatorInsets` 同步，滚动条止于栏顶）；
+  页底点胶囊展开时 inset 变大，`BrowserViewModel.expandToolbar` 同步补偿
+  contentOffset 到新最大偏移，避免页底内容被展开的栏遮盖。
 3. **env 通道**——`_setUnobscuredSafeAreaInsets:` 下发真实设备安全区
   （顶 62 / 底 34，对齐 Safari 语义）。曾错误地下发 chrome 总高（106），
   导致 fixed 底条自带 106pt 内边距、视觉悬空；chrome 避让完全由通道 2 的
@@ -137,6 +146,11 @@ BrowserRootView (SwiftUI)
   自建 fixed 探针 div 对照各 inset 通道开关组合（clientHeight / 锚点坐标），
   对照组证实公开属性一条通道即可让 clientHeight=706、底条锚定 chrome 顶、
   滚动时头部钉住不动。
+- 2026-09-01 修复（二）：滚动停留边界改由 `scrollView.contentInset` 手动下发——
+  iOS 26 上 WKWebView scrollView 以 `.never` 运行且 obscuredContentInsets 不回写
+  contentInset（adjustedContentInset 恒 0），页底内容停在物理底边被 chrome
+  遮盖（此前被 env=106 带来的页面内边距掩盖，env 回归真实安全区后暴露）。
+  附带：页底点胶囊展开时补偿 contentOffset 到新最大偏移。
 
 返工记录（教训：验证结论必须回写本文档，避免重复试错）：
 
@@ -168,8 +182,9 @@ BrowserRootView (SwiftUI)
 - **私有 API 风险**：`_setUnobscuredSafeAreaInsets:`（及 iOS 26 以下回退的
   `_setObscuredInsets:`）有 App Store 审核风险（决策见 §3）；经
   `NSSelectorFromString` + IMP 调用，方法不存在时降级，不崩溃。
-- **公开 contentInset 管不了 fixed 元素**：只影响滚动停留边界，不影响 fixed
-  布局视口与 env() 上报（两次实证，见 §3）。
+- **公开 contentInset 管不了 fixed 元素**：不影响 fixed 布局视口与 env() 上报
+  （两次实证，见 §3）；但滚动停留边界恰恰是它的合法职责——iOS 26 `.never`
+  行为下 adjustedContentInset 恒 0，必须手动下发（见 §4.1 通道 2）。
 - **底栏不透明 = 穿透效果死亡**：滚动内容从栏下滑过依赖玻璃半透明，
   画纯色会看到「内容消失一块」。
 - **fixed 元素参照系**：相对 inset 调整后的视口，不是屏幕底边；页面自己的
