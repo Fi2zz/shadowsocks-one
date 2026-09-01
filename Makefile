@@ -6,7 +6,7 @@ SIMULATOR ?= platform=iOS Simulator,name=iPhone 17
 DERIVED_DATA := .build/derived-data
 APP_PATH := $(DERIVED_DATA)/Build/Products/Debug-iphoneos/ShadowsocksBrowser.app
 
-.PHONY: generate build test build-device install run
+.PHONY: generate build test build-device install run clean
 
 generate:
 	xcodegen
@@ -33,3 +33,9 @@ install: build-device
 
 run: install
 	xcrun devicectl device process launch --device $(DEVICE_ID) $(BUNDLE_ID)
+
+# 清理构建产物：本地 .build（设备/模拟器 derived-data）+
+# 默认 DerivedData（make test 使用）
+clean:
+	rm -rf .build
+	rm -rf $(HOME)/Library/Developer/Xcode/DerivedData/ShadowsocksBrowser-*
