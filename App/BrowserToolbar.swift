@@ -66,12 +66,12 @@ struct BrowserToolbar: View {
     @ViewBuilder
     private var navigationButtons: some View {
         if browser.canGoForward {
-            HStack(spacing: 28) {
+            HStack(spacing: 22) {
                 navButton("chevron.left", action: browser.goBack)
                     .disabled(!browser.canGoBack)
                 navButton("chevron.right", action: browser.goForward)
             }
-            .padding(.horizontal, 18)
+            .padding(.horizontal, 8)
             .padding(.vertical, BrowserChromeMetrics.capsuleVerticalPadding)
             .liquidGlassCapsule()
         } else {
