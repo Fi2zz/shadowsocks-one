@@ -161,6 +161,9 @@ BrowserRootView (SwiftUI)
   （collapseCeilingOffsetY = 页底停留位 − 屏高）禁止折叠根治。附带：
   iOS 26 的 WebKit scrollView 不即时钳制程序化 contentOffset（越界停在
   内容外空白区、页底事件不触发），调试滚动钩子改为钳到合法范围。
+- 2026-09-01 调整：工具条底部贴安全区（对齐 Safari 实测胶囊底边 ~34.7pt）——
+  去掉行底外边距 8pt 与区域底垫 4pt，展开态 chrome 内容高 72→64，
+  展开/折叠 inset 差相应变为 8pt；Home 指示条同日改为自动隐藏。
 
 返工记录（教训：验证结论必须回写本文档，避免重复试错）：
 
