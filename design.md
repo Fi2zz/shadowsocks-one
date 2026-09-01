@@ -168,6 +168,12 @@ BrowserRootView (SwiftUI)
   文字 ~15pt 常规重）——文字 footnote/light → subheadline，垂直内边距 2→7，
   底部间距 10→15；收起态 inset 预算 56→19（总 inset 90→53），展开/折叠
   inset 差变为 45pt，仍在页底稳定区内，补偿滚动不会反折。
+- 2026-09-01 调整：折叠/展开切换动画对齐 Safari 形变手感——底部 chrome
+  改为常驻单棵视图树（地址胶囊身份跨折叠态保持，尺寸/内边距/间距由
+  toolbarCollapsed 的 spring 布局动画插值，按钮与进度条透明度过渡），
+  取代原先的"整条滑出 + 胶囊滑入"容器级 transition（中间有空窗、手感生硬）。
+  中途弃用过容器 scale+opacity 过渡与 matchedGeometryEffect 两条路线：
+  前者仍有空窗，后者被容器 opacity transition 吞掉 hero 层不生效。
 
 返工记录（教训：验证结论必须回写本文档，避免重复试错）：
 
