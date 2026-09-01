@@ -31,9 +31,14 @@ final class SystemTunnelManager: TunnelControlling {
         }
     }
 
+    /// 启动时只读探测：配置已存在则接管状态观察；不存在则不创建——
+    /// saveToPreferences 会触发系统 VPN 授权弹窗，授权推迟到用户主动 connect
     func prepare() async {
         do {
-            let manager = try await loadOrCreateManager()
+            guard let manager = try await loadAllManagers().first(where: matchesProvider) else {
+                updateState(.idle)
+                return
+            }
             self.manager = manager
             installStatusObserver(for: manager)
             updateState(mapStatus(manager.connection.status))
@@ -83,15 +88,17 @@ final class SystemTunnelManager: TunnelControlling {
     }
 
     private func loadOrCreateManager() async throws -> NETunnelProviderManager {
-        let managers = try await loadAllManagers()
-        let manager = managers.first {
-            let provider = $0.protocolConfiguration as? NETunnelProviderProtocol
-            return provider?.providerBundleIdentifier == providerBundleIdentifier
-        } ?? NETunnelProviderManager()
+        let manager = try await loadAllManagers().first(where: matchesProvider)
+            ?? NETunnelProviderManager()
         configure(manager)
         try await save(manager)
         try await load(manager)
         return manager
+    }
+
+    private func matchesProvider(_ manager: NETunnelProviderManager) -> Bool {
+        let provider = manager.protocolConfiguration as? NETunnelProviderProtocol
+        return provider?.providerBundleIdentifier == providerBundleIdentifier
     }
 
     private func configure(_ manager: NETunnelProviderManager) {
