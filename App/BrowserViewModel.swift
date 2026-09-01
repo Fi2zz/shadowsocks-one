@@ -93,13 +93,16 @@ final class BrowserViewModel: ObservableObject {
     func expandToolbar() {
         guard let scrollView = BrowserTabManager.shared.activeWebView?.scrollView
         else { return }
-        let collapsedMax = maxOffsetY(of: scrollView, bottomInset: collapsedBottomInset)
-        let restingAtBottom = scrollView.contentOffset.y >= collapsedMax - 1
         folding.expand(baseline: scrollView.contentOffset.y)
         toolbarCollapsed = folding.collapsed
-        // 页底展开：inset 变大后原停留位会被更高的 chrome 遮住，
-        // 同步补偿到新最大偏移（动画与 chrome 展开同期完成）
-        guard restingAtBottom else { return }
+        compensateBottomOffsetIfNeeded(in: scrollView)
+    }
+
+    /// 展开后底部 inset 变大，若正处于页底停留位，原偏移对应的内容会被
+    /// 更高的 chrome 遮住，补偿到展开态最大偏移（动画与 chrome 展开同期完成）
+    private func compensateBottomOffsetIfNeeded(in scrollView: UIScrollView) {
+        let collapsedMax = maxOffsetY(of: scrollView, bottomInset: collapsedBottomInset)
+        guard scrollView.contentOffset.y >= collapsedMax - 1 else { return }
         let target = maxOffsetY(of: scrollView, bottomInset: expandedBottomInset)
         scrollView.setContentOffset(CGPoint(x: 0, y: target), animated: true)
     }
@@ -170,11 +173,16 @@ final class BrowserViewModel: ObservableObject {
 
     /// 滚动事件转交纯逻辑状态机（ToolbarFoldingMachine），镜像其折叠态驱动 chrome 动画
     private func handleScroll(in scrollView: UIScrollView) {
+        let wasCollapsed = folding.collapsed
         folding.handleScroll(
             offsetY: scrollView.contentOffset.y,
             collapsedMaxOffsetY: maxOffsetY(of: scrollView, bottomInset: collapsedBottomInset)
         )
         toolbarCollapsed = folding.collapsed
+        // 状态机在页底自动展开时同样要补偿停留偏移，避免内容被展开的栏遮住
+        if wasCollapsed, !folding.collapsed {
+            compensateBottomOffsetIfNeeded(in: scrollView)
+        }
     }
 
     private var collapsedBottomInset: CGFloat {

@@ -3,9 +3,13 @@ import CoreGraphics
 /// 工具栏折叠状态机（纯逻辑，与 UIScrollView 解耦便于单测）：
 /// 下滚超过阈值折叠、上滚超过阈值恢复；未翻转时基准点跟随当前方向极值，
 /// 保证任意位置反向滚动 24pt 即可翻转（Safari 手感），同时形成迟滞避免抖动。
+/// 折叠态到达页底停留位（含橡皮筋停稳）自动展开，完整工具条随页底出现。
 struct ToolbarFoldingMachine {
     /// 翻转阈值：相对基准点同向滚动超过该值才切换折叠态
     static let flipThreshold: CGFloat = 24
+    /// 页底判定容差：停留位恰好等于折叠态最大偏移，橡皮筋越界超出容差不判达，
+    /// 停稳回到窗口内才展开（避免回弹中途展开造成 inset 抖动）
+    static let bottomTolerance: CGFloat = 2
 
     private(set) var collapsed = false
     private var baseline: CGFloat = 0
@@ -25,6 +29,7 @@ struct ToolbarFoldingMachine {
             return
         }
         followBaseline(offsetY: offsetY, collapsedMaxOffsetY: collapsedMaxOffsetY)
+        expandAtBottomIfNeeded(offsetY: offsetY, collapsedMaxOffsetY: collapsedMaxOffsetY)
     }
 
     /// 点击胶囊展开：基准点对齐当前偏移，否则展开后首个滚动事件
@@ -49,5 +54,14 @@ struct ToolbarFoldingMachine {
             return
         }
         baseline = min(baseline, max(offsetY, 0))
+    }
+
+    /// 折叠态停稳在页底停留位 → 自动展开（页底应露出完整工具条）；
+    /// 基准点对齐当前偏移，随后 inset 变大的补偿位移不会立刻又折叠
+    private mutating func expandAtBottomIfNeeded(offsetY: CGFloat, collapsedMaxOffsetY: CGFloat) {
+        guard collapsed else { return }
+        let reachedBottom = abs(offsetY - collapsedMaxOffsetY) <= Self.bottomTolerance
+        guard reachedBottom else { return }
+        expand(baseline: offsetY)
     }
 }
