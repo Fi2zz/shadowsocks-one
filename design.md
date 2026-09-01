@@ -174,6 +174,10 @@ BrowserRootView (SwiftUI)
   取代原先的"整条滑出 + 胶囊滑入"容器级 transition（中间有空窗、手感生硬）。
   中途弃用过容器 scale+opacity 过渡与 matchedGeometryEffect 两条路线：
   前者仍有空窗，后者被容器 opacity transition 吞掉 hero 层不生效。
+  同日再改：布局插值版看起来是"输入框和按钮各动各的"，重构为两个完整
+  状态（整条展开栏 / 收缩胶囊）常驻 ZStack、作为**整体** scale + 交叉
+  淡入淡出（缩放比 31/52，anchor .bottom），不再有任何按元素形变；
+  隐形一侧 `allowsHitTesting(false)` 防止不可见视图拦截触摸。
 - 2026-09-01 调整：胶囊材质 regular → clear 玻璃（iOS 26+）——目标是去掉
   工具条区域的奶白底色与投影但保留玻璃质感；regular 在浅色页面呈奶白实底+
   投影，clear 满足需求。中途曾误改为完全去背景（无玻璃），当天纠正。
@@ -223,8 +227,9 @@ BrowserRootView (SwiftUI)
   奶白底色与投影（真机实测反馈，2026-09-01）；低版本回退
   `ultraThinMaterial`，禁用纯色背景。
 - **clear 玻璃全透会与内容糊在一起**：滚动正文从胶囊底下流过时与地址文字
-  重叠难读；给 clear 玻璃加 40% `systemBackground` tint 薄纱——折射质感
-  保留、无奶白无投影，穿透度降下来且随深浅色自适应（2026-09-01 反馈调整）。
+  重叠难读；给 clear 玻璃加 `systemBackground` tint 薄纱——折射质感
+  保留、无奶白无投影，穿透度降下来且随深浅色自适应（2026-09-01 反馈调整，
+  浓度经 40% 试看后定为 70%）。
 - **iOS 26 底部 scroll edge effect 也是奶白来源**：WKWebView scrollView
   默认在底部 obscured 区域叠加 automatic `UIScrollEdgeEffect`（模糊带+软
   阴影），与胶囊玻璃无关；必须 `scrollView.bottomEdgeEffect.isHidden = true`，
