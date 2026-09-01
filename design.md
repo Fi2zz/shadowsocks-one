@@ -221,6 +221,12 @@ BrowserRootView (SwiftUI)
   默认在底部 obscured 区域叠加 automatic `UIScrollEdgeEffect`（模糊带+软
   阴影），与胶囊玻璃无关；必须 `scrollView.bottomEdgeEffect.isHidden = true`，
   否则 chrome 区看起来仍有一层奶白（真机实测反馈，2026-09-01）。
+- **页面自有的 fixed 白底元素会原形毕露**：QQ 新闻文章页
+  `interaction-bottom` 互动条底衬（fixed、纯白、94pt 高、约 85pt 故意悬在
+  布局视口之下）是给 QQ/微信内置浏览器设计的，依赖宿主原生底栏遮盖；
+  Safari 用磨砂标签栏藏住它，透明 chrome 下它盖住流过的正文。由
+  `BrowserSiteQuirks` 注入窄规则把该元素背景透明化（2026-09-01 真机探针
+  实证：元素 bottom 超出 innerH 85pt，透明化后 bg=rgba(0,0,0,0)）。
 - **fixed 元素参照系**：相对 inset 调整后的视口，不是屏幕底边；页面自己的
   padding 不要读、不要写死。
 - **第三方键盘安全区残缺**（实测约 136pt，远小于实际 424pt）：根层级
