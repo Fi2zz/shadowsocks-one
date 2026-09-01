@@ -10,17 +10,12 @@ struct BrowserToolbar: View {
 
     /// 折叠/展开 = 两个完整状态常驻、作为整体 scale + 交叉淡入淡出
     /// （对齐 Safari：整条工具栏缩放进出迷你胶囊，不做按元素形变）；
-    /// 动画由根视图 toolbarCollapsed 的 spring 驱动
+    /// 动画由根视图 toolbarCollapsed 的 spring 驱动。
+    /// 静止态一律不带 scaleEffect：变换常驻会把玻璃压平成过渡渲染、丢掉 tint
     var body: some View {
         ZStack(alignment: .bottom) {
-            expandedBar
-                .opacity(browser.toolbarCollapsed ? 0 : 1)
-                .scaleEffect(barScale, anchor: .bottom)
-                .allowsHitTesting(!browser.toolbarCollapsed)
-            collapsedPill
-                .opacity(browser.toolbarCollapsed ? 1 : 0)
-                .scaleEffect(pillScale, anchor: .bottom)
-                .allowsHitTesting(browser.toolbarCollapsed)
+            scaledExpandedBar
+            scaledCollapsedPill
         }
         .animation(.easeInOut(duration: 0.2), value: addressFocused)
         .onChange(of: addressFocused) { focused in
@@ -28,23 +23,39 @@ struct BrowserToolbar: View {
         }
     }
 
-    private var barScale: CGFloat {
-        browser.toolbarCollapsed ? BrowserChromeMetrics.toolbarCollapseScale : 1
+    @ViewBuilder
+    private var scaledExpandedBar: some View {
+        if browser.toolbarCollapsed {
+            expandedBar(glassy: false)
+                .opacity(0)
+                .scaleEffect(BrowserChromeMetrics.toolbarCollapseScale, anchor: .bottom)
+                .allowsHitTesting(false)
+        } else {
+            expandedBar(glassy: true)
+        }
     }
 
-    private var pillScale: CGFloat {
-        browser.toolbarCollapsed ? 1 : BrowserChromeMetrics.toolbarCollapseScale
+    @ViewBuilder
+    private var scaledCollapsedPill: some View {
+        if browser.toolbarCollapsed {
+            collapsedPill(glassy: true)
+        } else {
+            collapsedPill(glassy: false)
+                .opacity(0)
+                .scaleEffect(BrowserChromeMetrics.toolbarCollapseScale, anchor: .bottom)
+                .allowsHitTesting(false)
+        }
     }
 
     // MARK: - 展开态整条工具栏
 
-    private var expandedBar: some View {
+    private func expandedBar(glassy: Bool) -> some View {
         HStack(spacing: 12) {
             if !addressFocused {
-                navigationButtons.transition(.opacity)
+                navigationButtons(glassy: glassy).transition(.opacity)
             }
-            addressFieldCapsule
-            trailingButton
+            addressFieldCapsule(glassy: glassy)
+            trailingButton(glassy: glassy)
         }
         .padding(.horizontal, 12)
         .padding(.top, BrowserChromeMetrics.barVerticalPadding)
@@ -52,11 +63,11 @@ struct BrowserToolbar: View {
     }
 
     @ViewBuilder
-    private var trailingButton: some View {
+    private func trailingButton(glassy: Bool) -> some View {
         if addressFocused {
-            iconButton(systemImage: "xmark") { addressFocused = false }
+            iconButton(systemImage: "xmark", glassy: glassy) { addressFocused = false }
         } else {
-            iconButton(systemImage: "ellipsis", action: showMore)
+            iconButton(systemImage: "ellipsis", glassy: glassy, action: showMore)
         }
     }
 
@@ -83,7 +94,7 @@ struct BrowserToolbar: View {
     // MARK: - 前进 / 后退
 
     @ViewBuilder
-    private var navigationButtons: some View {
+    private func navigationButtons(glassy: Bool) -> some View {
         if browser.canGoForward {
             HStack(spacing: 22) {
                 navButton("chevron.left", action: browser.goBack)
@@ -92,12 +103,12 @@ struct BrowserToolbar: View {
             }
             .padding(.horizontal, 8)
             .padding(.vertical, BrowserChromeMetrics.capsuleVerticalPadding)
-            .liquidGlassCapsule()
+            .liquidGlassCapsule(enabled: glassy)
         } else {
             navButton("chevron.left", action: browser.goBack)
                 .disabled(!browser.canGoBack)
                 .padding(BrowserChromeMetrics.capsuleVerticalPadding)
-                .liquidGlassCapsule()
+                .liquidGlassCapsule(enabled: glassy)
         }
     }
 
@@ -115,12 +126,12 @@ struct BrowserToolbar: View {
         tabManager.selectedTab?.url != nil
     }
 
-    private var addressFieldCapsule: some View {
+    private func addressFieldCapsule(glassy: Bool) -> some View {
         fieldCluster
             .frame(height: BrowserChromeMetrics.fieldContentHeight)
             .padding(.horizontal, 14)
             .padding(.vertical, BrowserChromeMetrics.capsuleVerticalPadding)
-            .liquidGlassCapsule()
+            .liquidGlassCapsule(enabled: glassy)
             .overlay(alignment: .bottom) { loadingProgressLine }
     }
 
@@ -196,27 +207,27 @@ struct BrowserToolbar: View {
         }
     }
 
-    private func iconButton(systemImage: String, action: @escaping () -> Void) -> some View {
+    private func iconButton(systemImage: String, glassy: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemImage)
                 .font(.body)
                 .frame(width: 24, height: 24)
         }
         .padding(BrowserChromeMetrics.capsuleVerticalPadding)
-        .liquidGlassCapsule()
+        .liquidGlassCapsule(enabled: glassy)
     }
 
     // MARK: - 收缩态迷你胶囊
 
     /// 对齐 Safari 迷你条：host 单行 plain 深色，点击展开工具栏
-    private var collapsedPill: some View {
+    private func collapsedPill(glassy: Bool) -> some View {
         Text(browser.activePageURL?.host ?? "")
             .font(.subheadline)
             .foregroundStyle(.primary)
             .lineLimit(1)
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
-            .liquidGlassCapsule()
+            .liquidGlassCapsule(enabled: glassy)
             .overlay(alignment: .bottom) { loadingProgressLine }
             .onTapGesture(perform: browser.expandToolbar)
     }

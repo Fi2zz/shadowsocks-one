@@ -1,16 +1,18 @@
 import SwiftUI
 
 extension View {
-    /// 底部 chrome 胶囊材质：iOS 26 用 clear 玻璃 + 70% systemBackground 薄纱——
-    /// 保留玻璃的边缘折射与质感，不带 regular 玻璃的奶白底色和投影（design.md §7），
-    /// 同时避免全透玻璃与流过的网页内容糊在一起（tint 颜色随深浅色自适应）；
-    /// 低版本回退超薄材质（半透明、无阴影），不用纯色——纯色实底会杀死穿透效果
+    /// 底部 chrome 胶囊材质：超薄材质 + 70% systemBackground 薄纱。
+    /// 不用 iOS 26 liquid glass：glassEffect 对 WKWebView 进程外渲染的内容采样，
+    /// 页面一滚动（WebKit 图层树更替）采样即失效，整组玻璃被永久压平成透明
+    /// （2026-09-01 模拟器对照：仅加载存活、滚动后必现，tint/衬底/去重叠均无解）；
+    /// 材质是进程内模糊，滚动后稳定存活。enabled=false 用于折叠动画不可见占位树
     @ViewBuilder
-    func liquidGlassCapsule() -> some View {
-        if #available(iOS 26.0, *) {
-            glassEffect(.clear.tint(glassVeilColor), in: .capsule)
+    func liquidGlassCapsule(enabled: Bool = true) -> some View {
+        if !enabled {
+            self
         } else {
-            background(.ultraThinMaterial, in: Capsule())
+            background(glassVeilColor, in: Capsule())
+                .background(.ultraThinMaterial, in: Capsule())
         }
     }
 
