@@ -153,7 +153,8 @@ struct BrowserRootView: View {
             toolbar
         }
         // 键盘在时垫键盘高度（键盘已占据 Home 指示条区域），否则垫底部安全区
-        .padding(.bottom, keyboard.height > 0 ? keyboard.height + 4 : safeBottom + 4)
+        //（胶囊底边贴安全区下缘，对齐 Safari）
+        .padding(.bottom, keyboard.height > 0 ? keyboard.height + 4 : safeBottom)
         .animation(keyboard.animation, value: keyboard.height)
     }
 

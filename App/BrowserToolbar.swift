@@ -17,7 +17,8 @@ struct BrowserToolbar: View {
             trailingButton
         }
         .padding(.horizontal, 12)
-        .padding(.vertical, BrowserChromeMetrics.barVerticalPadding)
+        .padding(.top, BrowserChromeMetrics.barVerticalPadding)
+        .padding(.bottom, BrowserChromeMetrics.barBottomPadding)
         .animation(.easeInOut(duration: 0.2), value: addressFocused)
         .onChange(of: addressFocused) { focused in
             handleFocusChange(focused)
