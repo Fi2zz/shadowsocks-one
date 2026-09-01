@@ -70,8 +70,14 @@ struct BrowserRootView: View {
     }
 
     private func scrollActiveWebView(to offset: Double) {
-        let scrollView = BrowserTabManager.shared.activeWebView?.scrollView
-        scrollView?.setContentOffset(CGPoint(x: 0, y: offset), animated: false)
+        guard let scrollView = BrowserTabManager.shared.activeWebView?.scrollView
+        else { return }
+        // 钳到合法范围：iOS 26 的 WebKit scrollView 不即时钳制程序化偏移，
+        // 越界传入（如 999999 表示"到底"）会停在内容之外的空白区
+        let maxOffset = Double(scrollView.contentSize.height - scrollView.bounds.height
+            + scrollView.contentInset.bottom)
+        let clamped = min(max(offset, 0), max(0, maxOffset))
+        scrollView.setContentOffset(CGPoint(x: 0, y: clamped), animated: false)
     }
 
     /// UI 自动化钩子：`-SSBrowserAutoFocus 1` 启动 1 秒后聚焦地址栏（验证键盘避让用）
