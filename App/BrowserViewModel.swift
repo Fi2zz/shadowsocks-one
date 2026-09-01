@@ -174,9 +174,11 @@ final class BrowserViewModel: ObservableObject {
     /// 滚动事件转交纯逻辑状态机（ToolbarFoldingMachine），镜像其折叠态驱动 chrome 动画
     private func handleScroll(in scrollView: UIScrollView) {
         let wasCollapsed = folding.collapsed
+        let collapsedMax = maxOffsetY(of: scrollView, bottomInset: collapsedBottomInset)
         folding.handleScroll(
             offsetY: scrollView.contentOffset.y,
-            collapsedMaxOffsetY: maxOffsetY(of: scrollView, bottomInset: collapsedBottomInset)
+            collapsedMaxOffsetY: collapsedMax,
+            collapseCeilingOffsetY: collapsedMax - scrollView.bounds.height
         )
         toolbarCollapsed = folding.collapsed
         // 状态机在页底自动展开时同样要补偿停留偏移，避免内容被展开的栏遮住
