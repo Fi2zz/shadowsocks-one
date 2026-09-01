@@ -59,6 +59,7 @@
 		485D24A4B9B49557950F68F7 /* MessageSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1103B4CAC4254AC6BBD1BF /* MessageSection.swift */; };
 		4A08B00A2D5CF7E0EE360906 /* RouteMatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 791643DF04B0EB268ED93592 /* RouteMatcherTests.swift */; };
 		4B436DF3E07ECFCD68EBA355 /* UDPFlowKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA81EC9B77BF403D66E601F2 /* UDPFlowKey.swift */; };
+		4C535F04B73C09008B599F7D /* BrowserBottomProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215C5F8B345CB52D98623AB7 /* BrowserBottomProbe.swift */; };
 		4E363115FAF330D5F81460BD /* ImportSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BD6A2E98B382C9DECF386C3 /* ImportSection.swift */; };
 		4E7A3C75DADB49C11F50FD18 /* HudunLoginSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8812C631ACEA0BF3D21486B8 /* HudunLoginSection.swift */; };
 		4EF944B2FCAD7A8E370CEEB0 /* SSURLParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AC3E413633469C048A72B82 /* SSURLParserTests.swift */; };
@@ -109,6 +110,7 @@
 		A521716678E49708D0276019 /* UDPRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E10B8C741B321942DE627FC /* UDPRouter.swift */; };
 		A8D134E3EE5795533D096056 /* HudunDeviceIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F05D00A68EF6269E38567A /* HudunDeviceIdentity.swift */; };
 		A9AF27F005824C2AC7DDC5E2 /* NodePickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7193AC6407A9E0570359945 /* NodePickerSheet.swift */; };
+		AAF69D2945A031CB85180828 /* BrowserDebugFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7845765CA137DCD7DAB54CC8 /* BrowserDebugFlags.swift */; };
 		ACF7AEEBFB888FB44C897BA7 /* ProxyDNSUpstreamClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA9FEBC4EA0237BB3C8C39F4 /* ProxyDNSUpstreamClient.swift */; };
 		ACFAE05F11DAACD94705C1EE /* BrowserBookmarkStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 098E7DD77F352BCA357DE4C0 /* BrowserBookmarkStoreTests.swift */; };
 		AE77F761A803A2C0C45ED982 /* DomainRouteTesterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFECCF9817E441BEB9BCBA0C /* DomainRouteTesterTests.swift */; };
@@ -146,6 +148,7 @@
 		D78DCD1E844A256322465999 /* BrowserChromeMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB5C0A403134EC4BF1DA94F /* BrowserChromeMetrics.swift */; };
 		D7D50C4A8BBA37F65E447C22 /* TCPFlowEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CD0FF60E5AC57FBDFE127C4 /* TCPFlowEvent.swift */; };
 		D883BA0ADC7C9C5BDCD04E87 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C204C2BD043B9DDB6B4FAE13 /* PacketTunnelProvider.swift */; };
+		D9483971E617B888660F5011 /* BrowserSiteQuirks.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8D472BBECD6D8FE82FAC0DF /* BrowserSiteQuirks.swift */; };
 		DA7A6ECD21990FECB1A8C486 /* BrowserPageTintTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A0F8EB779A10F25176570D /* BrowserPageTintTests.swift */; };
 		DC136E49BE68B55EC3D93952 /* BrowserWebViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 423882E8DBEECABE91CB930D /* BrowserWebViewContainer.swift */; };
 		DC99D871D17C4673C9F7D3C9 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0FCDB4F99C6EDB5ABDE828 /* RootView.swift */; };
@@ -223,6 +226,7 @@
 		1324DE7E5AA406C75CD8FBB6 /* RoutingViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingViewModelTests.swift; sourceTree = "<group>"; };
 		1710A701A1EAC450EE991138 /* BrowserToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserToolbar.swift; sourceTree = "<group>"; };
 		175D28DAA89AF257E18CB143 /* UDPSessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPSessionStore.swift; sourceTree = "<group>"; };
+		215C5F8B345CB52D98623AB7 /* BrowserBottomProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserBottomProbe.swift; sourceTree = "<group>"; };
 		27F0F73F46974605414DFCFE /* LocalDNSUpstreamClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDNSUpstreamClient.swift; sourceTree = "<group>"; };
 		2B2BBC91A7955CBB6097EF73 /* WireGuardCryptoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardCryptoTests.swift; sourceTree = "<group>"; };
 		2CAB41C951DBD5EB87224A53 /* BrowserHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserHistoryView.swift; sourceTree = "<group>"; };
@@ -278,6 +282,7 @@
 		74FAABCC1D474242F34D7604 /* WGTCPProxyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGTCPProxyRelay.swift; sourceTree = "<group>"; };
 		750CB8B70EDBA2A51B05D7D5 /* WGProxiedEgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGProxiedEgress.swift; sourceTree = "<group>"; };
 		779DEA4429272C82E36DBF51 /* ToolbarFoldingMachineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarFoldingMachineTests.swift; sourceTree = "<group>"; };
+		7845765CA137DCD7DAB54CC8 /* BrowserDebugFlags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserDebugFlags.swift; sourceTree = "<group>"; };
 		791643DF04B0EB268ED93592 /* RouteMatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteMatcherTests.swift; sourceTree = "<group>"; };
 		7BB5C0A403134EC4BF1DA94F /* BrowserChromeMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserChromeMetrics.swift; sourceTree = "<group>"; };
 		7D9FD740D8FB793807EB6186 /* BrowserTabManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserTabManager.swift; sourceTree = "<group>"; };
@@ -337,6 +342,7 @@
 		E12055C21AFEA8253E271588 /* TCPRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPRouter.swift; sourceTree = "<group>"; };
 		E3D11970F8FBB0E53ED1E836 /* ConnectionTestSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionTestSection.swift; sourceTree = "<group>"; };
 		E6814C19AB36D94D3F64F376 /* HudunAccountSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudunAccountSummary.swift; sourceTree = "<group>"; };
+		E8D472BBECD6D8FE82FAC0DF /* BrowserSiteQuirks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserSiteQuirks.swift; sourceTree = "<group>"; };
 		EE0FCDB4F99C6EDB5ABDE828 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		EFECCF9817E441BEB9BCBA0C /* DomainRouteTesterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainRouteTesterTests.swift; sourceTree = "<group>"; };
 		F042817469789731B7B00D13 /* TCPSendBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPSendBuffer.swift; sourceTree = "<group>"; };
@@ -483,10 +489,13 @@
 			children = (
 				C1F490A501B960606F8227DF /* Assets.xcassets */,
 				8E683E0536FDF5A661E4B47E /* BrowserBookmarkListView.swift */,
+				215C5F8B345CB52D98623AB7 /* BrowserBottomProbe.swift */,
 				7BB5C0A403134EC4BF1DA94F /* BrowserChromeMetrics.swift */,
+				7845765CA137DCD7DAB54CC8 /* BrowserDebugFlags.swift */,
 				2CAB41C951DBD5EB87224A53 /* BrowserHistoryView.swift */,
 				8542797006E13A2B23CEA2B1 /* BrowserMoreMenu.swift */,
 				3DF523028A2206AECFE5876E /* BrowserRootView.swift */,
+				E8D472BBECD6D8FE82FAC0DF /* BrowserSiteQuirks.swift */,
 				30FBE37FEE3805FCC4C14F72 /* BrowserStatusBarGate.swift */,
 				89EFEA968141A0E24B61F5D6 /* BrowserTabCard.swift */,
 				7D9FD740D8FB793807EB6186 /* BrowserTabManager.swift */,
@@ -778,10 +787,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				23F45C9E5B554CB6379D8160 /* BrowserBookmarkListView.swift in Sources */,
+				4C535F04B73C09008B599F7D /* BrowserBottomProbe.swift in Sources */,
 				D78DCD1E844A256322465999 /* BrowserChromeMetrics.swift in Sources */,
+				AAF69D2945A031CB85180828 /* BrowserDebugFlags.swift in Sources */,
 				68203423D866F86372C8E08C /* BrowserHistoryView.swift in Sources */,
 				BB7AD12ABBEADC6744518D38 /* BrowserMoreMenu.swift in Sources */,
 				D47309C7C35A2B98DDD27E67 /* BrowserRootView.swift in Sources */,
+				D9483971E617B888660F5011 /* BrowserSiteQuirks.swift in Sources */,
 				338FC3A7F360007DFFEB5B08 /* BrowserStatusBarGate.swift in Sources */,
 				32B1994852C91A68FC510D58 /* BrowserTabCard.swift in Sources */,
 				8CDE90B210DD734BE3C7F711 /* BrowserTabManager+Library.swift in Sources */,

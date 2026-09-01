@@ -11,6 +11,7 @@ enum BrowserWebViewFactory {
         let configuration = WKWebViewConfiguration()
         configuration.allowsInlineMediaPlayback = true
         BrowserTintProbe.install(into: configuration, handler: BrowserWebViewDelegate.shared)
+        BrowserSiteQuirks.install(into: configuration)
         let webView = WKWebView(frame: .zero, configuration: configuration)
         // 保持默认 .automatic：WebKit 经安全区管线自动处理 env 上报、fixed
         // 元素布局视口、滚动范围与指示条（安全区由 BrowserChromeViewController 注入）
