@@ -73,12 +73,10 @@ struct BrowserToolbar: View {
             }
             .padding(.horizontal, 24)
             .padding(.vertical, BrowserChromeMetrics.capsuleVerticalPadding)
-            .liquidGlassCapsule()
         } else {
             navButton("chevron.left", action: browser.goBack)
                 .disabled(!browser.canGoBack)
                 .padding(BrowserChromeMetrics.capsuleVerticalPadding)
-                .liquidGlassCapsule()
         }
     }
 
@@ -109,7 +107,6 @@ struct BrowserToolbar: View {
         .frame(height: browser.toolbarCollapsed ? nil : BrowserChromeMetrics.fieldContentHeight)
         .padding(.horizontal, 14)
         .padding(.vertical, verticalCapsulePadding)
-        .liquidGlassCapsule()
         .onTapGesture {
             if browser.toolbarCollapsed {
                 browser.expandToolbar()
@@ -190,7 +187,6 @@ struct BrowserToolbar: View {
                 .frame(width: 24, height: 24)
         }
         .padding(BrowserChromeMetrics.capsuleVerticalPadding)
-        .liquidGlassCapsule()
     }
 
     private func showFullAddress() {
