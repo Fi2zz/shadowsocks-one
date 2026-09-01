@@ -217,6 +217,10 @@ BrowserRootView (SwiftUI)
   （iOS 26+）：保留玻璃的边缘折射与质感，但去掉 regular 玻璃的
   奶白底色与投影（真机实测反馈，2026-09-01）；低版本回退
   `ultraThinMaterial`，禁用纯色背景。
+- **iOS 26 底部 scroll edge effect 也是奶白来源**：WKWebView scrollView
+  默认在底部 obscured 区域叠加 automatic `UIScrollEdgeEffect`（模糊带+软
+  阴影），与胶囊玻璃无关；必须 `scrollView.bottomEdgeEffect.isHidden = true`，
+  否则 chrome 区看起来仍有一层奶白（真机实测反馈，2026-09-01）。
 - **fixed 元素参照系**：相对 inset 调整后的视口，不是屏幕底边；页面自己的
   padding 不要读、不要写死。
 - **第三方键盘安全区残缺**（实测约 136pt，远小于实际 424pt）：根层级
