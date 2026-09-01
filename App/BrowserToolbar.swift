@@ -10,19 +10,26 @@ struct BrowserToolbar: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            if !addressFocused {
-                navigationButtons
+            if expandedLayout {
+                navigationButtons.transition(.opacity)
             }
-            addressField
-            trailingButton
+            addressCapsule
+            if !browser.toolbarCollapsed {
+                trailingButton.transition(.opacity)
+            }
         }
-        .padding(.horizontal, 12)
-        .padding(.top, BrowserChromeMetrics.barVerticalPadding)
-        .padding(.bottom, BrowserChromeMetrics.barBottomPadding)
+        .padding(.horizontal, browser.toolbarCollapsed ? 0 : 12)
+        .padding(.top, browser.toolbarCollapsed ? 0 : BrowserChromeMetrics.barVerticalPadding)
+        .padding(.bottom, browser.toolbarCollapsed ? 0 : BrowserChromeMetrics.barBottomPadding)
         .animation(.easeInOut(duration: 0.2), value: addressFocused)
         .onChange(of: addressFocused) { focused in
             handleFocusChange(focused)
         }
+    }
+
+    /// 展开布局 = 工具栏未折叠且地址栏未聚焦（聚焦时隐藏导航按钮放大地址胶囊）
+    private var expandedLayout: Bool {
+        !browser.toolbarCollapsed && !addressFocused
     }
 
     @ViewBuilder
@@ -89,7 +96,40 @@ struct BrowserToolbar: View {
         tabManager.selectedTab?.url != nil
     }
 
-    private var addressField: some View {
+    /// 地址胶囊：展开/收缩共享同一视图身份，内边距与内容切换随折叠动画插值，
+    /// 收缩态点击展开工具栏（TapGesture 只在折叠时响应，展开态交给 TextField）
+    private var addressCapsule: some View {
+        HStack(spacing: 8) {
+            if browser.toolbarCollapsed {
+                pillLabel.transition(.opacity)
+            } else {
+                fieldCluster.transition(.opacity)
+            }
+        }
+        .frame(height: browser.toolbarCollapsed ? nil : BrowserChromeMetrics.fieldContentHeight)
+        .padding(.horizontal, 14)
+        .padding(.vertical, verticalCapsulePadding)
+        .liquidGlassCapsule()
+        .onTapGesture {
+            if browser.toolbarCollapsed {
+                browser.expandToolbar()
+            }
+        }
+    }
+
+    private var verticalCapsulePadding: CGFloat {
+        browser.toolbarCollapsed ? 7 : BrowserChromeMetrics.capsuleVerticalPadding
+    }
+
+    /// 收缩态胶囊文字：host 单行，plain 深色（对齐 Safari 迷你条）
+    private var pillLabel: some View {
+        Text(browser.activePageURL?.host ?? "")
+            .font(.subheadline)
+            .foregroundStyle(.primary)
+            .lineLimit(1)
+    }
+
+    private var fieldCluster: some View {
         HStack(spacing: 8) {
             leadingIcon
             TextField("搜索或输入网站", text: $browser.addressText)
@@ -107,10 +147,6 @@ struct BrowserToolbar: View {
                 reloadButton
             }
         }
-        .frame(height: BrowserChromeMetrics.fieldContentHeight)
-        .padding(.horizontal, 14)
-        .padding(.vertical, BrowserChromeMetrics.capsuleVerticalPadding)
-        .liquidGlassCapsule()
     }
 
     private var leadingIcon: some View {

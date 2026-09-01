@@ -21,7 +21,7 @@ struct BrowserRootView: View {
                 .background(Color(uiColor: .systemBackground))
                 .background(BrowserStatusBarGate(prefersLightText: prefersLightStatusText))
                 .animation(.easeOut(duration: 0.25), value: browser.progress)
-                .animation(.easeInOut(duration: 0.2), value: browser.toolbarCollapsed)
+                .animation(.spring(response: 0.3, dampingFraction: 0.9), value: browser.toolbarCollapsed)
         }
         .overlay(alignment: .top) { loadErrorBanner }
         .fullScreenCover(isPresented: $browser.showSwitcher) {
@@ -134,44 +134,36 @@ struct BrowserRootView: View {
         }
     }
 
-    /// 收缩胶囊沉到安全区之下（Home 指示条区域）；展开态由键盘观察者手动垫高
-    @ViewBuilder
+    /// 底部 chrome 常驻单棵视图树：胶囊身份在展开/收缩间保持不变，
+    /// 尺寸/内边距/间距变化全部由 toolbarCollapsed 动画驱动（对齐 Safari 形变手感），
+    /// 按钮与进度条随透明度过渡，无容器级 transition
     private func bottomContent(safeBottom: CGFloat) -> some View {
-        if browser.toolbarCollapsed {
-            compactPill
-                .padding(.bottom, BrowserChromeMetrics.pillBottomPadding)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-        } else {
-            expandedBottomArea(safeBottom: safeBottom)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-        }
-    }
-
-    private func expandedBottomArea(safeBottom: CGFloat) -> some View {
         VStack(spacing: BrowserChromeMetrics.barSpacing) {
-            loadingProgressBar
+            if !browser.toolbarCollapsed {
+                loadingProgressBar.transition(.opacity)
+            }
             toolbar
         }
-        // 键盘在时垫键盘高度（键盘已占据 Home 指示条区域），否则垫底部安全区
-        //（胶囊底边贴安全区下缘，对齐 Safari）
-        .padding(.bottom, keyboard.height > 0 ? keyboard.height + 4 : safeBottom)
+        .padding(.bottom, bottomPadding(safeBottom: safeBottom))
         .animation(keyboard.animation, value: keyboard.height)
     }
 
-    private var compactPill: some View {
-        Button {
-            browser.expandToolbar()
-        } label: {
-            Text(browser.activePageURL?.host ?? "")
-                .font(.subheadline)
-                .foregroundStyle(.primary)
-                .lineLimit(1)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 7)
+    /// 收缩态沉到 Home 指示条区域；展开态贴安全区下缘；键盘在时垫键盘高度
+    private func bottomPadding(safeBottom: CGFloat) -> CGFloat {
+        if browser.toolbarCollapsed {
+            return BrowserChromeMetrics.pillBottomPadding
         }
-        // plain 风格避免默认 Button 把文字着成 accent 蓝（对齐 Safari 的深色文字）
-        .buttonStyle(.plain)
-        .liquidGlassCapsule()
+        return keyboard.height > 0 ? keyboard.height + 4 : safeBottom
+    }
+
+    private var toolbar: some View {
+        BrowserToolbar(
+            tabManager: tabManager,
+            browser: browser,
+            connectionState: viewModel.connectionState,
+            addressFocused: $addressFocused,
+            showMore: { morePresented = true }
+        )
     }
 
     @ViewBuilder
@@ -227,16 +219,6 @@ struct BrowserRootView: View {
             try? await Task.sleep(nanoseconds: 3_000_000_000)
             withAnimation { browser.backgroundToastTabID = nil }
         }
-    }
-
-    private var toolbar: some View {
-        BrowserToolbar(
-            tabManager: tabManager,
-            browser: browser,
-            connectionState: viewModel.connectionState,
-            addressFocused: $addressFocused,
-            showMore: { morePresented = true }
-        )
     }
 
     private var moreMenu: some View {
