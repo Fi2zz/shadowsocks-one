@@ -85,7 +85,7 @@ struct BrowserToolbar: View {
     private func navButton(_ systemImage: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemImage)
-                .font(.title2)
+                .font(.body)
                 .frame(width: 24, height: 24)
         }
     }
@@ -110,10 +110,29 @@ struct BrowserToolbar: View {
         .padding(.horizontal, 14)
         .padding(.vertical, verticalCapsulePadding)
         .liquidGlassCapsule()
+        .overlay(alignment: .bottom) { loadingProgressLine }
         .onTapGesture {
             if browser.toolbarCollapsed {
                 browser.expandToolbar()
             }
+        }
+    }
+
+    /// 加载进度线：贴在地址胶囊内底边（对齐 Safari），无轨道、只画填充段，
+    /// 宽度随 progress 插值（根视图已对 progress 挂 easeOut 动画）
+    @ViewBuilder
+    private var loadingProgressLine: some View {
+        if browser.progress > 0, browser.progress < 1 {
+            GeometryReader { proxy in
+                Capsule()
+                    .fill(Color.accentColor)
+                    .frame(width: proxy.size.width * browser.progress)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .frame(height: 2.5)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 4)
+            .transition(.opacity)
         }
     }
 
@@ -178,7 +197,7 @@ struct BrowserToolbar: View {
     private var reloadButton: some View {
         Button(action: browser.reload) {
             Image(systemName: "arrow.clockwise")
-                .font(.title3)
+                .font(.body)
                 .frame(width: 24, height: 24)
         }
     }
@@ -186,7 +205,7 @@ struct BrowserToolbar: View {
     private func iconButton(systemImage: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemImage)
-                .font(.title2)
+                .font(.body)
                 .frame(width: 24, height: 24)
         }
         .padding(BrowserChromeMetrics.capsuleVerticalPadding)

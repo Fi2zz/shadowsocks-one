@@ -178,6 +178,11 @@ BrowserRootView (SwiftUI)
   工具条区域的奶白底色与投影但保留玻璃质感；regular 在浅色页面呈奶白实底+
   投影，clear 满足需求。中途曾误改为完全去背景（无玻璃），当天纠正。
   低版本回退从纯色 secondarySystemBackground 改为 ultraThinMaterial。
+- 2026-09-01 调整：加载进度条从工具栏上方独立行并入地址胶囊内底边
+  （对齐 Safari），改为无轨道填充线（Capsule 宽 = progress × 胶囊内宽）；
+  按钮图标 title2/title3 → body（17pt），胶囊垂直内边距 14→10
+  （胶囊 52→44pt，对齐 Safari 展开栏实测），展开态 chrome 内容高
+  64→52（总 inset 98→86），展开/折叠 inset 差变为 33pt，仍在页底稳定区内。
 
 返工记录（教训：验证结论必须回写本文档，避免重复试错）：
 

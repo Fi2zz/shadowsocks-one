@@ -139,14 +139,9 @@ struct BrowserRootView: View {
     /// 尺寸/内边距/间距变化全部由 toolbarCollapsed 动画驱动（对齐 Safari 形变手感），
     /// 按钮与进度条随透明度过渡，无容器级 transition
     private func bottomContent(safeBottom: CGFloat) -> some View {
-        VStack(spacing: BrowserChromeMetrics.barSpacing) {
-            if !browser.toolbarCollapsed {
-                loadingProgressBar.transition(.opacity)
-            }
-            toolbar
-        }
-        .padding(.bottom, bottomPadding(safeBottom: safeBottom))
-        .animation(keyboard.animation, value: keyboard.height)
+        toolbar
+            .padding(.bottom, bottomPadding(safeBottom: safeBottom))
+            .animation(keyboard.animation, value: keyboard.height)
     }
 
     /// 收缩态沉到 Home 指示条区域；展开态贴安全区下缘；键盘在时垫键盘高度
@@ -177,18 +172,6 @@ struct BrowserRootView: View {
                 .padding(8)
                 .frame(maxWidth: .infinity)
                 .background(.ultraThinMaterial)
-        }
-    }
-
-    @ViewBuilder
-    private var loadingProgressBar: some View {
-        if browser.progress > 0, browser.progress < 1 {
-            ProgressView(value: browser.progress)
-                .progressViewStyle(.linear)
-                .tint(.accentColor)
-                .frame(maxWidth: .infinity)
-                .scaleEffect(x: 1, y: 2, anchor: .center)
-                .padding(.horizontal, 12)
         }
     }
 

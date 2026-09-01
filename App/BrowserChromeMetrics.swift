@@ -5,20 +5,18 @@ import CoreGraphics
 enum BrowserChromeMetrics {
     /// 地址胶囊内容高（BrowserToolbar.addressField 的 frame height）
     static let fieldContentHeight: CGFloat = 24
-    /// 地址胶囊/图标按钮的垂直内边距
-    static let capsuleVerticalPadding: CGFloat = 14
+    /// 地址胶囊/图标按钮的垂直内边距：10——胶囊 44pt（对齐 Safari 展开栏实测）
+    static let capsuleVerticalPadding: CGFloat = 10
     /// 工具栏整行的垂直外边距（顶部）
     static let barVerticalPadding: CGFloat = 8
     /// 工具栏整行的底部外边距：0——胶囊底边贴安全区（对齐 Safari 的 ~34.7pt）
     static let barBottomPadding: CGFloat = 0
-    /// 进度条与工具栏的间距
-    static let barSpacing: CGFloat = 4
     /// 折叠胶囊的底部间距（对齐 Safari 收缩胶囊实测 ~14.7pt）
     static let pillBottomPadding: CGFloat = 15
 
-    /// 展开态 chrome 内容高：胶囊 52 + 顶部边距 8 + 间距 4 = 64
+    /// 展开态 chrome 内容高：胶囊 44 + 顶部边距 8 = 52（进度条已并入地址胶囊内底边）
     static var expandedChromeContent: CGFloat {
-        fieldContentHeight + capsuleVerticalPadding * 2 + barVerticalPadding + barBottomPadding + barSpacing
+        fieldContentHeight + capsuleVerticalPadding * 2 + barVerticalPadding + barBottomPadding
     }
 
     /// 收起态 chrome 内容高预算：胶囊实际高度（30）+ 底部间距（15）+ 防沉底边距（8）
