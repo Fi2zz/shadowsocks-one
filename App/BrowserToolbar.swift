@@ -71,7 +71,7 @@ struct BrowserToolbar: View {
                     .disabled(!browser.canGoBack)
                 navButton("chevron.right", action: browser.goForward)
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, 18)
             .padding(.vertical, BrowserChromeMetrics.capsuleVerticalPadding)
             .liquidGlassCapsule()
         } else {
