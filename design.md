@@ -222,6 +222,9 @@ BrowserRootView (SwiftUI)
   （iOS 26+）：保留玻璃的边缘折射与质感，但去掉 regular 玻璃的
   奶白底色与投影（真机实测反馈，2026-09-01）；低版本回退
   `ultraThinMaterial`，禁用纯色背景。
+- **clear 玻璃全透会与内容糊在一起**：滚动正文从胶囊底下流过时与地址文字
+  重叠难读；给 clear 玻璃加 40% `systemBackground` tint 薄纱——折射质感
+  保留、无奶白无投影，穿透度降下来且随深浅色自适应（2026-09-01 反馈调整）。
 - **iOS 26 底部 scroll edge effect 也是奶白来源**：WKWebView scrollView
   默认在底部 obscured 区域叠加 automatic `UIScrollEdgeEffect`（模糊带+软
   阴影），与胶囊玻璃无关；必须 `scrollView.bottomEdgeEffect.isHidden = true`，
