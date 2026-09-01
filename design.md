@@ -1,6 +1,7 @@
 # iOS 简易浏览器 Safari 对齐方案（顶部透色 + 底部玻璃栏）
 
-> 状态：已落地（2026-08-31，终态提交 c9b6cda）。本文档已从"实施前方案"改写为
+> 状态：已落地（2026-08-31，终态提交 c9b6cda；2026-09-01 修订布局视口通道为
+> 公开 `obscuredContentInsets`，见 §4.1/§6）。本文档已从"实施前方案"改写为
 > "落地后设计记录"：与代码不一致的初版路线（.never + 手动 contentInset）已被
 > 两次实证不可行并移除，见 §6 实施记录。后续改动以本文档为准。
 
@@ -29,14 +30,15 @@
   文字深浅；底部 chrome 不染色，靠玻璃透出内容本身）。
 - **顶部 = Safari 路线**：WebView frame 全屏，状态栏区域不放任何原生视图；
   `contentInsetAdjustmentBehavior` 保持默认 `.automatic`。
-- **底部避让 = 双通道**（见 §4.1），不是初版的手动 contentInset 路线。
+- **底部避让 = 多通道**（见 §4.1），不是初版的手动 contentInset 路线。
 - **公开 contentInset 路线已被证伪**：`scrollView.contentInset.bottom` 无法移动
   `position:fixed` 元素、不改变 `env()` 上报，QQ 新闻 fixed 底条仍被压住。
   两次验证：4a4a6b5、c98aebd（7 分钟后由 d4f552e 回退）。**不要再试第三次。**
-- **私有 API 风险已拍板（2026-08-31）**：保留 `_setObscuredInsets:` /
-  `_setUnobscuredSafeAreaInsets:`（经 IMP 调用），书面记录 App Store 审核风险；
-  选择器不存在时静默降级为无避让（不崩溃）。若未来决定上架，需重新评估并
-  准备公开 API 降级体验。
+- **私有 API 风险已拍板（2026-08-31，2026-09-01 修订）**：布局视口通道在
+  iOS 26+ 已改用公开属性 `obscuredContentInsets`，`_setObscuredInsets:` 仅作
+  iOS 26 以下回退；`_setUnobscuredSafeAreaInsets:`（env 上报，经 IMP 调用）
+  仍为私有，书面记录 App Store 审核风险；选择器不存在时静默降级（不崩溃）。
+  若未来决定上架，需重新评估并准备公开 API 降级体验。
 
 ## 4. 核心原理
 
@@ -45,31 +47,38 @@
 | 属性 | 决定什么 | 取值 |
 |---|---|---|
 | WebView frame | 网页**渲染**到哪里 | 全屏（延伸到状态栏与物理底边） |
-| chrome 避让 inset | 布局视口**锚定**、fixed 元素位置、滚动**停留**边界、`env()` 上报 | 顶部 = 真实状态栏高；底部 = chrome 总高，显隐时随 SwiftUI 动画同步 |
+| chrome 避让 inset | 布局视口**锚定**、fixed 元素位置、滚动**停留**边界 | 顶部 = 真实状态栏高；底部 = chrome 总高，显隐时随 SwiftUI 动画同步 |
+| env 上报 | 页面 `env(safe-area-inset-*)` 读到的值 | 真实设备安全区（对齐 Safari），**不注入 chrome 高度** |
 
-避让经 `BrowserChromeViewController` 双通道下发：
+避让经 `BrowserChromeViewController` 三通道下发：
 
-1. **公开通道**——`additionalSafeAreaInsets` 抬高 WebView 有效安全区
+1. **公开安全区通道**——`additionalSafeAreaInsets` 抬高 WebView 有效安全区
   （顶部 = 真实状态栏高，底部 = chrome 总高），恢复 SwiftUI `ignoresSafeArea`
   消费掉的安全区；仅在值变化时写入，避免每次布局触发 WebKit 安全区重算。
-2. **显式通道**——iOS 26 实测 WKWebView 不会自发消费安全区进入页面
-  （env/布局视口均不变），需经 `_setObscuredInsets:`（布局视口锚定、fixed
-  元素与滚动范围）与 `_setUnobscuredSafeAreaInsets:`（env 上报值）显式下发。
-  **obscured.top 必须 = 真实状态栏高**：为 0 时布局视口顶锚到屏幕 0 点，
-  非 cover 页（viewport-fit=auto，不读 env）内容直接伸进状态栏；
-  cover 页不受 obscured 顶部约束（viewport-fit=cover 语义），仍靠 env
-  自己画进状态栏。验证记录见 c9b6cda 与 2026-08-31 修复提交（auto 页
-  innerH 874→706 = 总高 − 状态栏 62 − chrome 106，cover 页视觉不变）。
+2. **布局视口通道**——iOS 26 起用公开属性 `obscuredContentInsets`（收缩布局
+  视口边界，驱动 fixed/sticky 元素锚定与滚动停留）；iOS 26 以下回退私有
+  `_setObscuredInsets:`。**iOS 26 上 `_setObscuredInsets:` 已失效**：只影响
+  `innerHeight`，不再约束 fixed 布局视口（实测 clientHeight 恒为全屏 874，
+  fixed 底条锚在物理底被 chrome 压住、滚动时布局/视觉视口错位 152pt 致
+  fixed 头部飞出屏幕）。公开属性内部会打开
+  `_automaticallyAdjustsViewLayoutSizesWithObscuredInset` 才真正生效。
+  **top 必须 = 真实状态栏高**：为 0 时非 cover 页（viewport-fit=auto）内容
+  直接伸进状态栏（c9b6cda 与 2026-08-31 修复实证，auto 页 innerH=706）。
+3. **env 通道**——`_setUnobscuredSafeAreaInsets:` 下发真实设备安全区
+  （顶 62 / 底 34，对齐 Safari 语义）。曾错误地下发 chrome 总高（106），
+  导致 fixed 底条自带 106pt 内边距、视觉悬空；chrome 避让完全由通道 2 的
+  布局视口承担，env 只描述设备安全区。
 
 - 滚动时正文从玻璃底栏底下流过（frame 全屏的自然结果）；
-- 松手停稳后内容与 fixed 元素不被栏压住（inset 的作用）；
-- 页面的 `fixed bottom: 32px` 相对 inset 调整后的视口定位，自动坐在栏上方
-  ——不要读这个 32px，更不要写死。
+- 松手停稳后内容与 fixed 元素不被栏压住（布局视口的作用）；
+- 页面的 fixed 底条相对 inset 调整后的视口定位，自动坐在栏上方；
+  与栏顶的距离来自页面自身样式（如腾讯页约 30px），不要读、更不要写死。
 
 ### 4.2 顶部「透进状态栏」的三个条件
 
-1. 网页声明 `viewport-fit=cover` + fixed 头部用 `env(safe-area-inset-top)` 自己
-   把颜色画进状态栏区域（腾讯新闻这类站点已做）；env(top) 由双通道保证非 0；
+1. fixed 头部锚定在布局视口顶（= 状态栏下缘），状态栏区域的颜色由 iOS 26
+   WebKit 内置的 fixed 边缘取色延展（fixed color extension）自动绘制——
+   页面不需要自己往状态栏画颜色；env(top) 由 §4.1 通道 3 保证为真实值；
 2. 容器链路 `.ignoresSafeArea([.container, .keyboard])`，安全区由
    `BrowserChromeViewController` 按 §4.1 恢复，而不是系统默认缩放；
 3. 状态栏区域不放任何原生视图，状态栏文字直接浮在 WebView 上
@@ -94,7 +103,7 @@ MutationObserver 跟踪异步换肤），原生侧算亮度切 `preferredStatusB
 ```
 BrowserRootView (SwiftUI)
  ├── BrowserWebViewContainer (UIViewControllerRepresentable)
- │    └── BrowserChromeViewController —— 双通道 inset 下发（§4.1）
+ │    └── BrowserChromeViewController —— 多通道 inset 下发（§4.1）
  ├── BrowserToolbar —— 单行：前进/后退 + 地址胶囊 + 更多
  ├── 折叠胶囊（compactPill，收起态显示 host）
  ├── BrowserStatusBarGate —— 状态栏文字样式宿主
@@ -121,6 +130,13 @@ BrowserRootView (SwiftUI)
 - 2026-08-31 修复：`obscured.top` 由 0 改为真实状态栏高——c9b6cda 的 top=0
   使非 cover 页布局视口锚在屏幕 0 点，内容伸进状态栏（模拟器探针页实证，
   修复后 auto 页 innerH 768→706，cover 页视觉不变）。
+- 2026-09-01 修复：布局视口通道改用公开 `obscuredContentInsets`——iOS 26 上
+  旧私有 `_setObscuredInsets:` 不再约束 fixed 布局视口，导致腾讯参考页
+  fixed 头部滚动时飞出屏幕、fixed 底条被 chrome 压住（此前误判为"腾讯的
+  设计"）。env 上报同步从 chrome 总高改为真实设备安全区。取证方法：注入
+  自建 fixed 探针 div 对照各 inset 通道开关组合（clientHeight / 锚点坐标），
+  对照组证实公开属性一条通道即可让 clientHeight=706、底条锚定 chrome 顶、
+  滚动时头部钉住不动。
 
 返工记录（教训：验证结论必须回写本文档，避免重复试错）：
 
@@ -134,13 +150,24 @@ BrowserRootView (SwiftUI)
 ## 7. 边界与坑清单
 
 - **WKWebView 不消费安全区**（iOS 26 实测）：只设 `additionalSafeAreaInsets`
-  页面 env/布局视口不变，必须走 §4.1 显式通道。
-- **obscured.top 不能为 0**：`_setObscuredInsets:` 的 top 决定布局视口顶部锚点；
-  为 0 时非 cover 页（viewport-fit=auto，不读 env）内容伸进状态栏。
-  cover 页靠 viewport-fit=cover 语义穿透，不受影响。
-- **私有 API 风险**：`_setObscuredInsets:` / `_setUnobscuredSafeAreaInsets:` 有
-  App Store 审核风险（决策见 §3）；经 `NSSelectorFromString` + IMP 调用，
-  方法不存在时降级为无避让，不崩溃。
+  页面 env/布局视口不变，必须走 §4.1 通道 2/3。
+- **iOS 26 上 `_setObscuredInsets:` 半失效**（2026-09-01 实证）：`innerHeight`
+  与滚动边界仍响应，但 fixed 布局视口（`documentElement.clientHeight`、fixed
+  元素锚定）恒为全屏，且滚动 + inset 变化时布局/视觉视口错位（vvTop=152），
+  fixed 顶元素飞出屏幕。iOS 26+ 必须用公开 `obscuredContentInsets`。
+- **`obscuredContentInsets` 同值早退陷阱**：旧私有调用先写入同值后，公开
+  setter 会因值相同 early-return，漏掉打开
+  `_automaticallyAdjustsViewLayoutSizesWithObscuredInset`——两条路不要混用，
+  iOS 26+ 只走公开属性。
+- **布局视口 top 不能为 0**：为 0 时非 cover 页（viewport-fit=auto，不读 env）
+  内容伸进状态栏；顶部固定为真实状态栏高，cover/auto 页一致（状态栏区域由
+  WebKit fixed 边缘取色延展绘制，对齐 iOS 26 Safari）。
+- **env 不注入 chrome 高度**：`env(safe-area-inset-*)` 必须是真实设备安全区
+  （顶 62 / 底 34）；注入 chrome 总高会让 fixed 底条自带超长内边距、视觉悬空
+  （曾误记为"腾讯页面 fixed bottom: 32px"，实际页面 CSS 是 bottom: 0）。
+- **私有 API 风险**：`_setUnobscuredSafeAreaInsets:`（及 iOS 26 以下回退的
+  `_setObscuredInsets:`）有 App Store 审核风险（决策见 §3）；经
+  `NSSelectorFromString` + IMP 调用，方法不存在时降级，不崩溃。
 - **公开 contentInset 管不了 fixed 元素**：只影响滚动停留边界，不影响 fixed
   布局视口与 env() 上报（两次实证，见 §3）。
 - **底栏不透明 = 穿透效果死亡**：滚动内容从栏下滑过依赖玻璃半透明，
@@ -165,7 +192,8 @@ BrowserRootView (SwiftUI)
 
 1. 打开参考页：状态栏区域显示页面蓝色头部，状态栏文字为白色；
 2. 下滑滚动：底栏折叠成胶囊，fixed 蓝条跟随动画滑向屏幕底；
-3. 上滑：底栏呼出，fixed 蓝条回到栏上方约 32px，不被压住；
+3. 上滑：底栏呼出，fixed 蓝条回到栏上方（间距为页面自身样式，约 30px），
+   不被压住、无额外悬空；
 4. 快速滚动长文：正文从底栏底下模糊滑过（穿透），松手后底部文字不被栏压住；
 5. 右侧滚动条止于栏顶；
 6. 页面拉到底/顶回弹：露出区域颜色与页面背景一致，无任何固定色残块；
