@@ -159,7 +159,7 @@ struct BrowserToolbar: View {
                 .submitLabel(.go)
                 .focused($addressFocused)
                 .onSubmit(browser.loadAddress)
-            if !browser.addressText.isEmpty {
+            if addressFocused, !browser.addressText.isEmpty {
                 clearButton
             }
             if pageLoaded {
