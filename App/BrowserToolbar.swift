@@ -8,28 +8,47 @@ struct BrowserToolbar: View {
     @FocusState.Binding var addressFocused: Bool
     let showMore: () -> Void
 
+    /// 折叠/展开 = 两个完整状态常驻、作为整体 scale + 交叉淡入淡出
+    /// （对齐 Safari：整条工具栏缩放进出迷你胶囊，不做按元素形变）；
+    /// 动画由根视图 toolbarCollapsed 的 spring 驱动
     var body: some View {
-        HStack(spacing: 12) {
-            if expandedLayout {
-                navigationButtons.transition(.opacity)
-            }
-            addressCapsule
-            if !browser.toolbarCollapsed {
-                trailingButton.transition(.opacity)
-            }
+        ZStack(alignment: .bottom) {
+            expandedBar
+                .opacity(browser.toolbarCollapsed ? 0 : 1)
+                .scaleEffect(barScale, anchor: .bottom)
+                .allowsHitTesting(!browser.toolbarCollapsed)
+            collapsedPill
+                .opacity(browser.toolbarCollapsed ? 1 : 0)
+                .scaleEffect(pillScale, anchor: .bottom)
+                .allowsHitTesting(browser.toolbarCollapsed)
         }
-        .padding(.horizontal, browser.toolbarCollapsed ? 0 : 12)
-        .padding(.top, browser.toolbarCollapsed ? 0 : BrowserChromeMetrics.barVerticalPadding)
-        .padding(.bottom, browser.toolbarCollapsed ? 0 : BrowserChromeMetrics.barBottomPadding)
         .animation(.easeInOut(duration: 0.2), value: addressFocused)
         .onChange(of: addressFocused) { focused in
             handleFocusChange(focused)
         }
     }
 
-    /// 展开布局 = 工具栏未折叠且地址栏未聚焦（聚焦时隐藏导航按钮放大地址胶囊）
-    private var expandedLayout: Bool {
-        !browser.toolbarCollapsed && !addressFocused
+    private var barScale: CGFloat {
+        browser.toolbarCollapsed ? BrowserChromeMetrics.toolbarCollapseScale : 1
+    }
+
+    private var pillScale: CGFloat {
+        browser.toolbarCollapsed ? 1 : BrowserChromeMetrics.toolbarCollapseScale
+    }
+
+    // MARK: - 展开态整条工具栏
+
+    private var expandedBar: some View {
+        HStack(spacing: 12) {
+            if !addressFocused {
+                navigationButtons.transition(.opacity)
+            }
+            addressFieldCapsule
+            trailingButton
+        }
+        .padding(.horizontal, 12)
+        .padding(.top, BrowserChromeMetrics.barVerticalPadding)
+        .padding(.bottom, BrowserChromeMetrics.barBottomPadding)
     }
 
     @ViewBuilder
@@ -90,32 +109,19 @@ struct BrowserToolbar: View {
         }
     }
 
-    // MARK: - 地址栏
+    // MARK: - 地址栏（展开态）
 
     private var pageLoaded: Bool {
         tabManager.selectedTab?.url != nil
     }
 
-    /// 地址胶囊：展开/收缩共享同一视图身份，内边距与内容切换随折叠动画插值，
-    /// 收缩态点击展开工具栏（TapGesture 只在折叠时响应，展开态交给 TextField）
-    private var addressCapsule: some View {
-        HStack(spacing: 8) {
-            if browser.toolbarCollapsed {
-                pillLabel.transition(.opacity)
-            } else {
-                fieldCluster.transition(.opacity)
-            }
-        }
-        .frame(height: browser.toolbarCollapsed ? nil : BrowserChromeMetrics.fieldContentHeight)
-        .padding(.horizontal, 14)
-        .padding(.vertical, verticalCapsulePadding)
-        .liquidGlassCapsule()
-        .overlay(alignment: .bottom) { loadingProgressLine }
-        .onTapGesture {
-            if browser.toolbarCollapsed {
-                browser.expandToolbar()
-            }
-        }
+    private var addressFieldCapsule: some View {
+        fieldCluster
+            .frame(height: BrowserChromeMetrics.fieldContentHeight)
+            .padding(.horizontal, 14)
+            .padding(.vertical, BrowserChromeMetrics.capsuleVerticalPadding)
+            .liquidGlassCapsule()
+            .overlay(alignment: .bottom) { loadingProgressLine }
     }
 
     /// 加载进度线：贴在地址胶囊内底边（对齐 Safari），无轨道、只画填充段，
@@ -134,18 +140,6 @@ struct BrowserToolbar: View {
             .padding(.bottom, 4)
             .transition(.opacity)
         }
-    }
-
-    private var verticalCapsulePadding: CGFloat {
-        browser.toolbarCollapsed ? 7 : BrowserChromeMetrics.capsuleVerticalPadding
-    }
-
-    /// 收缩态胶囊文字：host 单行，plain 深色（对齐 Safari 迷你条）
-    private var pillLabel: some View {
-        Text(browser.activePageURL?.host ?? "")
-            .font(.subheadline)
-            .foregroundStyle(.primary)
-            .lineLimit(1)
     }
 
     private var fieldCluster: some View {
@@ -210,6 +204,21 @@ struct BrowserToolbar: View {
         }
         .padding(BrowserChromeMetrics.capsuleVerticalPadding)
         .liquidGlassCapsule()
+    }
+
+    // MARK: - 收缩态迷你胶囊
+
+    /// 对齐 Safari 迷你条：host 单行 plain 深色，点击展开工具栏
+    private var collapsedPill: some View {
+        Text(browser.activePageURL?.host ?? "")
+            .font(.subheadline)
+            .foregroundStyle(.primary)
+            .lineLimit(1)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .liquidGlassCapsule()
+            .overlay(alignment: .bottom) { loadingProgressLine }
+            .onTapGesture(perform: browser.expandToolbar)
     }
 
     private func showFullAddress() {

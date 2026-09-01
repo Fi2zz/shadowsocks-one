@@ -13,6 +13,9 @@ enum BrowserChromeMetrics {
     static let barBottomPadding: CGFloat = 0
     /// 折叠胶囊的底部间距（对齐 Safari 收缩胶囊实测 ~14.7pt）
     static let pillBottomPadding: CGFloat = 15
+    /// 折叠/展开整体缩放比：折叠胶囊高（≈31）/ 展开栏高（52），
+    /// 整条工具栏作为整体缩放（对齐 Safari 形变手感）
+    static let toolbarCollapseScale: CGFloat = 31 / 52
 
     /// 展开态 chrome 内容高：胶囊 44 + 顶部边距 8 = 52（进度条已并入地址胶囊内底边）
     static var expandedChromeContent: CGFloat {
