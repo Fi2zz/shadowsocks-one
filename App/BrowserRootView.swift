@@ -34,6 +34,7 @@ struct BrowserRootView: View {
         .ignoresSafeArea(.keyboard, edges: .bottom)
         .onAppear(perform: autoFocusAddressBarIfNeeded)
         .onAppear(perform: openURLIfRequested)
+        .onAppear(perform: scrollIfRequested)
     }
 
     /// UI 自动化钩子：`-SSBrowserOpenURL <url>` 启动后直接打开指定页面（布局验证用）
@@ -44,6 +45,33 @@ struct BrowserRootView: View {
             return
         }
         tabManager.open(url)
+    }
+
+    /// UI 自动化钩子：`-SSBrowserScrollY <points>` 启动 3 秒后滚动到指定偏移
+    /// （等页面加载与避让 inset 就位；验证滚动态 fixed 元素与折叠动画用）；
+    /// 附带 `-SSBrowserScrollY2 <points>` 时 5 秒后再滚到第二偏移（验证回滚行为）
+    private func scrollIfRequested() {
+        guard let raw = UserDefaults.standard.string(forKey: "SSBrowserScrollY"),
+              let offset = Double(raw)
+        else {
+            return
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            scrollActiveWebView(to: offset)
+        }
+        guard let raw2 = UserDefaults.standard.string(forKey: "SSBrowserScrollY2"),
+              let offset2 = Double(raw2)
+        else {
+            return
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            scrollActiveWebView(to: offset2)
+        }
+    }
+
+    private func scrollActiveWebView(to offset: Double) {
+        let scrollView = BrowserTabManager.shared.activeWebView?.scrollView
+        scrollView?.setContentOffset(CGPoint(x: 0, y: offset), animated: false)
     }
 
     /// UI 自动化钩子：`-SSBrowserAutoFocus 1` 启动 1 秒后聚焦地址栏（验证键盘避让用）
