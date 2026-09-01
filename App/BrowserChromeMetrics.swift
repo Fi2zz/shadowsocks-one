@@ -13,15 +13,15 @@ enum BrowserChromeMetrics {
     static let barBottomPadding: CGFloat = 0
     /// 进度条与工具栏的间距
     static let barSpacing: CGFloat = 4
-    /// 折叠胶囊的底部间距
-    static let pillBottomPadding: CGFloat = 10
+    /// 折叠胶囊的底部间距（对齐 Safari 收缩胶囊实测 ~14.7pt）
+    static let pillBottomPadding: CGFloat = 15
 
     /// 展开态 chrome 内容高：胶囊 52 + 顶部边距 8 + 间距 4 = 64
     static var expandedChromeContent: CGFloat {
         fieldContentHeight + capsuleVerticalPadding * 2 + barVerticalPadding + barBottomPadding + barSpacing
     }
 
-    /// 收起态 chrome 内容高预算：大于胶囊实际高度（约 20 + 底部间距），
-    /// 保证收起态滚动内容不沉到胶囊背后
-    static let collapsedChromeContent: CGFloat = 56
+    /// 收起态 chrome 内容高预算：胶囊实际高度（30）+ 底部间距（15）+ 防沉底边距（8）
+    /// − 底部安全区（34）= 19；保证收起态滚动内容停在胶囊上方
+    static let collapsedChromeContent: CGFloat = 19
 }

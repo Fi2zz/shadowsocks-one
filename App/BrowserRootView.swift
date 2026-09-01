@@ -163,11 +163,11 @@ struct BrowserRootView: View {
             browser.expandToolbar()
         } label: {
             Text(browser.activePageURL?.host ?? "")
-                .font(.footnote.weight(.light))
+                .font(.subheadline)
                 .foregroundStyle(.primary)
                 .lineLimit(1)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 2)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 7)
         }
         // plain 风格避免默认 Button 把文字着成 accent 蓝（对齐 Safari 的深色文字）
         .buttonStyle(.plain)
