@@ -174,9 +174,10 @@ BrowserRootView (SwiftUI)
   取代原先的"整条滑出 + 胶囊滑入"容器级 transition（中间有空窗、手感生硬）。
   中途弃用过容器 scale+opacity 过渡与 matchedGeometryEffect 两条路线：
   前者仍有空窗，后者被容器 opacity transition 吞掉 hero 层不生效。
-- 2026-09-01 调整：胶囊完全去背景——regular 玻璃在浅色页面呈奶白实底+
-  投影，clear 玻璃在复杂内容上影响可读性；最终删除 LiquidGlass 修饰符，
-  工具条图标与文字直接浮在页面上，无任何背景与阴影。
+- 2026-09-01 调整：胶囊材质 regular → clear 玻璃（iOS 26+）——目标是去掉
+  工具条区域的奶白底色与投影但保留玻璃质感；regular 在浅色页面呈奶白实底+
+  投影，clear 满足需求。中途曾误改为完全去背景（无玻璃），当天纠正。
+  低版本回退从纯色 secondarySystemBackground 改为 ultraThinMaterial。
 
 返工记录（教训：验证结论必须回写本文档，避免重复试错）：
 
@@ -212,9 +213,10 @@ BrowserRootView (SwiftUI)
   （两次实证，见 §3）；但滚动停留边界恰恰是它的合法职责——iOS 26 `.never`
   行为下 adjustedContentInset 恒 0，必须手动下发（见 §4.1 通道 2）。
 - **底栏不透明 = 穿透效果死亡**：滚动内容从栏下滑过依赖栏位透明，
-  画底色/材质会看到「内容消失一块」。2026-09-01 起胶囊**完全去背景**
-  （regular 玻璃在浅色页面呈奶白实底+投影，clear 玻璃在复杂内容上
-  影响文字可读性，均弃用），图标与文字直接浮在页面上。
+  画底色/材质会看到「内容消失一块」。胶囊统一 `glassEffect(.clear)`
+  （iOS 26+）：保留玻璃的边缘折射与质感，但去掉 regular 玻璃的
+  奶白底色与投影（真机实测反馈，2026-09-01）；低版本回退
+  `ultraThinMaterial`，禁用纯色背景。
 - **fixed 元素参照系**：相对 inset 调整后的视口，不是屏幕底边；页面自己的
   padding 不要读、不要写死。
 - **第三方键盘安全区残缺**（实测约 136pt，远小于实际 424pt）：根层级

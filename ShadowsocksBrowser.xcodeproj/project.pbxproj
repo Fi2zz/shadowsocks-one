@@ -18,6 +18,7 @@
 		0C1E3F720573DB3BC9B155CC /* TCPSendBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F042817469789731B7B00D13 /* TCPSendBuffer.swift */; };
 		0E53FD100F596687EAAB56B2 /* HudunTunnelConfigurationStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C2337A6DCA4C02D7E6D08D /* HudunTunnelConfigurationStoreTests.swift */; };
 		0EA44C0430D70B7967769975 /* RoutingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C84C91F639E6C5E0AF5A8E97 /* RoutingViewModel.swift */; };
+		1330FC712D2F9510C52BBB6C /* LiquidGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 544A42ABD55AC83F0CDCDF2A /* LiquidGlass.swift */; };
 		16B08D16CC170B1A22DBA714 /* SystemTunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03521227D755214CEE538EB0 /* SystemTunnelManager.swift */; };
 		1802BF196C4836B7E22EF02F /* TCPFlowEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CD0FF60E5AC57FBDFE127C4 /* TCPFlowEvent.swift */; };
 		186B5B38768C3ABF561A77A3 /* VPNControlSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B0D4F5C4C3D2E0E182A71A /* VPNControlSection.swift */; };
@@ -248,6 +249,7 @@
 		4AD48EC323C3DDB351B339B1 /* TunnelPacketWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelPacketWriter.swift; sourceTree = "<group>"; };
 		4F9FA8ED53EFCBD9FBF7BCD7 /* DirectTCPRelayLoopbackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectTCPRelayLoopbackTests.swift; sourceTree = "<group>"; };
 		52231ABE0DB61D4A05B072D8 /* UDPSessionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPSessionStoreTests.swift; sourceTree = "<group>"; };
+		544A42ABD55AC83F0CDCDF2A /* LiquidGlass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlass.swift; sourceTree = "<group>"; };
 		563DAD26259F4E5842BB66A0 /* ShadowsocksAddressEncoderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksAddressEncoderTests.swift; sourceTree = "<group>"; };
 		57AF349702091F8151F5F273 /* TunnelDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelDiagnostics.swift; sourceTree = "<group>"; };
 		57B63305691C05DB37151BF5 /* TCPRouterReturnPathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPRouterReturnPathTests.swift; sourceTree = "<group>"; };
@@ -518,6 +520,7 @@
 				F05C35B432B98DBCEA92A34F /* Info.plist */,
 				32B2B83F89687871D6B738C3 /* IPListViewModel.swift */,
 				A4935B9780ECD25F68770F2E /* KeyboardHeightObserver.swift */,
+				544A42ABD55AC83F0CDCDF2A /* LiquidGlass.swift */,
 				BE1103B4CAC4254AC6BBD1BF /* MessageSection.swift */,
 				A7193AC6407A9E0570359945 /* NodePickerSheet.swift */,
 				59C4028309534B40B4D3D984 /* PasteButton.swift */,
@@ -811,6 +814,7 @@
 				4E363115FAF330D5F81460BD /* ImportSection.swift in Sources */,
 				25D88B093A07A702A7A95D3C /* ImportTabView.swift in Sources */,
 				89483E90282D769FAB826C18 /* KeyboardHeightObserver.swift in Sources */,
+				1330FC712D2F9510C52BBB6C /* LiquidGlass.swift in Sources */,
 				485D24A4B9B49557950F68F7 /* MessageSection.swift in Sources */,
 				A9AF27F005824C2AC7DDC5E2 /* NodePickerSheet.swift in Sources */,
 				0B5707C7838F8A6BA6D8A349 /* PasteButton.swift in Sources */,
