@@ -108,11 +108,20 @@ final class BrowserChromeViewController: UIViewController {
     /// 页底内容会停在物理底边被 chrome 遮盖），需手动下发；只影响停留边界，
     /// fixed 元素与 env 由上面两条通道负责（design.md §4.1）
     private func applyScrollInsets(on webView: WKWebView) {
-        let target = UIEdgeInsets(top: 0, left: 0, bottom: chromeInset, right: 0)
         let scrollView = webView.scrollView
+        hideBottomEdgeEffect(on: scrollView)
+        let target = UIEdgeInsets(top: 0, left: 0, bottom: chromeInset, right: 0)
         guard scrollView.contentInset != target else { return }
         scrollView.contentInset = target
         scrollView.verticalScrollIndicatorInsets = target
+    }
+
+    /// iOS 26 起 WKWebView scrollView 默认在底部 obscured 区域叠加 automatic
+    /// scroll edge effect（奶白模糊带+软阴影），与"chrome 区透明穿透"冲突，隐藏之
+    private func hideBottomEdgeEffect(on scrollView: UIScrollView) {
+        if #available(iOS 26.0, *) {
+            scrollView.bottomEdgeEffect.isHidden = true
+        }
     }
 
     private var realTopInset: CGFloat {
