@@ -91,9 +91,17 @@ final class BrowserViewModel: ObservableObject {
     }
 
     func expandToolbar() {
-        let offsetY = BrowserTabManager.shared.activeWebView?.scrollView.contentOffset.y ?? 0
-        folding.expand(baseline: offsetY)
+        guard let scrollView = BrowserTabManager.shared.activeWebView?.scrollView
+        else { return }
+        let collapsedMax = maxOffsetY(of: scrollView, bottomInset: collapsedBottomInset)
+        let restingAtBottom = scrollView.contentOffset.y >= collapsedMax - 1
+        folding.expand(baseline: scrollView.contentOffset.y)
         toolbarCollapsed = folding.collapsed
+        // 页底展开：inset 变大后原停留位会被更高的 chrome 遮住，
+        // 同步补偿到新最大偏移（动画与 chrome 展开同期完成）
+        guard restingAtBottom else { return }
+        let target = maxOffsetY(of: scrollView, bottomInset: expandedBottomInset)
+        scrollView.setContentOffset(CGPoint(x: 0, y: target), animated: true)
     }
 
     func viewBackgroundTab() {
@@ -164,7 +172,7 @@ final class BrowserViewModel: ObservableObject {
     private func handleScroll(in scrollView: UIScrollView) {
         folding.handleScroll(
             offsetY: scrollView.contentOffset.y,
-            collapsedMaxOffsetY: collapsedMaxOffsetY(of: scrollView)
+            collapsedMaxOffsetY: maxOffsetY(of: scrollView, bottomInset: collapsedBottomInset)
         )
         toolbarCollapsed = folding.collapsed
     }
@@ -173,8 +181,12 @@ final class BrowserViewModel: ObservableObject {
         bottomSafeArea + BrowserChromeMetrics.collapsedChromeContent
     }
 
-    /// 折叠态 inset 下的最大合法偏移：超出部分会被系统钳制
-    private func collapsedMaxOffsetY(of scrollView: UIScrollView) -> CGFloat {
-        scrollView.contentSize.height - scrollView.bounds.height + collapsedBottomInset
+    private var expandedBottomInset: CGFloat {
+        bottomSafeArea + BrowserChromeMetrics.expandedChromeContent
+    }
+
+    /// 给定底部 inset 下的最大合法偏移：超出部分会被系统钳制
+    private func maxOffsetY(of scrollView: UIScrollView, bottomInset: CGFloat) -> CGFloat {
+        scrollView.contentSize.height - scrollView.bounds.height + bottomInset
     }
 }

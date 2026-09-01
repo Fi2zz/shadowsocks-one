@@ -100,6 +100,19 @@ final class BrowserChromeViewController: UIViewController {
         }
         let safeArea = UIEdgeInsets(top: realTopInset, left: 0, bottom: realBottomInset, right: 0)
         Self.setEdgeInsets(safeArea, on: webView, setter: "_setUnobscuredSafeAreaInsets:")
+        applyScrollInsets(on: webView)
+    }
+
+    /// 滚动停留边界：iOS 26 的 WKWebView scrollView 以 `.never` 运行且
+    /// obscuredContentInsets 不回写 contentInset（实测 adjustedContentInset=0，
+    /// 页底内容会停在物理底边被 chrome 遮盖），需手动下发；只影响停留边界，
+    /// fixed 元素与 env 由上面两条通道负责（design.md §4.1）
+    private func applyScrollInsets(on webView: WKWebView) {
+        let target = UIEdgeInsets(top: 0, left: 0, bottom: chromeInset, right: 0)
+        let scrollView = webView.scrollView
+        guard scrollView.contentInset != target else { return }
+        scrollView.contentInset = target
+        scrollView.verticalScrollIndicatorInsets = target
     }
 
     private var realTopInset: CGFloat {
