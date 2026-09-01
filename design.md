@@ -235,8 +235,8 @@ BrowserRootView (SwiftUI)
   失效，整组玻璃永久压平成透明（用户体感："缩放回来后玻璃变透明"）。
   排查证伪三条路径：静止态变换、tint 换衬底、不可见重叠玻璃去玻璃化；
   对照实验（仅加载 vs 滚动）锁定滚动为触发条件。最终弃用 live glass，
-  胶囊统一 `ultraThinMaterial` + 70% systemBackground 衬底薄纱——进程内
-  模糊材质滚动后稳定存活（2026-09-01）。
+  胶囊统一 `ultraThinMaterial` + 50% systemBackground 衬底薄纱——进程内
+  模糊材质滚动后稳定存活（2026-09-01；薄纱浓度 70% → 50% 同日再调）。
 - **iOS 26 底部 scroll edge effect 也是奶白来源**：WKWebView scrollView
   默认在底部 obscured 区域叠加 automatic `UIScrollEdgeEffect`（模糊带+软
   阴影），与胶囊玻璃无关；必须 `scrollView.bottomEdgeEffect.isHidden = true`，
