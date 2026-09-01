@@ -35,11 +35,12 @@ struct BrowserRootView: View {
         .onAppear(perform: autoFocusAddressBarIfNeeded)
         .onAppear(perform: openURLIfRequested)
         .onAppear(perform: scrollIfRequested)
+        .onAppear { BrowserBottomProbe.runIfRequested() }
     }
 
     /// UI 自动化钩子：`-SSBrowserOpenURL <url>` 启动后直接打开指定页面（布局验证用）
     private func openURLIfRequested() {
-        guard let raw = UserDefaults.standard.string(forKey: "SSBrowserOpenURL"),
+        guard let raw = BrowserDebugFlags.value(forKey: "SSBrowserOpenURL"),
               let url = URL(string: raw)
         else {
             return
@@ -51,7 +52,7 @@ struct BrowserRootView: View {
     /// （等页面加载与避让 inset 就位；验证滚动态 fixed 元素与折叠动画用）；
     /// 附带 `-SSBrowserScrollY2 <points>` 时 5 秒后再滚到第二偏移（验证回滚行为）
     private func scrollIfRequested() {
-        guard let raw = UserDefaults.standard.string(forKey: "SSBrowserScrollY"),
+        guard let raw = BrowserDebugFlags.value(forKey: "SSBrowserScrollY"),
               let offset = Double(raw)
         else {
             return
@@ -59,7 +60,7 @@ struct BrowserRootView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             scrollActiveWebView(to: offset)
         }
-        guard let raw2 = UserDefaults.standard.string(forKey: "SSBrowserScrollY2"),
+        guard let raw2 = BrowserDebugFlags.value(forKey: "SSBrowserScrollY2"),
               let offset2 = Double(raw2)
         else {
             return
@@ -82,7 +83,7 @@ struct BrowserRootView: View {
 
     /// UI 自动化钩子：`-SSBrowserAutoFocus 1` 启动 1 秒后聚焦地址栏（验证键盘避让用）
     private func autoFocusAddressBarIfNeeded() {
-        guard UserDefaults.standard.string(forKey: "SSBrowserAutoFocus") != nil else { return }
+        guard BrowserDebugFlags.value(forKey: "SSBrowserAutoFocus") != nil else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             addressFocused = true
         }
