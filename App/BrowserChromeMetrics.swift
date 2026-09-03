@@ -20,15 +20,34 @@ enum BrowserChromeMetrics {
     /// 折叠/展开的 spring（点胶囊展开、页底自动展开等离散事件）；
     /// 滚动跟手形变不经过动画，由 progress 直接驱动
     static let collapseSpring = Animation.spring(response: 0.4, dampingFraction: 0.85)
+    /// 大条与胶囊可见度交叉点（交替窗口中点），命中测试切换用
+    static let morphHitCrossover: CGFloat = 0.675
 
-    /// 展开栏在折叠进度下的缩放比（1 → toolbarCollapseScale，bottom 锚点）
-    static func expandedBarScale(progress: CGFloat) -> CGFloat {
-        1 - progress * (1 - toolbarCollapseScale)
+    /// 形变时间轴（对齐 Safari：大条与迷你胶囊叠放、中段窄窗口交替——
+    /// 大条先缩过大半行程再淡出，胶囊只在交替窗口淡入并长到位）
+    private static func clampedRamp(_ progress: CGFloat, start: CGFloat, end: CGFloat) -> CGFloat {
+        min(1, max(0, (progress - start) / (end - start)))
     }
 
-    /// 折叠胶囊在折叠进度下的缩放比（toolbarCollapseScale → 1，bottom 锚点）
+    /// 展开栏缩放：全程前 80% 行程 1 → toolbarCollapseScale，bottom 锚点
+    static func expandedBarScale(progress: CGFloat) -> CGFloat {
+        1 - clampedRamp(progress, start: 0, end: 0.8) * (1 - toolbarCollapseScale)
+    }
+
+    /// 展开栏可见度：前半程全显，0.5 → 0.85 淡出
+    static func expandedBarOpacity(progress: CGFloat) -> CGFloat {
+        1 - clampedRamp(progress, start: 0.5, end: 0.85)
+    }
+
+    /// 迷你胶囊可见度：0.5 → 0.85 淡入，与展开栏交替
+    static func collapsedPillOpacity(progress: CGFloat) -> CGFloat {
+        clampedRamp(progress, start: 0.5, end: 0.85)
+    }
+
+    /// 迷你胶囊缩放：0.45 → 1 行程内 toolbarCollapseScale → 1 长到位
     static func collapsedPillScale(progress: CGFloat) -> CGFloat {
-        toolbarCollapseScale + progress * (1 - toolbarCollapseScale)
+        toolbarCollapseScale
+            + clampedRamp(progress, start: 0.45, end: 1) * (1 - toolbarCollapseScale)
     }
 
     /// 展开态 chrome 内容高：胶囊 44 + 顶部边距 8 = 52（进度条已并入地址胶囊内底边）

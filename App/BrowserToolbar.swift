@@ -8,20 +8,19 @@ struct BrowserToolbar: View {
     @FocusState.Binding var addressFocused: Bool
     let showMore: () -> Void
 
-    /// 形变由 toolbarCollapseProgress 连续驱动（对齐 Safari：拖多少变多少），
-    /// 进度与 contentOffset 同帧落地（KVO 主线程同步应用）。两棵树恒挂
-    /// modifier、静止端为恒等值，避免端点切换整树重建（2026-09-03 实测：
-    /// 26.5 上常量 transform 不再压平玻璃）
+    /// 形变由 toolbarCollapseProgress 连续驱动，进度与 contentOffset 同帧落地
+    /// （KVO 主线程同步应用）。大条与胶囊按各自时间轴交替（对齐 Safari：
+    /// 中段窄窗口通过透明度与尺寸交替，见 BrowserChromeMetrics 形变时间轴）
     var body: some View {
         ZStack(alignment: .bottom) {
             expandedBar(glassy: true)
-                .opacity(1 - collapseProgress)
+                .opacity(BrowserChromeMetrics.expandedBarOpacity(progress: collapseProgress))
                 .scaleEffect(BrowserChromeMetrics.expandedBarScale(progress: collapseProgress), anchor: .bottom)
-                .allowsHitTesting(collapseProgress < 0.5)
+                .allowsHitTesting(collapseProgress < BrowserChromeMetrics.morphHitCrossover)
             collapsedPill(glassy: true)
-                .opacity(collapseProgress)
+                .opacity(BrowserChromeMetrics.collapsedPillOpacity(progress: collapseProgress))
                 .scaleEffect(BrowserChromeMetrics.collapsedPillScale(progress: collapseProgress), anchor: .bottom)
-                .allowsHitTesting(collapseProgress >= 0.5)
+                .allowsHitTesting(collapseProgress >= BrowserChromeMetrics.morphHitCrossover)
         }
         // 按钮单色（对齐 Safari）：黑白随深浅色自适应；
         // 状态点（statusColor）与进度线（accentColor）不受 tint 影响

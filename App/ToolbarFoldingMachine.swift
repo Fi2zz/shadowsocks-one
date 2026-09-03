@@ -78,14 +78,15 @@ struct ToolbarFoldingMachine {
     }
 
     /// 进度跟随（对齐 Safari：拖多少变多少）——展开态取自基准点的下滚余量，
-    /// 折叠态取 1 减上滚余量；页底稳定区内展开态强制 0（与折叠禁用同界）
+    /// 折叠态取 1 减上滚余量；门槛与翻转一致（offsetY > 0 且未入页底稳定区），
+    /// 不满足时强制 0，避免虚假事件造成"展开态却全折叠视觉"的脱节
     private mutating func updateProgress(offsetY: CGFloat, collapseCeilingOffsetY: CGFloat) {
         let delta = offsetY - baseline
         if collapsed {
             progress = clampedProgress(1 + delta / Self.flipThreshold)
             return
         }
-        guard offsetY <= collapseCeilingOffsetY else {
+        guard offsetY > 0, offsetY <= collapseCeilingOffsetY else {
             progress = 0
             return
         }

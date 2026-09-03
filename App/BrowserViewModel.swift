@@ -186,8 +186,11 @@ final class BrowserViewModel: ObservableObject {
         ]
     }
 
-    /// 滚动事件转交纯逻辑状态机（ToolbarFoldingMachine），镜像其折叠态驱动 chrome 动画
+    /// 滚动事件转交纯逻辑状态机（ToolbarFoldingMachine），镜像其折叠态驱动 chrome 动画。
+    /// 只吃用户手势驱动的滚动（拖拽/减速）：页面加载与布局调整会发出大幅
+    /// contentOffset 跳变（实测 -62/-168/+477），程序化补偿也不该触发折叠
     private func handleScroll(in scrollView: UIScrollView) {
+        guard scrollView.isDragging || scrollView.isDecelerating else { return }
         let wasCollapsed = folding.collapsed
         let collapsedMax = maxOffsetY(of: scrollView, bottomInset: collapsedBottomInset)
         folding.handleScroll(

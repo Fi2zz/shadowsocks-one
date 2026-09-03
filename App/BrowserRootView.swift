@@ -35,7 +35,19 @@ struct BrowserRootView: View {
         .onAppear(perform: autoFocusAddressBarIfNeeded)
         .onAppear(perform: openURLIfRequested)
         .onAppear(perform: scrollIfRequested)
+        .onAppear(perform: forceFoldProgressIfNeeded)
         .onAppear { BrowserBottomProbe.runIfRequested() }
+    }
+
+    /// UI 自动化钩子：`-SSBrowserFoldProgress <0..1>` 直接设定折叠形变进度
+    /// （形变视觉验证用；滚动钩子只影响布局，不再驱动折叠——折叠只吃用户手势）
+    private func forceFoldProgressIfNeeded() {
+        guard let raw = BrowserDebugFlags.value(forKey: "SSBrowserFoldProgress"),
+              let value = Double(raw)
+        else {
+            return
+        }
+        browser.toolbarCollapseProgress = CGFloat(min(1, max(0, value)))
     }
 
     /// UI 自动化钩子：`-SSBrowserOpenURL <url>` 启动后直接打开指定页面（布局验证用）
