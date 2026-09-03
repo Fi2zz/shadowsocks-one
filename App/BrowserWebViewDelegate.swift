@@ -1,14 +1,13 @@
 import WebKit
 
-/// 所有 WebView 共用的导航/UI 代理：接住新窗口链接（后台开标签）、
+/// 所有 WebView 共用的导航/UI 代理：接住新窗口链接（立即切到新标签）、
 /// 外部 scheme 交给系统、WebContent 进程被杀自动恢复、
 /// 主框架加载失败渲染内嵌错误页。页面事件通过闭包转发给
-/// BrowserViewModel（后台打开 Toast、染色采样）。
+/// BrowserViewModel（染色采样）。
 @MainActor
 final class BrowserWebViewDelegate: NSObject {
     static let shared = BrowserWebViewDelegate()
 
-    var onBackgroundOpen: ((UUID) -> Void)?
     var onTint: ((WKWebView, _ top: String?, _ bottom: String?) -> Void)?
 
     private var mainFrameRequestURL: URL?
@@ -71,7 +70,7 @@ extension BrowserWebViewDelegate: WKNavigationDelegate {
 }
 
 extension BrowserWebViewDelegate: WKUIDelegate {
-    // 新窗口链接 → 后台新建标签，不打断当前浏览（不接则 target="_blank" 点击无反应）
+    // 新窗口链接 → 立即新建并切换到新标签（不接则 target="_blank" 点击无反应）
     func webView(
         _ webView: WKWebView,
         createWebViewWith configuration: WKWebViewConfiguration,
@@ -81,8 +80,7 @@ extension BrowserWebViewDelegate: WKUIDelegate {
         guard navigationAction.targetFrame == nil,
               let url = navigationAction.request.url
         else { return nil }
-        let tab = BrowserTabManager.shared.createTab(url: url, activate: false)
-        onBackgroundOpen?(tab.id)
+        BrowserTabManager.shared.createTab(url: url)
         return nil
     }
 }

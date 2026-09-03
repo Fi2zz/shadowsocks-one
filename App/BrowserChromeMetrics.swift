@@ -65,6 +65,4 @@ enum BrowserChromeMetrics {
     static let collapsedChromeContent: CGFloat = 19
     /// 收缩态迷你胶囊的最小内容宽度：host 很短时保证整条胶囊仍是可点热区
     static let collapsedPillMinWidth: CGFloat = 88
-    /// Toast 与底部 chrome 顶边的间距
-    static let toastBottomGap: CGFloat = 16
 }

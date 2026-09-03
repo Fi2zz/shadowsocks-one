@@ -16,7 +16,6 @@ final class BrowserViewModel: ObservableObject {
     /// 折叠形变进度 0=展开、1=折叠：滚动连续跟手，离散事件走 collapseSpring
     @Published var toolbarCollapseProgress: CGFloat = 0
     @Published var showSwitcher = false
-    @Published var backgroundToastTabID: UUID?
     @Published var pageTint: BrowserPageTint?
     /// 页面 meta theme-color（KVO 监听），优先于 JS 采样结果
     @Published var themeColorTint: BrowserPageTint?
@@ -113,15 +112,6 @@ final class BrowserViewModel: ObservableObject {
         scrollView.setContentOffset(CGPoint(x: 0, y: target), animated: true)
     }
 
-    func viewBackgroundTab() {
-        guard let id = backgroundToastTabID else {
-            return
-        }
-        backgroundToastTabID = nil
-        BrowserTabManager.shared.selectTab(id)
-        observeActiveWebView()
-    }
-
     func createTab() {
         BrowserTabManager.shared.createTab()
         observeActiveWebView()
@@ -131,7 +121,6 @@ final class BrowserViewModel: ObservableObject {
 
     private func wireDelegateCallbacks() {
         let delegate = BrowserWebViewDelegate.shared
-        delegate.onBackgroundOpen = { [weak self] id in self?.backgroundToastTabID = id }
         delegate.onTint = { [weak self] webView, top, _ in
             self?.applyTint(top, from: webView)
         }

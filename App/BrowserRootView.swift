@@ -26,7 +26,6 @@ struct BrowserRootView: View {
         .fullScreenCover(isPresented: $browser.showSwitcher) {
             BrowserTabSwitcherView()
         }
-        .overlay(alignment: .bottom) { backgroundToast }
         .sheet(isPresented: $morePresented) { moreMenu }
         // 第三方键盘（微信键盘）会生成残缺的键盘安全区（实测约 136pt，远小于实际
         // 424pt），在根层级忽略，底栏避让完全交给 KeyboardHeightObserver 手动计算
@@ -171,36 +170,6 @@ struct BrowserRootView: View {
             addressFocused: $addressFocused,
             showMore: { morePresented = true }
         )
-    }
-
-    /// 后台打开提示：3 秒自动消失，「查看」切到新标签
-    @ViewBuilder
-    private var backgroundToast: some View {
-        Group {
-            if browser.backgroundToastTabID != nil {
-                toastContent
-            }
-        }
-        .animation(.spring(), value: browser.backgroundToastTabID)
-    }
-
-    private var toastContent: some View {
-        HStack {
-            Text("已在后台打开")
-                .font(.subheadline)
-            Spacer()
-            Button("查看", action: browser.viewBackgroundTab)
-                .font(.subheadline.bold())
-        }
-        .padding(.horizontal, 16)
-        .frame(height: 44)
-        .background(.regularMaterial, in: Capsule())
-        .padding(.bottom, browser.bottomChromeHeight(keyboardHeight: 0) + BrowserChromeMetrics.toastBottomGap)
-        .transition(.move(edge: .bottom).combined(with: .opacity))
-        .task {
-            try? await Task.sleep(nanoseconds: 3_000_000_000)
-            withAnimation { browser.backgroundToastTabID = nil }
-        }
     }
 
     private var moreMenu: some View {
