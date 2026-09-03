@@ -1,5 +1,6 @@
 import Foundation
 import SharedCore
+import SwiftUI
 import WebKit
 
 /// 主界面状态：地址栏文本、加载进度、前进后退可用性、工具栏折叠、
@@ -12,6 +13,8 @@ final class BrowserViewModel: ObservableObject {
     @Published var canGoBack = false
     @Published var canGoForward = false
     @Published var toolbarCollapsed = false
+    /// 折叠形变进度 0=展开、1=折叠：滚动连续跟手，离散事件走 collapseSpring
+    @Published var toolbarCollapseProgress: CGFloat = 0
     @Published var loadError: String?
     @Published var showSwitcher = false
     @Published var backgroundToastTabID: UUID?
@@ -55,6 +58,7 @@ final class BrowserViewModel: ObservableObject {
         canGoBack = webView.canGoBack
         canGoForward = webView.canGoForward
         progress = webView.estimatedProgress
+        toolbarCollapseProgress = folding.progress
         pageTint = nil
         themeColorTint = themeColorTint(of: webView)
         observations = makeObservations(for: webView)
@@ -95,6 +99,9 @@ final class BrowserViewModel: ObservableObject {
         else { return }
         folding.expand(baseline: scrollView.contentOffset.y)
         toolbarCollapsed = folding.collapsed
+        withAnimation(BrowserChromeMetrics.collapseSpring) {
+            toolbarCollapseProgress = folding.progress
+        }
         compensateBottomOffsetIfNeeded(in: scrollView)
     }
 
@@ -181,10 +188,22 @@ final class BrowserViewModel: ObservableObject {
             collapseCeilingOffsetY: collapsedMax - scrollView.bounds.height
         )
         toolbarCollapsed = folding.collapsed
+        syncCollapseProgress(autoExpanded: wasCollapsed && !folding.collapsed)
         // 状态机在页底自动展开时同样要补偿停留偏移，避免内容被展开的栏遮住
         if wasCollapsed, !folding.collapsed {
             compensateBottomOffsetIfNeeded(in: scrollView)
         }
+    }
+
+    /// 滚动跟手的进度直接写入；页底自动展开走 spring（与补偿位移同期完成）
+    private func syncCollapseProgress(autoExpanded: Bool) {
+        if autoExpanded {
+            withAnimation(BrowserChromeMetrics.collapseSpring) {
+                toolbarCollapseProgress = folding.progress
+            }
+            return
+        }
+        toolbarCollapseProgress = folding.progress
     }
 
     private var collapsedBottomInset: CGFloat {

@@ -21,7 +21,7 @@ struct BrowserRootView: View {
                 .background(Color(uiColor: .systemBackground))
                 .background(BrowserStatusBarGate(prefersLightText: prefersLightStatusText))
                 .animation(.easeOut(duration: 0.25), value: browser.progress)
-                .animation(.spring(response: 0.3, dampingFraction: 0.9), value: browser.toolbarCollapsed)
+                .animation(BrowserChromeMetrics.collapseSpring, value: browser.toolbarCollapsed)
         }
         .overlay(alignment: .top) { loadErrorBanner }
         .fullScreenCover(isPresented: $browser.showSwitcher) {

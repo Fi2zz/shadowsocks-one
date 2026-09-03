@@ -14,6 +14,8 @@ struct ToolbarFoldingMachine {
     static let bottomTolerance: CGFloat = 2
 
     private(set) var collapsed = false
+    /// 形变进度 0=展开、1=折叠：随滚动连续变化（对齐 Safari 跟手形变）
+    private(set) var progress: CGFloat = 0
     private var baseline: CGFloat = 0
 
     /// collapsedMaxOffsetY：折叠态 inset 下的最大合法偏移
@@ -39,6 +41,7 @@ struct ToolbarFoldingMachine {
         }
         followBaseline(offsetY: offsetY, collapsedMaxOffsetY: collapsedMaxOffsetY)
         expandAtBottomIfNeeded(offsetY: offsetY, collapsedMaxOffsetY: collapsedMaxOffsetY)
+        updateProgress(offsetY: offsetY, collapseCeilingOffsetY: collapseCeilingOffsetY)
     }
 
     /// 点击胶囊展开：基准点对齐当前偏移，否则展开后首个滚动事件
@@ -46,11 +49,13 @@ struct ToolbarFoldingMachine {
     mutating func expand(baseline offsetY: CGFloat) {
         collapsed = false
         baseline = offsetY
+        progress = 0
     }
 
     private mutating func collapse(offsetY: CGFloat) {
         collapsed = true
         baseline = offsetY
+        progress = 1
     }
 
     /// 折叠态基准点跟随下移极值、展开态跟随上移极值；橡皮筋越界部分不跟进，
@@ -70,5 +75,24 @@ struct ToolbarFoldingMachine {
         let reachedBottom = abs(offsetY - collapsedMaxOffsetY) <= Self.bottomTolerance
         guard reachedBottom else { return }
         expand(baseline: offsetY)
+    }
+
+    /// 进度跟随（对齐 Safari：拖多少变多少）——展开态取自基准点的下滚余量，
+    /// 折叠态取 1 减上滚余量；页底稳定区内展开态强制 0（与折叠禁用同界）
+    private mutating func updateProgress(offsetY: CGFloat, collapseCeilingOffsetY: CGFloat) {
+        let delta = offsetY - baseline
+        if collapsed {
+            progress = clampedProgress(1 + delta / Self.flipThreshold)
+            return
+        }
+        guard offsetY <= collapseCeilingOffsetY else {
+            progress = 0
+            return
+        }
+        progress = clampedProgress(delta / Self.flipThreshold)
+    }
+
+    private func clampedProgress(_ value: CGFloat) -> CGFloat {
+        min(1, max(0, value))
     }
 }

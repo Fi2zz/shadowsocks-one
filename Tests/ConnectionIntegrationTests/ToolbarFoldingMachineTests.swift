@@ -146,4 +146,51 @@ final class ToolbarFoldingMachineTests: XCTestCase {
 
         XCTAssertFalse(machine.collapsed)
     }
+
+    // MARK: - 连续形变进度
+
+    func testPartialDownScrollTracksProgress() {
+        var machine = ToolbarFoldingMachine()
+
+        machine.handleScroll(offsetY: 12, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
+
+        XCTAssertEqual(machine.progress, 0.5, accuracy: 0.001)
+        XCTAssertFalse(machine.collapsed)
+    }
+
+    func testCollapseSetsProgressToOne() {
+        var machine = ToolbarFoldingMachine()
+
+        machine.handleScroll(offsetY: 100, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
+
+        XCTAssertEqual(machine.progress, 1, accuracy: 0.001)
+    }
+
+    func testExpandResetsProgressToZero() {
+        var machine = ToolbarFoldingMachine()
+        machine.handleScroll(offsetY: 100, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
+
+        machine.handleScroll(offsetY: 60, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
+
+        XCTAssertEqual(machine.progress, 0, accuracy: 0.001)
+    }
+
+    func testPartialProgressReversesWithUpScroll() {
+        var machine = ToolbarFoldingMachine()
+        machine.handleScroll(offsetY: 12, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
+
+        machine.handleScroll(offsetY: 4, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
+
+        XCTAssertEqual(machine.progress, 4.0 / 24.0, accuracy: 0.001)
+    }
+
+    func testStableZoneKeepsProgressZero() {
+        var machine = ToolbarFoldingMachine()
+
+        // 展开态滚入页底稳定区：进度强制 0，不出现半折叠残态
+        machine.handleScroll(offsetY: 4900, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
+
+        XCTAssertEqual(machine.progress, 0, accuracy: 0.001)
+        XCTAssertFalse(machine.collapsed)
+    }
 }

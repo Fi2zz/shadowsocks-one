@@ -1,4 +1,5 @@
 import CoreGraphics
+import SwiftUI
 
 /// 底部 chrome 高度预算的唯一来源：工具栏/胶囊布局改动必须同步本文件，
 /// 否则 WebView 避让 inset 与实际 chrome 高度漂移（见 design.md §7）。
@@ -16,6 +17,19 @@ enum BrowserChromeMetrics {
     /// 折叠/展开整体缩放比：折叠胶囊高（≈31）/ 展开栏高（52），
     /// 整条工具栏作为整体缩放（对齐 Safari 形变手感）
     static let toolbarCollapseScale: CGFloat = 31 / 52
+    /// 折叠/展开的 spring（点胶囊展开、页底自动展开等离散事件）；
+    /// 滚动跟手形变不经过动画，由 progress 直接驱动
+    static let collapseSpring = Animation.spring(response: 0.4, dampingFraction: 0.85)
+
+    /// 展开栏在折叠进度下的缩放比（1 → toolbarCollapseScale，bottom 锚点）
+    static func expandedBarScale(progress: CGFloat) -> CGFloat {
+        1 - progress * (1 - toolbarCollapseScale)
+    }
+
+    /// 折叠胶囊在折叠进度下的缩放比（toolbarCollapseScale → 1，bottom 锚点）
+    static func collapsedPillScale(progress: CGFloat) -> CGFloat {
+        toolbarCollapseScale + progress * (1 - toolbarCollapseScale)
+    }
 
     /// 展开态 chrome 内容高：胶囊 44 + 顶部边距 8 = 52（进度条已并入地址胶囊内底边）
     static var expandedChromeContent: CGFloat {

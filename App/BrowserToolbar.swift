@@ -8,14 +8,13 @@ struct BrowserToolbar: View {
     @FocusState.Binding var addressFocused: Bool
     let showMore: () -> Void
 
-    /// 折叠/展开 = 两个完整状态常驻、作为整体 scale + 交叉淡入淡出
-    /// （对齐 Safari：整条工具栏缩放进出迷你胶囊，不做按元素形变）；
-    /// 动画由根视图 toolbarCollapsed 的 spring 驱动。
-    /// 静止态一律不带 scaleEffect：变换常驻会把玻璃压平成过渡渲染、丢掉 tint
+    /// 形变由 toolbarCollapseProgress 连续驱动（对齐 Safari：拖多少变多少）；
+    /// 静止端点不带 scaleEffect——常驻变换会压平玻璃（design.md §7），
+    /// 动画中段才挂 transform，玻璃在两个静止端保持完整
     var body: some View {
         ZStack(alignment: .bottom) {
-            scaledExpandedBar
-            scaledCollapsedPill
+            expandedLayer
+            collapsedLayer
         }
         // 按钮单色（对齐 Safari）：黑白随深浅色自适应；
         // 状态点（statusColor）与进度线（accentColor）不受 tint 影响
@@ -26,27 +25,38 @@ struct BrowserToolbar: View {
         }
     }
 
+    private var collapseProgress: CGFloat { browser.toolbarCollapseProgress }
+
     @ViewBuilder
-    private var scaledExpandedBar: some View {
-        if browser.toolbarCollapsed {
+    private var expandedLayer: some View {
+        if collapseProgress >= 0.999 {
             expandedBar(glassy: false)
                 .opacity(0)
                 .scaleEffect(BrowserChromeMetrics.toolbarCollapseScale, anchor: .bottom)
                 .allowsHitTesting(false)
+        } else if collapseProgress <= 0.001 {
+            expandedBar(glassy: true)
         } else {
             expandedBar(glassy: true)
+                .opacity(1 - collapseProgress)
+                .scaleEffect(BrowserChromeMetrics.expandedBarScale(progress: collapseProgress), anchor: .bottom)
+                .allowsHitTesting(false)
         }
     }
 
     @ViewBuilder
-    private var scaledCollapsedPill: some View {
-        if browser.toolbarCollapsed {
+    private var collapsedLayer: some View {
+        if collapseProgress >= 0.999 {
             collapsedPill(glassy: true)
-        } else {
+        } else if collapseProgress <= 0.001 {
             collapsedPill(glassy: false)
                 .opacity(0)
-                .scaleEffect(BrowserChromeMetrics.toolbarCollapseScale, anchor: .bottom)
                 .allowsHitTesting(false)
+        } else {
+            collapsedPill(glassy: true)
+                .opacity(collapseProgress)
+                .scaleEffect(BrowserChromeMetrics.collapsedPillScale(progress: collapseProgress), anchor: .bottom)
+                .allowsHitTesting(collapseProgress >= 0.5)
         }
     }
 
