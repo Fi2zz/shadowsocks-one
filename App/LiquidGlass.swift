@@ -1,8 +1,9 @@
 import SwiftUI
 
 extension View {
-    /// 底部 chrome 胶囊材质：iOS 26+ 用 clear 玻璃（折射质感）+ 50%
-    /// systemBackground tint 控制玻璃强度；低版本回退 ultraThinMaterial。
+    /// 底部 chrome 胶囊材质：iOS 26+ 用 clear 玻璃（折射质感）+ 60%
+    /// systemBackground tint 控制玻璃强度（50% 起步、真机反馈加浓到 60%）；
+    /// 低版本回退 ultraThinMaterial。
     /// 玻璃对 WKWebView 进程外渲染内容采样，2026-09-01 在 iOS 26.0 时代模拟器
     /// 曾复现"页面一滚动整组玻璃永久压平成透明"（对照实验锁定滚动为触发条件，
     /// tint/衬底/去重叠三路补救均无效）；2026-09-03 在 26.5 模拟器复测滚动与
@@ -24,6 +25,6 @@ extension View {
     }
 
     private var glassVeilColor: Color {
-        Color(uiColor: .systemBackground).opacity(0.5)
+        Color(uiColor: .systemBackground).opacity(0.6)
     }
 }

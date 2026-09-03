@@ -129,7 +129,10 @@ BrowserRootView (SwiftUI)
   `BrowserViewModel.bottomChromeHeight` 组合安全区/键盘高度得出总 inset。
 - 滚动折叠是阈值 24pt + 迟滞的状态机（方向极值跟随、橡皮筋不跟进、
   折叠态到达页底停留位自动展开、距页底不足一屏为稳定区禁止折叠），
-  KVO 监听 `scrollView.contentOffset`，不用 scrollView delegate。
+  KVO 监听 `scrollView.contentOffset`，不用 scrollView delegate；
+  状态机同时输出连续形变 progress（0=展开、1=折叠，滚动跟手），
+  视图层按进度插值缩放/交叉淡入淡出，离散事件（点胶囊展开、页底自动
+  展开）走 `collapseSpring`。
 
 ## 6. 实施记录
 
@@ -187,6 +190,13 @@ BrowserRootView (SwiftUI)
   按钮图标 title2/title3 → body（17pt），胶囊垂直内边距 14→10
   （胶囊 52→44pt，对齐 Safari 展开栏实测），展开态 chrome 内容高
   64→52（总 inset 98→86），展开/折叠 inset 差变为 33pt，仍在页底稳定区内。
+- 2026-09-03 调整：折叠形变从"过阈值后 spring 一次性缩放"改为**滚动连续
+  驱动**（用户反馈缩放太突然）——状态机输出 progress（0=展开、1=折叠，
+  由基准点余量/阈值连续插值），视图层按进度缩放 + 交叉淡入淡出，滚动跟手；
+  点胶囊展开、页底自动展开等离散事件走 `collapseSpring`（response 0.4 /
+  damping 0.85）。静止端点不带 scaleEffect（常驻变换压平玻璃），仅形变
+  中段挂 transform。
+- 2026-09-03 调整：玻璃 tint 浓度 50% → 60%（真机反馈加浓，质感更实）。
 
 返工记录（教训：验证结论必须回写本文档，避免重复试错）：
 
