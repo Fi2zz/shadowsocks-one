@@ -25,6 +25,8 @@ enum BrowserChromeMetrics {
     /// 滚动跟手的平滑时间常数（限速器）：慢拖逐帧跟随，快划时形变
     /// 完成不快于该时长，避免一瞬而过
     static let morphFollow = Animation.easeOut(duration: 0.25)
+    /// 标签切换的页面滑动动画（对齐 Safari 推拉手感）
+    static let tabSlideAnimation = Animation.easeInOut(duration: 0.25)
     /// 大条与胶囊可见度交叉点（交替窗口中点），命中测试切换用
     static let morphHitCrossover: CGFloat = 0.675
 

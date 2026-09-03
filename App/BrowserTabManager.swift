@@ -42,6 +42,12 @@ final class BrowserTabManager: ObservableObject {
         tabs.first { $0.id == activeTabID }
     }
 
+    /// 标签切换方向：驱动 web 内容的 Safari 式水平滑动动画
+    enum SlideDirection { case forward, backward }
+
+    /// 最近一次切换的方向；在改 activeTabID 前同步更新，保证切换帧读到新值
+    private(set) var slideDirection: SlideDirection = .forward
+
     // MARK: - 标签操作
 
     @discardableResult
@@ -62,6 +68,7 @@ final class BrowserTabManager: ObservableObject {
         webViewCache.removeValue(forKey: id)
         store?.deleteFiles(for: tab)
         if activeTabID == id {
+            slideDirection = .forward
             activeTabID = tabs.isEmpty ? nil : tabs[min(index, tabs.count - 1)].id
         }
         if tabs.isEmpty {
@@ -74,9 +81,8 @@ final class BrowserTabManager: ObservableObject {
         guard activeTabID != id, tabs.contains(where: { $0.id == id }) else {
             return
         }
-        persistSession(of: activeTabID)
-        activeTabID = id
-        touch(id)
+        slideDirection = direction(from: activeTabID, to: id)
+        activate(id)
     }
 
     /// 按标签数组顺序循环切换（Safari 地址栏横拖）：+1 下一个、-1 上一个
@@ -84,8 +90,22 @@ final class BrowserTabManager: ObservableObject {
         guard tabs.count > 1,
               let index = tabs.firstIndex(where: { $0.id == activeTabID })
         else { return }
-        let next = (index + offset + tabs.count) % tabs.count
-        selectTab(tabs[next].id)
+        slideDirection = offset > 0 ? .forward : .backward
+        activate(tabs[(index + offset + tabs.count) % tabs.count].id)
+    }
+
+    private func direction(from oldID: UUID?, to newID: UUID) -> SlideDirection {
+        guard let oldID,
+              let oldIndex = tabs.firstIndex(where: { $0.id == oldID }),
+              let newIndex = tabs.firstIndex(where: { $0.id == newID })
+        else { return .forward }
+        return newIndex > oldIndex ? .forward : .backward
+    }
+
+    private func activate(_ id: UUID) {
+        persistSession(of: activeTabID)
+        activeTabID = id
+        touch(id)
     }
 
     func open(_ url: URL) {

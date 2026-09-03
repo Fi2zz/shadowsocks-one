@@ -22,6 +22,7 @@ struct BrowserRootView: View {
                 .background(BrowserStatusBarGate(prefersLightText: prefersLightStatusText))
                 .animation(.easeOut(duration: 0.25), value: browser.progress)
                 .animation(BrowserChromeMetrics.collapseSpring, value: browser.toolbarCollapsed)
+                .animation(BrowserChromeMetrics.tabSlideAnimation, value: tabManager.activeTabID)
         }
         .fullScreenCover(isPresented: $browser.showSwitcher) {
             BrowserTabSwitcherView()
@@ -140,9 +141,22 @@ struct BrowserRootView: View {
     @ViewBuilder
     private func webViewLayer(bottomInset: CGFloat) -> some View {
         if let tabID = tabManager.activeTabID {
-            // 不加 .id(tabID)：那会销毁重建 representable，容器本身要复用
+            // .id(tabID) 给每个标签独立身份，驱动滑入/滑出 transition；重建的只是
+            // 轻量容器 VC，WebView 本体由 TabManager 缓存持有，页面状态不丢
             BrowserWebViewContainer(tabID: tabID, bottomInset: bottomInset)
+                .id(tabID)
+                .transition(slideTransition)
         }
+    }
+
+    /// Safari 式切换：新页从行进方向滑入，旧页向对侧滑出；
+    /// 方向由 TabManager 在改 activeTabID 前写入，切换帧读到的一定是新值
+    private var slideTransition: AnyTransition {
+        let incoming: Edge = tabManager.slideDirection == .forward ? .trailing : .leading
+        return .asymmetric(
+            insertion: .move(edge: incoming),
+            removal: .move(edge: incoming == .trailing ? .leading : .trailing)
+        )
     }
 
     /// 底部 chrome 常驻单棵视图树：胶囊身份在展开/收缩间保持不变，
