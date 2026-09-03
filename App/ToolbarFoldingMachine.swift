@@ -7,8 +7,9 @@ import CoreGraphics
 /// 距页底不足一屏为稳定区，区内禁止折叠——页底停留会自动展开，
 /// 区内折叠只会立刻被撤销，表现为工具条抖动。
 struct ToolbarFoldingMachine {
-    /// 翻转阈值：相对基准点同向滚动超过该值才切换折叠态
-    static let flipThreshold: CGFloat = 24
+    /// 翻转阈值：相对基准点同向滚动超过该值才切换折叠态；
+    /// 同时是形变行程（progress 0→1 的滚动距离），拉长可让过渡更柔和
+    static let flipThreshold: CGFloat = 40
     /// 页底判定容差：停留位恰好等于折叠态最大偏移，橡皮筋越界超出容差不判达，
     /// 停稳回到窗口内才展开（避免回弹中途展开造成 inset 抖动）
     static let bottomTolerance: CGFloat = 2

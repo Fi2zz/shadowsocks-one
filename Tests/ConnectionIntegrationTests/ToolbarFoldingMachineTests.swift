@@ -26,7 +26,7 @@ final class ToolbarFoldingMachineTests: XCTestCase {
         var machine = ToolbarFoldingMachine()
         machine.handleScroll(offsetY: 100, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
 
-        machine.handleScroll(offsetY: 60, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
+        machine.handleScroll(offsetY: 55, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
 
         XCTAssertFalse(machine.collapsed)
     }
@@ -36,8 +36,8 @@ final class ToolbarFoldingMachineTests: XCTestCase {
         machine.handleScroll(offsetY: 100, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
         machine.handleScroll(offsetY: 300, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
 
-        // 基准点跟随下移到 300，反向 24pt 以上即恢复展开
-        machine.handleScroll(offsetY: 270, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
+        // 基准点跟随下移到 300，反向一个阈值以上即恢复展开
+        machine.handleScroll(offsetY: 250, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
 
         XCTAssertFalse(machine.collapsed)
     }
@@ -152,7 +152,11 @@ final class ToolbarFoldingMachineTests: XCTestCase {
     func testPartialDownScrollTracksProgress() {
         var machine = ToolbarFoldingMachine()
 
-        machine.handleScroll(offsetY: 12, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
+        machine.handleScroll(
+            offsetY: ToolbarFoldingMachine.flipThreshold / 2,
+            collapsedMaxOffsetY: 5000,
+            collapseCeilingOffsetY: 4200
+        )
 
         XCTAssertEqual(machine.progress, 0.5, accuracy: 0.001)
         XCTAssertFalse(machine.collapsed)
@@ -177,11 +181,19 @@ final class ToolbarFoldingMachineTests: XCTestCase {
 
     func testPartialProgressReversesWithUpScroll() {
         var machine = ToolbarFoldingMachine()
-        machine.handleScroll(offsetY: 12, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
+        machine.handleScroll(
+            offsetY: ToolbarFoldingMachine.flipThreshold / 2,
+            collapsedMaxOffsetY: 5000,
+            collapseCeilingOffsetY: 4200
+        )
 
-        machine.handleScroll(offsetY: 4, collapsedMaxOffsetY: 5000, collapseCeilingOffsetY: 4200)
+        machine.handleScroll(
+            offsetY: ToolbarFoldingMachine.flipThreshold / 4,
+            collapsedMaxOffsetY: 5000,
+            collapseCeilingOffsetY: 4200
+        )
 
-        XCTAssertEqual(machine.progress, 4.0 / 24.0, accuracy: 0.001)
+        XCTAssertEqual(machine.progress, 0.25, accuracy: 0.001)
     }
 
     func testStableZoneKeepsProgressZero() {
