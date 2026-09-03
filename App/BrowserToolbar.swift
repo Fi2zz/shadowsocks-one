@@ -17,6 +17,9 @@ struct BrowserToolbar: View {
             scaledExpandedBar
             scaledCollapsedPill
         }
+        // 按钮单色（对齐 Safari）：黑白随深浅色自适应；
+        // 状态点（statusColor）与进度线（accentColor）不受 tint 影响
+        .tint(.primary)
         .animation(.easeInOut(duration: 0.2), value: addressFocused)
         .onChange(of: addressFocused) { focused in
             handleFocusChange(focused)
