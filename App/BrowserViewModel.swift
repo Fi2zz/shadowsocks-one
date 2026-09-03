@@ -173,7 +173,15 @@ final class BrowserViewModel: ObservableObject {
                 Task { @MainActor in self?.themeColorTint = self?.themeColorTint(of: observed) }
             },
             webView.scrollView.observe(\.contentOffset, options: .new) { [weak self] scrollView, _ in
-                Task { @MainActor in self?.handleScroll(in: scrollView) }
+                // 跟手形变要求进度与滚动同帧落地：KVO 在主线程同步回调，
+                // 直接应用绕过 Task 调度的帧延迟；非主线程兜底走 Task
+                guard Thread.isMainThread else {
+                    Task { @MainActor in self?.handleScroll(in: scrollView) }
+                    return
+                }
+                MainActor.assumeIsolated {
+                    self?.handleScroll(in: scrollView)
+                }
             },
         ]
     }

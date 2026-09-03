@@ -8,13 +8,20 @@ struct BrowserToolbar: View {
     @FocusState.Binding var addressFocused: Bool
     let showMore: () -> Void
 
-    /// 形变由 toolbarCollapseProgress 连续驱动（对齐 Safari：拖多少变多少）；
-    /// 静止端点不带 scaleEffect——常驻变换会压平玻璃（design.md §7），
-    /// 动画中段才挂 transform，玻璃在两个静止端保持完整
+    /// 形变由 toolbarCollapseProgress 连续驱动（对齐 Safari：拖多少变多少），
+    /// 进度与 contentOffset 同帧落地（KVO 主线程同步应用）。两棵树恒挂
+    /// modifier、静止端为恒等值，避免端点切换整树重建（2026-09-03 实测：
+    /// 26.5 上常量 transform 不再压平玻璃）
     var body: some View {
         ZStack(alignment: .bottom) {
-            expandedLayer
-            collapsedLayer
+            expandedBar(glassy: true)
+                .opacity(1 - collapseProgress)
+                .scaleEffect(BrowserChromeMetrics.expandedBarScale(progress: collapseProgress), anchor: .bottom)
+                .allowsHitTesting(collapseProgress < 0.5)
+            collapsedPill(glassy: true)
+                .opacity(collapseProgress)
+                .scaleEffect(BrowserChromeMetrics.collapsedPillScale(progress: collapseProgress), anchor: .bottom)
+                .allowsHitTesting(collapseProgress >= 0.5)
         }
         // 按钮单色（对齐 Safari）：黑白随深浅色自适应；
         // 状态点（statusColor）与进度线（accentColor）不受 tint 影响
@@ -26,39 +33,6 @@ struct BrowserToolbar: View {
     }
 
     private var collapseProgress: CGFloat { browser.toolbarCollapseProgress }
-
-    @ViewBuilder
-    private var expandedLayer: some View {
-        if collapseProgress >= 0.999 {
-            expandedBar(glassy: false)
-                .opacity(0)
-                .scaleEffect(BrowserChromeMetrics.toolbarCollapseScale, anchor: .bottom)
-                .allowsHitTesting(false)
-        } else if collapseProgress <= 0.001 {
-            expandedBar(glassy: true)
-        } else {
-            expandedBar(glassy: true)
-                .opacity(1 - collapseProgress)
-                .scaleEffect(BrowserChromeMetrics.expandedBarScale(progress: collapseProgress), anchor: .bottom)
-                .allowsHitTesting(false)
-        }
-    }
-
-    @ViewBuilder
-    private var collapsedLayer: some View {
-        if collapseProgress >= 0.999 {
-            collapsedPill(glassy: true)
-        } else if collapseProgress <= 0.001 {
-            collapsedPill(glassy: false)
-                .opacity(0)
-                .allowsHitTesting(false)
-        } else {
-            collapsedPill(glassy: true)
-                .opacity(collapseProgress)
-                .scaleEffect(BrowserChromeMetrics.collapsedPillScale(progress: collapseProgress), anchor: .bottom)
-                .allowsHitTesting(collapseProgress >= 0.5)
-        }
-    }
 
     // MARK: - 展开态整条工具栏
 

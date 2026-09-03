@@ -194,8 +194,15 @@ BrowserRootView (SwiftUI)
   驱动**（用户反馈缩放太突然）——状态机输出 progress（0=展开、1=折叠，
   由基准点余量/阈值连续插值），视图层按进度缩放 + 交叉淡入淡出，滚动跟手；
   点胶囊展开、页底自动展开等离散事件走 `collapseSpring`（response 0.4 /
-  damping 0.85）。静止端点不带 scaleEffect（常驻变换压平玻璃），仅形变
-  中段挂 transform。
+  damping 0.85）。
+- 2026-09-03 丝滑度修复（用户反馈跟手仍不如 Safari）：① contentOffset KVO
+  从 `Task { @MainActor }` 跳线改为主线程 `MainActor.assumeIsolated` 同步
+  应用——进度与滚动同帧落地，消除 Task 调度的帧延迟抖动；② 两棵视图树
+  恒挂 opacity/scaleEffect modifier、静止端为恒等值，替代端点 `@ViewBuilder`
+  分支——避免过边界整树重建的闪跳。前提复检：26.5 上常量 transform
+  （scale 1.0 / opacity 1.0）在两个静止端实测不压平玻璃（黑底页像素实证
+  展开/收缩胶囊 tint 均 154/154/154 存活），§7 旧"常驻变换压平玻璃"结论
+  仅适用于 26.0 时代，已随之失效。
 - 2026-09-03 调整：玻璃 tint 浓度 50% → 60%（真机反馈加浓，质感更实）。
 
 返工记录（教训：验证结论必须回写本文档，避免重复试错）：
