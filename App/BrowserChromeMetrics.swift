@@ -20,6 +20,9 @@ enum BrowserChromeMetrics {
     /// 折叠/展开的 spring（点胶囊展开、页底自动展开等离散事件）；
     /// 滚动跟手形变不经过动画，由 progress 直接驱动
     static let collapseSpring = Animation.spring(response: 0.4, dampingFraction: 0.85)
+    /// 滚动跟手的平滑时间常数（限速器）：慢拖逐帧跟随，快划时形变
+    /// 完成不快于该时长，避免一瞬而过
+    static let morphFollow = Animation.easeOut(duration: 0.25)
     /// 大条与胶囊可见度交叉点（交替窗口中点），命中测试切换用
     static let morphHitCrossover: CGFloat = 0.675
 

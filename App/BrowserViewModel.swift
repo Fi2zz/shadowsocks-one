@@ -206,15 +206,12 @@ final class BrowserViewModel: ObservableObject {
         }
     }
 
-    /// 滚动跟手的进度直接写入；页底自动展开走 spring（与补偿位移同期完成）
+    /// 滚动跟手的进度经 morphFollow 平滑写入（慢拖逐帧跟随、快划限速）；
+    /// 页底自动展开走 spring（与补偿位移同期完成）
     private func syncCollapseProgress(autoExpanded: Bool) {
-        if autoExpanded {
-            withAnimation(BrowserChromeMetrics.collapseSpring) {
-                toolbarCollapseProgress = folding.progress
-            }
-            return
+        withAnimation(autoExpanded ? BrowserChromeMetrics.collapseSpring : BrowserChromeMetrics.morphFollow) {
+            toolbarCollapseProgress = folding.progress
         }
-        toolbarCollapseProgress = folding.progress
     }
 
     private var collapsedBottomInset: CGFloat {
