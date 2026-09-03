@@ -25,4 +25,8 @@ enum BrowserChromeMetrics {
     /// 收起态 chrome 内容高预算：胶囊实际高度（30）+ 底部间距（15）+ 防沉底边距（8）
     /// − 底部安全区（34）= 19；保证收起态滚动内容停在胶囊上方
     static let collapsedChromeContent: CGFloat = 19
+    /// 收缩态迷你胶囊的最小内容宽度：host 很短时保证整条胶囊仍是可点热区
+    static let collapsedPillMinWidth: CGFloat = 88
+    /// Toast 与底部 chrome 顶边的间距
+    static let toastBottomGap: CGFloat = 16
 }

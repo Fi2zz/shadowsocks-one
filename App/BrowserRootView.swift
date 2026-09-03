@@ -197,7 +197,7 @@ struct BrowserRootView: View {
         .padding(.horizontal, 16)
         .frame(height: 44)
         .background(.regularMaterial, in: Capsule())
-        .padding(.bottom, browser.toolbarCollapsed ? 70 : 130)
+        .padding(.bottom, browser.bottomChromeHeight(keyboardHeight: 0) + BrowserChromeMetrics.toastBottomGap)
         .transition(.move(edge: .bottom).combined(with: .opacity))
         .task {
             try? await Task.sleep(nanoseconds: 3_000_000_000)

@@ -80,6 +80,9 @@ struct BrowserToolbar: View {
         browser.addressText = browser.activePageURL?.host ?? ""
     }
 
+    /// REASON: SwiftUI TextField 无公开的全选 API，只能借 responder 链向
+    /// 第一响应者发 selectAll:，且要等焦点真正落位后一拍再发；等系统提供
+    /// 公开能力后清理。
     private func selectAllText() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             UIApplication.shared.sendAction(
@@ -225,6 +228,7 @@ struct BrowserToolbar: View {
             .font(.subheadline)
             .foregroundStyle(.primary)
             .lineLimit(1)
+            .frame(minWidth: BrowserChromeMetrics.collapsedPillMinWidth)
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
             .liquidGlassCapsule(enabled: glassy)
