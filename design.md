@@ -230,13 +230,17 @@ BrowserRootView (SwiftUI)
   重叠难读；给 clear 玻璃加 `systemBackground` tint 薄纱——折射质感
   保留、无奶白无投影，穿透度降下来且随深浅色自适应（2026-09-01 反馈调整，
   浓度经 40% 试看后定为 70%）。
-- **iOS 26 glassEffect 在 WKWebView 上滚动后必死（弃用）**：玻璃对 WebView
-  进程外渲染内容采样，仅加载后存活；页面一滚动（WebKit 图层树更替）采样
-  失效，整组玻璃永久压平成透明（用户体感："缩放回来后玻璃变透明"）。
-  排查证伪三条路径：静止态变换、tint 换衬底、不可见重叠玻璃去玻璃化；
-  对照实验（仅加载 vs 滚动）锁定滚动为触发条件。最终弃用 live glass，
-  胶囊统一 `ultraThinMaterial` + 50% systemBackground 衬底薄纱——进程内
-  模糊材质滚动后稳定存活（2026-09-01；薄纱浓度 70% → 50% 同日再调）。
+- **iOS 26 glassEffect 滚动后压平：26.0 时代复现，26.5 已不复现（恢复 live glass）**：
+  玻璃对 WebView 进程外渲染内容采样，仅加载后存活；页面一滚动（WebKit 图层树
+  更替）采样失效，整组玻璃永久压平成透明（用户体感："缩放回来后玻璃变透明"）。
+  2026-09-01 在 26.0 时代模拟器：排查证伪三条路径（静止态变换、tint 换衬底、
+  不可见重叠玻璃去玻璃化），对照实验（仅加载 vs 滚动）锁定滚动为触发条件，
+  当日弃用 live glass 改走 `ultraThinMaterial` 薄纱。2026-09-03 在 iOS 26.5
+  模拟器用黑底测试页复测：下滚折叠、上滚展开（缩放回来）后三胶囊玻璃完整
+  存活（tint 像素实证 131/131/131 vs 页底 0/0/0），判定为系统侧已修复，
+  恢复 live glass：胶囊统一 `glassEffect(.clear.tint(systemBackground 50%))`
+  ——玻璃质感（折射）保留，50% tint 兼顾穿透度与文字可读性，随深浅色自适应；
+  低版本回退 `ultraThinMaterial`。真机如仍见滚动后压平，先确认系统版本 ≥ 26.5。
 - **iOS 26 底部 scroll edge effect 也是奶白来源**：WKWebView scrollView
   默认在底部 obscured 区域叠加 automatic `UIScrollEdgeEffect`（模糊带+软
   阴影），与胶囊玻璃无关；必须 `scrollView.bottomEdgeEffect.isHidden = true`，
