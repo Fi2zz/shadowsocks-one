@@ -1,16 +1,17 @@
 import WebKit
 
 /// 所有 WebView 共用的导航/UI 代理：接住新窗口链接（后台开标签）、
-/// 外部 scheme 交给系统、WebContent 进程被杀自动恢复。
-/// 页面事件通过闭包转发给 BrowserViewModel（错误横幅、后台打开 Toast）。
+/// 外部 scheme 交给系统、WebContent 进程被杀自动恢复、
+/// 主框架加载失败渲染内嵌错误页。页面事件通过闭包转发给
+/// BrowserViewModel（后台打开 Toast、染色采样）。
 @MainActor
 final class BrowserWebViewDelegate: NSObject {
     static let shared = BrowserWebViewDelegate()
 
     var onBackgroundOpen: ((UUID) -> Void)?
-    var onLoadStarted: (() -> Void)?
-    var onLoadFailed: ((String) -> Void)?
     var onTint: ((WKWebView, _ top: String?, _ bottom: String?) -> Void)?
+
+    private var mainFrameRequestURL: URL?
 
     private static let supportedSchemes = ["http", "https", "about"]
 }
@@ -21,6 +22,10 @@ extension BrowserWebViewDelegate: WKNavigationDelegate {
         decidePolicyFor navigationAction: WKNavigationAction,
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
     ) {
+        // WKNavigation 不公开 request，主框架失败回调靠这里记录的 URL 定位出错页面
+        if navigationAction.targetFrame?.isMainFrame == true {
+            mainFrameRequestURL = navigationAction.request.url
+        }
         guard let url = navigationAction.request.url,
               let scheme = url.scheme?.lowercased(),
               !Self.supportedSchemes.contains(scheme)
@@ -32,10 +37,6 @@ extension BrowserWebViewDelegate: WKNavigationDelegate {
         decisionHandler(.cancel)
     }
 
-    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        onLoadStarted?()
-    }
-
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         BrowserTabManager.shared.handleDidFinish(webView)
     }
@@ -45,11 +46,11 @@ extension BrowserWebViewDelegate: WKNavigationDelegate {
         didFailProvisionalNavigation navigation: WKNavigation!,
         withError error: Error
     ) {
-        report(error)
+        showErrorPage(error, in: webView, failingURL: mainFrameRequestURL)
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        report(error)
+        showErrorPage(error, in: webView, failingURL: webView.url ?? mainFrameRequestURL)
     }
 
     // WebContent 进程被系统杀掉（内存压力）：不处理就是白屏
@@ -58,13 +59,14 @@ extension BrowserWebViewDelegate: WKNavigationDelegate {
     }
 
     // 重定向/新导航取代旧导航时系统报 -999 (cancelled)，属正常噪音
-    private func report(_ error: Error) {
+    private func showErrorPage(_ error: Error, in webView: WKWebView, failingURL: URL?) {
         let nsError = error as NSError
         let cancelled = nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled
-        guard !cancelled else {
+        guard !cancelled, let url = failingURL else {
             return
         }
-        onLoadFailed?("\(error.localizedDescription) (\(nsError.domain) \(nsError.code))")
+        let message = "\(error.localizedDescription) (\(nsError.domain) \(nsError.code))"
+        webView.loadHTMLString(BrowserErrorPage.html(url: url, message: message), baseURL: nil)
     }
 }
 

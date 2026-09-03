@@ -125,11 +125,12 @@ final class BrowserTabManager: ObservableObject {
     // MARK: - 导航事件（共用代理回调）
 
     func handleDidFinish(_ webView: WKWebView) {
-        guard let id = tabID(for: webView) else {
+        // loadHTMLString 渲染的错误页 url 为 nil，不更新标签元数据
+        guard let id = tabID(for: webView), let url = webView.url else {
             return
         }
-        updateTab(id, title: webView.title, url: webView.url)
-        if let url = webView.url, url.scheme?.hasPrefix("http") == true {
+        updateTab(id, title: webView.title, url: url)
+        if url.scheme?.hasPrefix("http") == true {
             recordHistory(url: url, title: webView.title ?? "")
         }
     }

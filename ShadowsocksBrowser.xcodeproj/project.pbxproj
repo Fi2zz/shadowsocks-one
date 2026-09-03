@@ -65,6 +65,7 @@
 		4EF944B2FCAD7A8E370CEEB0 /* SSURLParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AC3E413633469C048A72B82 /* SSURLParserTests.swift */; };
 		4F1F916B2CBAC20A9C184A3D /* UDPRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E10B8C741B321942DE627FC /* UDPRouter.swift */; };
 		4F7412DBB8B93DACC85710E7 /* TunnelDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57AF349702091F8151F5F273 /* TunnelDiagnostics.swift */; };
+		4FF0CE7224EAE1F18BDB95D6 /* BrowserErrorPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D6EA39C496660DEF2D62C9B /* BrowserErrorPage.swift */; };
 		50D194834ACDAC390D4D55E0 /* HudunCredentialStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3788526873AC43A5EE8490A1 /* HudunCredentialStore.swift */; };
 		58A3ADC86AC7087352195222 /* HudunProfileSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DF23EE4473A9D96F99B3CF6 /* HudunProfileSection.swift */; };
 		5B89487DC6EB57BC11AC1851 /* TunnelPacketWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AD48EC323C3DDB351B339B1 /* TunnelPacketWriter.swift */; };
@@ -84,6 +85,7 @@
 		72885114FB3691FD2851284A /* BrowserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603638B5EF1DADAFF9C8FC7A /* BrowserViewModel.swift */; };
 		73B0EC2E16E4A1B67B50D78E /* TCPSendBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F042817469789731B7B00D13 /* TCPSendBuffer.swift */; };
 		76BD6938DD2197EEF2C20B28 /* BrowserTabManager+Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6C58700DED56257779022A3 /* BrowserTabManager+Persistence.swift */; };
+		77F922BEC785BCCBBFF0DAE1 /* BrowserChromeMorphTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 764BC7DC065C20CC5550C8E4 /* BrowserChromeMorphTests.swift */; };
 		781680E2F89A5252FAEDB62D /* TCPRouterRetransmissionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E0D302A2128FCD36BF75CC /* TCPRouterRetransmissionTests.swift */; };
 		7884A331FFCB1C4B3BB54246 /* TunnelPacketWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AD48EC323C3DDB351B339B1 /* TunnelPacketWriter.swift */; };
 		79E1A6576B45BB45799499AA /* TunnelConfigurationStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ECBE1A09D9C6C5D4794BC0 /* TunnelConfigurationStoreTests.swift */; };
@@ -281,6 +283,7 @@
 		72057943E4C1E990B39850C9 /* ShadowsocksUDPRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksUDPRelay.swift; sourceTree = "<group>"; };
 		74FAABCC1D474242F34D7604 /* WGTCPProxyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGTCPProxyRelay.swift; sourceTree = "<group>"; };
 		750CB8B70EDBA2A51B05D7D5 /* WGProxiedEgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGProxiedEgress.swift; sourceTree = "<group>"; };
+		764BC7DC065C20CC5550C8E4 /* BrowserChromeMorphTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserChromeMorphTests.swift; sourceTree = "<group>"; };
 		779DEA4429272C82E36DBF51 /* ToolbarFoldingMachineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarFoldingMachineTests.swift; sourceTree = "<group>"; };
 		7845765CA137DCD7DAB54CC8 /* BrowserDebugFlags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserDebugFlags.swift; sourceTree = "<group>"; };
 		791643DF04B0EB268ED93592 /* RouteMatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteMatcherTests.swift; sourceTree = "<group>"; };
@@ -304,6 +307,7 @@
 		92BF6249015259D6184A1C77 /* ConnectionIntegrationTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ConnectionIntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9904D5ECCBDE824BC6C8C76A /* SharedCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SharedCore; path = Packages/SharedCore; sourceTree = SOURCE_ROOT; };
 		9CD6F7AA85F615FA0651FA05 /* TunnelControlling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlling.swift; sourceTree = "<group>"; };
+		9D6EA39C496660DEF2D62C9B /* BrowserErrorPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserErrorPage.swift; sourceTree = "<group>"; };
 		9EC0050D4EF8798D8E9D39E5 /* ShadowsocksBrowserPacketTunnel.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = ShadowsocksBrowserPacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9FEBDDBA49AAB6FB8FACCAD2 /* HudunServicing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudunServicing.swift; sourceTree = "<group>"; };
 		A02D8B735334B9E13F44A840 /* WireGuardTunnelPump.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardTunnelPump.swift; sourceTree = "<group>"; };
@@ -397,6 +401,7 @@
 		179CE1953CCAD8046210E1D6 /* ConnectionIntegrationTests */ = {
 			isa = PBXGroup;
 			children = (
+				764BC7DC065C20CC5550C8E4 /* BrowserChromeMorphTests.swift */,
 				A716C735A252B0BB2886D769 /* ConnectionManagerStateTests.swift */,
 				9003BABF7434F91BEA1DBB8A /* ConnectionTesterTests.swift */,
 				4F9FA8ED53EFCBD9FBF7BCD7 /* DirectTCPRelayLoopbackTests.swift */,
@@ -492,6 +497,7 @@
 				215C5F8B345CB52D98623AB7 /* BrowserBottomProbe.swift */,
 				7BB5C0A403134EC4BF1DA94F /* BrowserChromeMetrics.swift */,
 				7845765CA137DCD7DAB54CC8 /* BrowserDebugFlags.swift */,
+				9D6EA39C496660DEF2D62C9B /* BrowserErrorPage.swift */,
 				2CAB41C951DBD5EB87224A53 /* BrowserHistoryView.swift */,
 				8542797006E13A2B23CEA2B1 /* BrowserMoreMenu.swift */,
 				3DF523028A2206AECFE5876E /* BrowserRootView.swift */,
@@ -790,6 +796,7 @@
 				4C535F04B73C09008B599F7D /* BrowserBottomProbe.swift in Sources */,
 				D78DCD1E844A256322465999 /* BrowserChromeMetrics.swift in Sources */,
 				AAF69D2945A031CB85180828 /* BrowserDebugFlags.swift in Sources */,
+				4FF0CE7224EAE1F18BDB95D6 /* BrowserErrorPage.swift in Sources */,
 				68203423D866F86372C8E08C /* BrowserHistoryView.swift in Sources */,
 				BB7AD12ABBEADC6744518D38 /* BrowserMoreMenu.swift in Sources */,
 				D47309C7C35A2B98DDD27E67 /* BrowserRootView.swift in Sources */,
@@ -877,6 +884,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				77F922BEC785BCCBBFF0DAE1 /* BrowserChromeMorphTests.swift in Sources */,
 				F501DDC00C363CC11D143719 /* ConnectionManagerStateTests.swift in Sources */,
 				CAEBD8B0EA19E031701E8B57 /* ConnectionTesterTests.swift in Sources */,
 				2FC34C2ABA4314AFE04E6F5A /* DNSCoordinator.swift in Sources */,

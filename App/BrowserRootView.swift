@@ -23,7 +23,6 @@ struct BrowserRootView: View {
                 .animation(.easeOut(duration: 0.25), value: browser.progress)
                 .animation(BrowserChromeMetrics.collapseSpring, value: browser.toolbarCollapsed)
         }
-        .overlay(alignment: .top) { loadErrorBanner }
         .fullScreenCover(isPresented: $browser.showSwitcher) {
             BrowserTabSwitcherView()
         }
@@ -172,19 +171,6 @@ struct BrowserRootView: View {
             addressFocused: $addressFocused,
             showMore: { morePresented = true }
         )
-    }
-
-    @ViewBuilder
-    private var loadErrorBanner: some View {
-        if let error = browser.loadError {
-            Text(error)
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(8)
-                .frame(maxWidth: .infinity)
-                .background(.ultraThinMaterial)
-        }
     }
 
     /// 后台打开提示：3 秒自动消失，「查看」切到新标签

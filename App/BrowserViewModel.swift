@@ -15,7 +15,6 @@ final class BrowserViewModel: ObservableObject {
     @Published var toolbarCollapsed = false
     /// 折叠形变进度 0=展开、1=折叠：滚动连续跟手，离散事件走 collapseSpring
     @Published var toolbarCollapseProgress: CGFloat = 0
-    @Published var loadError: String?
     @Published var showSwitcher = false
     @Published var backgroundToastTabID: UUID?
     @Published var pageTint: BrowserPageTint?
@@ -132,8 +131,6 @@ final class BrowserViewModel: ObservableObject {
 
     private func wireDelegateCallbacks() {
         let delegate = BrowserWebViewDelegate.shared
-        delegate.onLoadStarted = { [weak self] in self?.loadError = nil }
-        delegate.onLoadFailed = { [weak self] message in self?.loadError = message }
         delegate.onBackgroundOpen = { [weak self] id in self?.backgroundToastTabID = id }
         delegate.onTint = { [weak self] webView, top, _ in
             self?.applyTint(top, from: webView)
