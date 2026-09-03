@@ -1,29 +1,38 @@
+import SharedCore
 import SwiftUI
 
-/// Safari 式全屏切换器：卡片纵向堆叠、带 3D 透视倾斜、上部重叠，
+/// 宫格式全屏切换器：缩略图卡片网格（iPhone 两列、iPad 常规宽度三列），
 /// 上下滚动浏览，左滑关闭，点按选中；底部工具条左侧 ＋、右侧「完成」，
 /// 进入时自动滚动到当前标签。
 struct BrowserTabSwitcherView: View {
     @ObservedObject private var tabManager = BrowserTabManager.shared
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     var body: some View {
         GeometryReader { proxy in
-            let cardWidth = proxy.size.width - 32
             ZStack(alignment: .bottom) {
-                cardStack(width: cardWidth, screenHeight: proxy.size.height)
+                cardGrid(containerWidth: proxy.size.width)
                 bottomBar
             }
         }
         .background(Color(uiColor: .systemBackground))
     }
 
-    private func cardStack(width: CGFloat, screenHeight: CGFloat) -> some View {
+    private var columnCount: Int {
+        sizeClass == .regular ? 3 : 2
+    }
+
+    private func cardGrid(containerWidth: CGFloat) -> some View {
         ScrollViewReader { reader in
             ScrollView {
-                LazyVStack(spacing: -width * 0.72 * 0.72) {
-                    cards(width: width, screenHeight: screenHeight)
+                LazyVGrid(columns: gridColumns, spacing: gridGap) {
+                    ForEach(tabManager.tabs) { tab in
+                        card(for: tab, width: cardWidth(in: containerWidth))
+                            .id(tab.id)
+                    }
                 }
+                .padding(.horizontal, 16)
                 .padding(.top, 40)
                 .padding(.bottom, 120)
             }
@@ -35,31 +44,29 @@ struct BrowserTabSwitcherView: View {
         }
     }
 
-    @ViewBuilder
-    private func cards(width: CGFloat, screenHeight: CGFloat) -> some View {
-        ForEach(Array(tabManager.tabs.enumerated()), id: \.element.id) { index, tab in
-            GeometryReader { geo in
-                let distance = (geo.frame(in: .global).midY - screenHeight / 2) / screenHeight
-                BrowserTabCard(
-                    tab: tab,
-                    width: width,
-                    selected: tab.id == tabManager.activeTabID,
-                    onClose: { tabManager.closeTab(tab.id) },
-                    onSelect: {
-                        tabManager.selectTab(tab.id)
-                        dismiss()
-                    }
-                )
-                .rotation3DEffect(
-                    .degrees(distance * 13),
-                    axis: (x: 1, y: 0, z: 0),
-                    perspective: 0.9
-                )
+    private var gridGap: CGFloat { 14 }
+
+    private var gridColumns: [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: gridGap), count: columnCount)
+    }
+
+    private func cardWidth(in containerWidth: CGFloat) -> CGFloat {
+        let edge: CGFloat = 16
+        let totalGap = gridGap * CGFloat(columnCount - 1)
+        return (containerWidth - edge * 2 - totalGap) / CGFloat(columnCount)
+    }
+
+    private func card(for tab: BrowserTab, width: CGFloat) -> some View {
+        BrowserTabCard(
+            tab: tab,
+            width: width,
+            selected: tab.id == tabManager.activeTabID,
+            onClose: { tabManager.closeTab(tab.id) },
+            onSelect: {
+                tabManager.selectTab(tab.id)
+                dismiss()
             }
-            .frame(width: width, height: width * 0.72)
-            .zIndex(Double(index))
-            .id(tab.id)
-        }
+        )
     }
 
     private var bottomBar: some View {
