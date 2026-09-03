@@ -10,6 +10,8 @@ enum BrowserChromeMetrics {
     static let capsuleVerticalPadding: CGFloat = 10
     /// 工具栏整行的垂直外边距（顶部）
     static let barVerticalPadding: CGFloat = 8
+    /// 工具栏整行的水平边距：收窄地址胶囊（前后按钮组宽度不受影响）
+    static let barHorizontalPadding: CGFloat = 18
     /// 工具栏整行的底部外边距：0——胶囊底边贴安全区（对齐 Safari 的 ~34.7pt）
     static let barBottomPadding: CGFloat = 0
     /// 折叠胶囊的底部间距（对齐 Safari 收缩胶囊实测 ~14.7pt）

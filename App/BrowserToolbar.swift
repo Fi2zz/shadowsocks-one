@@ -43,7 +43,7 @@ struct BrowserToolbar: View {
             addressFieldCapsule(glassy: glassy)
             trailingButton(glassy: glassy)
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal, BrowserChromeMetrics.barHorizontalPadding)
         .padding(.top, BrowserChromeMetrics.barVerticalPadding)
         .padding(.bottom, BrowserChromeMetrics.barBottomPadding)
     }
