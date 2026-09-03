@@ -122,6 +122,7 @@ struct BrowserToolbar: View {
             .padding(.vertical, BrowserChromeMetrics.capsuleVerticalPadding)
             .liquidGlassCapsule(enabled: glassy)
             .overlay(alignment: .bottom) { loadingProgressLine }
+            .modifier(AddressBarTabDrag { tabManager.selectAdjacentTab($0) })
     }
 
     /// 加载进度线：贴在地址胶囊内底边（对齐 Safari），无轨道、只画填充段，
@@ -220,6 +221,7 @@ struct BrowserToolbar: View {
             .liquidGlassCapsule(enabled: glassy)
             .overlay(alignment: .bottom) { loadingProgressLine }
             .onTapGesture(perform: browser.expandToolbar)
+            .modifier(AddressBarTabDrag { tabManager.selectAdjacentTab($0) })
     }
 
     private func showFullAddress() {

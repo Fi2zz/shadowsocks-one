@@ -79,6 +79,15 @@ final class BrowserTabManager: ObservableObject {
         touch(id)
     }
 
+    /// 按标签数组顺序循环切换（Safari 地址栏横拖）：+1 下一个、-1 上一个
+    func selectAdjacentTab(_ offset: Int) {
+        guard tabs.count > 1,
+              let index = tabs.firstIndex(where: { $0.id == activeTabID })
+        else { return }
+        let next = (index + offset + tabs.count) % tabs.count
+        selectTab(tabs[next].id)
+    }
+
     func open(_ url: URL) {
         activeWebView?.load(URLRequest(url: url))
     }

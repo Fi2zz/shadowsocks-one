@@ -93,6 +93,7 @@
 		804F626D9E4395B8AB42AAFD /* WGUDPFlows.swift in Sources */ = {isa = PBXBuildFile; fileRef = B39B942BE62749D43FF72336 /* WGUDPFlows.swift */; };
 		83A7B941600EF3C6C3887912 /* DirectTCPRelayLoopbackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F9FA8ED53EFCBD9FBF7BCD7 /* DirectTCPRelayLoopbackTests.swift */; };
 		89483E90282D769FAB826C18 /* KeyboardHeightObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4935B9780ECD25F68770F2E /* KeyboardHeightObserver.swift */; };
+		8AF62E824EBF8CB138411739 /* AddressBarTabDrag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C9D147AE6866C6D926EE836 /* AddressBarTabDrag.swift */; };
 		8C17D9A73230692932118FD5 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C204C2BD043B9DDB6B4FAE13 /* PacketTunnelProvider.swift */; };
 		8CBAF3417CF3063690FAF207 /* WireGuardProviderSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F997DE0743EEEEF4D89AA0 /* WireGuardProviderSupport.swift */; };
 		8CDE90B210DD734BE3C7F711 /* BrowserTabManager+Library.swift in Sources */ = {isa = PBXBuildFile; fileRef = A953925968747E214152AC06 /* BrowserTabManager+Library.swift */; };
@@ -306,6 +307,7 @@
 		9003BABF7434F91BEA1DBB8A /* ConnectionTesterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionTesterTests.swift; sourceTree = "<group>"; };
 		92BF6249015259D6184A1C77 /* ConnectionIntegrationTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ConnectionIntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9904D5ECCBDE824BC6C8C76A /* SharedCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SharedCore; path = Packages/SharedCore; sourceTree = SOURCE_ROOT; };
+		9C9D147AE6866C6D926EE836 /* AddressBarTabDrag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBarTabDrag.swift; sourceTree = "<group>"; };
 		9CD6F7AA85F615FA0651FA05 /* TunnelControlling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlling.swift; sourceTree = "<group>"; };
 		9D6EA39C496660DEF2D62C9B /* BrowserErrorPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserErrorPage.swift; sourceTree = "<group>"; };
 		9EC0050D4EF8798D8E9D39E5 /* ShadowsocksBrowserPacketTunnel.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = ShadowsocksBrowserPacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -492,6 +494,7 @@
 		60057612CE53167D85A90D67 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				9C9D147AE6866C6D926EE836 /* AddressBarTabDrag.swift */,
 				C1F490A501B960606F8227DF /* Assets.xcassets */,
 				8E683E0536FDF5A661E4B47E /* BrowserBookmarkListView.swift */,
 				215C5F8B345CB52D98623AB7 /* BrowserBottomProbe.swift */,
@@ -792,6 +795,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8AF62E824EBF8CB138411739 /* AddressBarTabDrag.swift in Sources */,
 				23F45C9E5B554CB6379D8160 /* BrowserBookmarkListView.swift in Sources */,
 				4C535F04B73C09008B599F7D /* BrowserBottomProbe.swift in Sources */,
 				D78DCD1E844A256322465999 /* BrowserChromeMetrics.swift in Sources */,
