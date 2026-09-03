@@ -70,16 +70,42 @@ struct BrowserTabSwitcherView: View {
     }
 
     private var bottomBar: some View {
-        HStack {
-            Button(action: newTabAndDismiss) {
-                Image(systemName: "plus")
-                    .font(.title2)
-            }
+        // 对齐 Safari：悬浮控件，无整条 bar 背景
+        HStack(spacing: 16) {
+            newTabButton
             Spacer()
-            Button("完成") { dismiss() }
+            tabCountPill
+            doneButton
         }
-        .padding()
-        .background(.bar)
+        .padding(.horizontal, 24)
+        .padding(.bottom, 12)
+    }
+
+    private var newTabButton: some View {
+        Button(action: newTabAndDismiss) {
+            Image(systemName: "plus")
+                .font(.title2.weight(.medium))
+                .frame(width: 52, height: 52)
+                .background(.regularMaterial, in: Circle())
+        }
+    }
+
+    private var tabCountPill: some View {
+        Text("\(tabManager.tabs.count) 个标签页")
+            .font(.body.weight(.semibold))
+            .padding(.horizontal, 20)
+            .frame(height: 52)
+            .background(.regularMaterial, in: Capsule())
+    }
+
+    private var doneButton: some View {
+        Button(action: { dismiss() }) {
+            Image(systemName: "checkmark")
+                .font(.title2.bold())
+                .foregroundStyle(.white)
+                .frame(width: 52, height: 52)
+                .background(Color.accentColor, in: Circle())
+        }
     }
 
     private func newTabAndDismiss() {
