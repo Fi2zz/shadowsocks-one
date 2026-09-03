@@ -127,7 +127,7 @@ BrowserRootView (SwiftUI)
   视图层只挂载，绝不创建（切标签/cover 不销毁页面状态）。
 - chrome 高度预算集中在 `BrowserChromeMetrics`（单一来源），
   `BrowserViewModel.bottomChromeHeight` 组合安全区/键盘高度得出总 inset。
-- 滚动折叠是阈值 40pt + 迟滞的状态机（方向极值跟随、橡皮筋不跟进、
+- 滚动折叠是阈值 32pt + 迟滞的状态机（方向极值跟随、橡皮筋不跟进、
   折叠态到达页底停留位自动展开、距页底不足一屏为稳定区禁止折叠），
   KVO 监听 `scrollView.contentOffset`，不用 scrollView delegate；
   状态机同时输出连续形变 progress（0=展开、1=折叠，滚动跟手），
